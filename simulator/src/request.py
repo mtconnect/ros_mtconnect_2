@@ -51,7 +51,7 @@ class Request(object):
 
 if __name__ == "__main__":
     
-    statemachine=Request('parent','adapter','interface',True)
+    statemachine = Request('parent', 'adapter', 'interface', True)
     statemachine.create_statemachine()
         
     
