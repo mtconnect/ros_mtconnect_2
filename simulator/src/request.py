@@ -2,31 +2,38 @@
 from transitions.extensions import HierarchicalMachine as Machine
 from transitions.extensions.nesting import NestedState
 
+
+#intializing interface here for testing.
+class interface(object):
+    
+    def __init__(self):
+        self.value = ""
+
+
 class Request(object):
     
-    def __init__(self, parent, adapter, interface, rel):
+    def __init__(self, interface):
 
-        self.parent = parent
-        self.adapter = adapter
-        self.interface = interface
+        class statemachineModel(object):
+        
+            def __init__(self,interface = interface):
+                self.interface = interface
+            
+            def NOT_READY(self):
+                self.interface.value = "NOT_READY"
 
-        self.active = True
-        self.failing = False
+            def READY(self):
+                self.interface.value = "READY"
 
-        self.dail_time_limit = 1.0
-        self.processing_time_limit = 600.0
+            def ACTIVE(self):
+                self.interface.value = "ACTIVE"
 
-        self.time = None
-
-        if rel: self.related = rel
+        self.superstate = statemachineModel(interface)
+        self.interface = self.superstate.interface        
 
     def create_statemachine(self):
-        
-        global superstate
-
         NestedState.separator = ':'
-
-        states = [{'name':'base', 'children':['not_ready', 'ready', 'active', 'processing', 'fail']}]
+        states = [{'name':'base', 'children':['not_ready', 'ready', 'active', 'fail', 'processing']}]
 
         transitions= [['unavailable','base','base:not_ready'],
                       ['deactivate','base','base:not_ready'],
@@ -40,18 +47,11 @@ class Request(object):
                       ['idle','base:active','base:ready'],
                       ['not_ready','base:active','base:ready'],
                       ['failure','base:active','base:fail'],
-                      ['active','base:active','base:processing'],
-                      
-                      ['complete','base:processing','base:not_ready'],
-                      ['','base:processing','base:fail'],
+                      ['active','base:active','base:processing']]
 
-                      ['','base:fail','base:ready']]
+        self.statemachine = Machine(model = self.superstate, states = states, transitions = transitions, initial = 'base',ignore_invalid_triggers=True)
 
-        superstate = Machine(states=states, transitions=transitions, initial='base',ignore_invalid_triggers=True)
-
-if __name__ == "__main__":
-    
-    statemachine = Request('parent', 'adapter', 'interface', True)
-    statemachine.create_statemachine()
+        self.statemachine.on_enter('base:ready', 'READY')
+        self.statemachine.on_enter('base:active', 'ACTIVE')
+        self.statemachine.on_enter('base:not_ready', 'NOT_READY')
         
-    
