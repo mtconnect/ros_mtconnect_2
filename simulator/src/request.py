@@ -27,6 +27,9 @@ class Request(object):
 
             def ACTIVE(self):
                 self.interface.value = "ACTIVE"
+                
+            def FAIL(self):
+                self.interface.value = "FAIL"
 
         self.superstate = statemachineModel(interface)
         self.interface = self.superstate.interface        
@@ -54,4 +57,5 @@ class Request(object):
         self.statemachine.on_enter('base:ready', 'READY')
         self.statemachine.on_enter('base:active', 'ACTIVE')
         self.statemachine.on_enter('base:not_ready', 'NOT_READY')
+        self.statemachine.on_enter('base:fail', 'FAIL')
         
