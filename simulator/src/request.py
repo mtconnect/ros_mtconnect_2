@@ -57,7 +57,7 @@ class Request(object):
                 self.start_timer(self.processing_time_limit)
 
             def void(self):
-                pass
+                pass #this method is temporary. was testing something out. will omit it later.
 
         self.superstate = statemachineModel(interface)
         self.interface = self.superstate.interface
