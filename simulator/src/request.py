@@ -9,6 +9,7 @@ class interface(object):
     
     def __init__(self):
         self.value = ""
+        self.bot_interface_value = ""
 
 
 class Request(object):
@@ -56,16 +57,12 @@ class Request(object):
             def PROCESSING(self):
                 self.start_timer(self.processing_time_limit)
 
-            def void(self):
-                pass #this method is temporary. was testing something out. will omit it later.
-
         self.superstate = statemachineModel(interface)
         self.interface = self.superstate.interface
         self.related = None
         if rel: self.related = rel
         self.parent = self.superstate.parent
         self.adapter = adapter
-        self.active = True
         self.failing = self.superstate.failing
 
     def create_statemachine(self):
@@ -90,6 +87,9 @@ class Request(object):
                       ['complete','base:processing','base:not_ready'],
                       ['default','base:processing','base:fail'],
                       ['default','base:fail','base:ready'],
+                      ['default','base:not_ready','base:not_ready'],
+                      ['default','base:ready','base:ready'],
+                      ['default','base:active','base:active'],
                       ['reset','*','base:not_ready']]
 
         self.statemachine = Machine(model = self.superstate, states = states, transitions = transitions, initial = 'base',ignore_invalid_triggers=True)
