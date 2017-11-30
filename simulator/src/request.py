@@ -216,7 +216,6 @@ class Request(object):
                       ['reset','*','base:not_ready']]
 
         self.statemachine = Machine(model = self.superstate, states = states, transitions = transitions, initial = 'base',ignore_invalid_triggers=True)
-        self.superstate.start()
         self.statemachine.on_enter('base:ready', 'READY')
         self.statemachine.on_enter('base:active', 'ACTIVE')
         self.statemachine.on_enter('base:not_ready', 'NOT_READY')
