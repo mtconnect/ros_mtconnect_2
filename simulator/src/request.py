@@ -2,7 +2,7 @@
 from transitions.extensions import HierarchicalMachine as Machine
 from transitions.extensions.nesting import NestedState
 from threading import Timer, Thread
-import functools
+import functools, time
 
 
 #intializing interface here for testing.
@@ -22,7 +22,7 @@ class Request(object):
             def __init__(self,interface = interface, parent = parent):
                 self.interface = interface
                 self.processing_time_limit = 20.0
-                self.fail_time_limit = 1.0
+                self.fail_time_limit = 20.0
                 self.failing = False
                 self.parent = parent
 
@@ -40,7 +40,7 @@ class Request(object):
             
             @check_state_calls
             def DEACTIVATE(self):
-                if not self.failing: self.superstate.deactivate()
+                if not self.failing: self.deactivate()
 
             @check_state_calls
             def START(self):
@@ -58,10 +58,6 @@ class Request(object):
             def IDLE(self):
                 self.idle()
 
-            def start_timer(self,timeout):
-                self.timer=Timer(timeout,self.DEFAULT) #func directs it to the next state???
-                self.timer.start() #no need for a 'kill the timer' method since a new timer request overwrites the timer. should i still do it? Do we need separate timer instances for fail and processing? I dont think so! 
-
             @check_state_calls
             def NOT_READY(self):
                 self.interface.value = "NOT_READY"
@@ -77,48 +73,51 @@ class Request(object):
             @check_state_calls
             def FAILURE(self):
                 self.interface.value = "FAIL"
-                self.start_timer(self.fail_time_limit)
                 check_state_list=[
-                    self.FAILURE.has_been_called, self.ACTIVE.has_been_called, self.READY.has_been_called, self.IDLE.has_been_called, self.NOT_READY.has_been_called, self.ACTIVATE.has_been_called, self.COMPLETE.has_been_called
+                    self.FAILURE.has_been_called, self.ACTIVE.has_been_called, self.READY.has_been_called, self.IDLE.has_been_called, self.NOT_READY.has_been_called, self.ACTIVATE.has_been_called, self.COMPLETE.has_been_called, self.DEFAULT.has_been_called
                     ]
 
                 #all the triggers addressed except active,not_ready,ready which would come from the bot interface. To be done.
-                #also the check function can be made generic. I was thinking of storing the variables as well as the values in a list and simply run it in a loop.
-                #but i am running into key-error issues. function is not able to recognize the "self." methods.
-                #for the time being I am just listing out all the triggers and doing comparison with their last known states.
-                
                 def complete_check():
-                    while self.timer.isAlive():
-                        if self.COMPLETE.has_been_called:
-                            self.timer.cancel()
-
-                        elif self.FAILURE.has_been_called!=check_state_list[0]:
-                            self.timer.cancel()
+                    timer_failure = Timer(self.fail_time_limit,self.void)
+                    timer_failure.start()
+                    while timer_failure.isAlive():
+                        if self.FAILURE.has_been_called!=check_state_list[0]:
+                            timer_failure.cancel()
                             self.DEFAULT()
+                            break
                             
                         elif self.ACTIVE.has_been_called!=check_state_list[1]:
-                            self.timer.cancel()
+                            timer_failure.cancel()
                             self.DEFAULT()
+                            break
                             
                         elif self.READY.has_been_called!=check_state_list[2]:
-                            self.timer.cancel()
+                            timer_failure.cancel()
                             self.DEFAULT()
+                            break
                             
                         elif self.IDLE.has_been_called!=check_state_list[3]:
-                            self.timer.cancel()
+                            timer_failure.cancel()
                             self.DEFAULT()
+                            break
                             
                         elif self.NOT_READY.has_been_called!=check_state_list[4]:
-                            self.timer.cancel()
+                            timer_failure.cancel()
                             self.DEFAULT()
+                            break
 
                         elif self.ACTIVATE.has_been_called!=check_state_list[5]:
-                            self.timer.cancel()
+                            timer_failure.cancel()
                             self.DEFAULT()
+                            break
 
-                        elif self.COMPLETE.has_been_called!=check_state_list[5]:
-                            self.timer.cancel()
+                        elif self.COMPLETE.has_been_called!=check_state_list[6]:
+                            timer_failure.cancel()
                             self.DEFAULT()
+                            break
+                    if self.DEFAULT.has_been_called==check_state_list[7]:
+                        self.DEFAULT()
                         
                 t = Thread(target = complete_check)
                 t.start()
@@ -133,41 +132,55 @@ class Request(object):
                 self.complete()
                 #self.parent.completed
 
+            def void(self):
+                pass
+
             def PROCESSING(self):
-                self.start_timer(self.processing_time_limit)
+                
                 check_state_list=[
-                    self.FAILURE.has_been_called, self.ACTIVE.has_been_called, self.READY.has_been_called, self.IDLE.has_been_called, self.NOT_READY.has_been_called, self.ACTIVATE.has_been_called
+                    self.FAILURE.has_been_called, self.ACTIVE.has_been_called, self.READY.has_been_called, self.IDLE.has_been_called, self.NOT_READY.has_been_called, self.ACTIVATE.has_been_called, self.DEFAULT.has_been_called
                     ]
 
                 #all the triggers addressed except active,not_ready,ready which would come from the bot interface. To be done.
                 def complete_check():
-                    while self.timer.isAlive():
+                    timer_processing = Timer(self.processing_time_limit,self.void)
+                    timer_processing.start()
+                    while timer_processing.isAlive():
                         if self.COMPLETE.has_been_called:
-                            self.timer.cancel()
+                            timer_processing.cancel()
+                            break
 
                         elif self.FAILURE.has_been_called!=check_state_list[0]:
-                            self.timer.cancel()
+                            timer_processing.cancel()
                             self.DEFAULT()
+                            break
                             
                         elif self.ACTIVE.has_been_called!=check_state_list[1]:
-                            self.timer.cancel()
+                            timer_processing.cancel()
                             self.DEFAULT()
+                            break
                             
                         elif self.READY.has_been_called!=check_state_list[2]:
-                            self.timer.cancel()
+                            timer_processing.cancel()
                             self.DEFAULT()
+                            break
                             
                         elif self.IDLE.has_been_called!=check_state_list[3]:
-                            self.timer.cancel()
+                            timer_processing.cancel()
                             self.DEFAULT()
+                            break
                             
                         elif self.NOT_READY.has_been_called!=check_state_list[4]:
-                            self.timer.cancel()
+                            timer_processing.cancel()
                             self.DEFAULT()
+                            break
 
                         elif self.ACTIVATE.has_been_called!=check_state_list[5]:
-                            self.timer.cancel()
+                            timer_processing.cancel()
                             self.DEFAULT()
+                            break
+                    if self.DEFAULT.has_been_called==check_state_list[6]:
+                        self.DEFAULT()
                         
                 t = Thread(target = complete_check)
                 t.start()
