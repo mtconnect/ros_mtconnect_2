@@ -146,9 +146,9 @@ class Response(object):
                        ['failure', 'base:ready', 'base:fail'],
 
                        ['default', 'base:active', 'base:fail'],
-                       [self.transition_state,, 'base:active', 'base:active'],
+                       [self.transition_state, 'base:active', 'base:active'],
                        ['complete', 'base:active', 'base:complete'],
-                       [self.dest_state,, 'base:active', 'base:active'],
+                       [self.dest_state, 'base:active', 'base:active'],
 
                        ['default', 'base:complete', 'base:complete'],
                        ['not_ready', 'base:complete', 'base:not_ready'],
