@@ -95,7 +95,7 @@ class Response(object):
                                     break
 
                             if self.DEFAULT.has_been_called==check_state_list[0]:
-                                self.DEFAULT()
+                                self.COMPLETE()
                                 
                         t = Thread(target = sim_duration)
                         t.start()
