@@ -1,8 +1,15 @@
-
+#add deactivate
 from transitions.extensions import HierarchicalMachine as Machine
 from transitions.extensions.nesting import NestedState
 from threading import Timer, Thread
 import functools, time
+
+#intializing interface here for testing.
+class interface(object):
+    
+    def __init__(self):
+        self.value = ""
+        self.bot_interface_value = ""
 
 class Response(object):
 

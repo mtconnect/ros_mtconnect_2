@@ -26,7 +26,6 @@ class Request(object):
                 self.failing = False
                 self.parent = parent
 
-
             def check_state_calls(func):
                 @functools.wraps(func)
                 def wrapper(*args, **kwargs):
@@ -228,6 +227,7 @@ class Request(object):
                       ['default','base:active','base:active'],
                       ['reset','*','base:not_ready']]
 
+        
         self.statemachine = Machine(model = self.superstate, states = states, transitions = transitions, initial = 'base',ignore_invalid_triggers=True)
         self.statemachine.on_enter('base:ready', 'READY')
         self.statemachine.on_enter('base:active', 'ACTIVE')
