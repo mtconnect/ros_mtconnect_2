@@ -1,4 +1,3 @@
-#add deactivate
 from transitions.extensions import HierarchicalMachine as Machine
 from transitions.extensions.nesting import NestedState
 from threading import Timer, Thread
@@ -124,6 +123,11 @@ class Response(object):
 
             def void(self):
                 pass
+
+            def DEACTIVATE(self):
+                if self.state!='base:not_ready' and self.state!='base:fail':
+                    self.reset()
+                
 
             @check_state_calls
             def RESET(self):
