@@ -19,64 +19,150 @@ class adapter(object):
 class cnc(object):
 
     def __init__(self, adapter):
-        #self.open_door = str() #adapter dataitems???
-        #self.close_door = str()
-        #self.open_chuck = str()
-        #self.close_chuck = str()
-        #self.material_load = str()
-        #self.material_unload = str()
-        """
-        self.material_load_interface = MaterialLoad
-        self.material_unload_interface = MaterialUnload
-        self.open_chuck_interface = OpenChuck
-        self.close_chuck_interface = CloseChuck
-        self.open_door_interface = OpenDoor
-        self.close_door_interface = CloseDoor
-        """
-        
-        self.door_state = "OPEN"
-        self.chuck_state = "OPEN"
-        self.has_material = False
-        self.fail_next = False
 
-        self.availability = "AVAILABLE"
-        self.execution = "READY"
-        self.cycle_time = 4
-        
-        """
-        self.adapter = adapter
-
-        self.load_time_limit(5 * 60)
-        self.unload_time_limit(5 * 60)
-
-        self.load_failed_time_limit(30)
-        self.unload_failed_time_limit(30)
-        """
         class statemachineModel(object):
 
             def __init__(self, ):
-                self.
+                #self.open_door = str() #adapter dataitems???
+                #self.close_door = str()
+                #self.open_chuck = str()
+                #self.close_chuck = str()
+                #self.material_load = str()
+                #self.material_unload = str()
 
-            def 
-        
+                self.material_load_interface = MaterialLoad
+                self.material_unload_interface = MaterialUnload
+                self.open_chuck_interface = OpenChuck
+                self.close_chuck_interface = CloseChuck
+                self.open_door_interface = OpenDoor
+                self.close_door_interface = CloseDoor
+                
+                self.door_state = "OPEN"
+                self.chuck_state = "OPEN"
+                self.has_material = False
+                self.fail_next = False
 
+                self.availability = "AVAILABLE"
+                self.execution = "READY"
+                self.controller_mode = "AUTOMATIC"
+                
+                self.robot_availability = str() #intialized
+                self.robot_execution = str()
+                self.robot_controller_mode = str() 
+                
+                self.cycle_time = 4
+
+                self.system = []
+
+                self.system_normal = True
+
+                self.link = "ENABLED"
+
+                self.adapter = adapter
+
+                self.load_time_limit(5 * 60)
+                self.unload_time_limit(5 * 60)
+
+                self.load_failed_time_limit(30)
+                self.unload_failed_time_limit(30)
+
+            def CNC_NOT_READY(self):
+                self.open_chuck_interface.superstate.DEACTIVATE()
+                self.close_chuck_interface.superstate.DEACTIVATE()
+                self.open_door_interface.superstate.DEACTIVATE()
+                self.close_door_interface.superstate.DEACTIVATE()
+                self.material_load_interface.superstate.DEACTIVATE()
+                self.material_unload_interface.superstate.DEACTIVATE()
+
+            def ACTIVATE(self):
+                if self.controller_mode == "AUTOMATIC" and self.link == "ENABLED" and self.robot_controller_mode =="AUTOMATIC" and self.robot_execution == "ACTIVE" and self.robot_availability == "AVAILABLE":
+                    self.make_operational()
+
+                elif self.system_normal:
+                    self.still_not_ready()
+
+                else:
+                    self.faulted()
+
+            def OPERATIONAL(self):
+                self.open_chuck_interface.superstate.ACTIVATE()
+                self.close_chuck_interface.superstate.ACTIVATE()
+                self.open_door_interface.superstate.ACTIVATE()
+                self.close_door_interface.superstate.ACTIVATE()
+
+                if self.has_material:
+                    self.unloading()
+                else:
+                    self.loading()
+
+            def IDLE(self):
+                if self.has_material:
+                    self.material_load_interface.superstate.DEACTIVATE()
+                    self.material_unload_interface.superstate.IDLE()
+
+                else:
+                    self.material_unload_interface.superstate.DEACTIVATE()
+                    self.material_load_interface.superstate.IDLE()
+
+            def CYCLING(self):
+                if self.fail_next:
+                    self.system.append(['FAULT', 'Cycle failed to start', 'CYCLE'])
+                    self.fault()
+                    self.fail_next = False
+
+                elif self.door_state != "CLOSED" or self.chuck_state != "CLOSED":
+                    self.system.append(['FAULT', 'Door or Chuck in invalid state', 'CYCLE'])
+                    self.fault()
+
+                else:
+                    self.execution = "ACTIVE"
+                    
+                    time.sleep(self.cycle_time)
+                    self.execution = "READY"
+
+                    self.cnc_execution_ready()
+
+            def LOADING(self):
+                if not self.has_material:
+                    self.material_unload_interface.superstate.DEACTIVATE()
+                    self.material_load_interface.superstate.ACTIVATE()
+
+            def UNLOADING(self):
+                if self.has_material:
+                    self.material_load_interface.superstate.DEACTIVATE()
+                    self.material_unload_interface.superstate.ACTIVATE()
+
+            def EXIT_LOADING(self):
+                self.material_load_interface.superstate.DEACTIVATE()
+
+            def EXIT_UNLOADING(self):
+                self.material_unload_interface.superstate.DEACTIVATE()
+
+            #might be useful later. 
+            def timer_thread(self, input_time):
+                def timer(input_time):
+                    time.sleep(input_time)
+                thread= Thread(target = timer,args=(input_time,))
+                thread.start()                
+
+            def load_time_limit(self, limit):
+                self.material_load_interface.processing_time_limit = limit
+
+            def load_failed_time_limit(self, limit):
+                self.material_load_interface.fail_time_limit = limit
+
+            def unload_time_limit(self, limit):
+                self.material_unload_interface.processing_time_limit = limit
+
+            def unload_failed_time_limit(self, limit):
+                self.material_unload_interface.fail_time_limit = limit
+
+            def status(self):
+                'state'
+                #return all the states. Necessary for the first draft?
+         
         self.superstate = statemachineModel()
 
-    def load_time_limit(self, limit):
-        self.material_load_interface.processing_time_limit = limit
-
-    def load_failed_time_limit(self, limit):
-        self.material_load_interface.fail_time_limit = limit
-
-    def unload_time_limit(self, limit):
-        self.material_unload_interface.processing_time_limit = limit
-
-    def unload_failed_time_limit(self, limit):
-        self.material_unload_interface.fail_time_limit = limit
-
-    def status(self):
-        'state'
-        #return all the states. Necessary for the first draft?
 
     def create_statemachine(self):
         NestedState.separator = ':'
