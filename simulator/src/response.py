@@ -24,6 +24,7 @@ class Response(object):
         if rel: self.related = rel
         else: self.related = rel
         self.simulate = simulate
+        self.is_active = 
 
         class statemachineModel(object):
 
@@ -125,9 +126,14 @@ class Response(object):
                 pass
 
             def DEACTIVATE(self):
+                self.is_active = False
                 if self.state!='base:not_ready' and self.state!='base:fail':
                     self.reset()
                 
+            def ACTIVATE(self):
+                self.is_active = True
+                if self.state!='base:not_ready' and self.state!='base:fail':
+                    self.ready()
 
             @check_state_calls
             def RESET(self):
