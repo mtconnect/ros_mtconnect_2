@@ -33,7 +33,7 @@ class Response(object):
                 self.dest_state = dest_state
                 self.response_state = str()
                 self.simulate = simulate
-                self.fail_reset_delay = 5.0
+                self.fail_reset_delay = 1.0
                 self.fail_next = False
                 if rel: self.related = rel
                 else: self.related = False
@@ -74,14 +74,14 @@ class Response(object):
                     self.interface.value = "ACTIVE"
                     if self.simulate: self.response_state = "UNLATCHED"
                     check_state_list=[
-                    self.DEFAULT.has_been_called, self.FAILURE.has_been_called, self.READY.has_been_called, self.NOT_READY.has_been_called
+                    self.DEFAULT.has_been_called, self.FAILURE.has_been_called, self.READY.has_been_called, self.NOT_READY.has_been_called, self.COMPLETE.has_been_called
                     ]
                     if self.simulate:
                         def sim_duration():
-                            timer_processing = Timer(self.simulation_duration,self.void)
+                            timer_processing = Timer(self.simulated_duration,self.complete)
                             timer_processing.start()
                             while timer_processing.isAlive():
-                                if self.COMPLETE.has_been_called:
+                                if self.COMPLETE.has_been_called!=check_state_list[4]:
                                     timer_processing.cancel()
                                     break
 
@@ -99,9 +99,6 @@ class Response(object):
                                     timer_processing.cancel()
                                     self.DEFAULT()
                                     break
-
-                            if self.DEFAULT.has_been_called==check_state_list[0]:
-                                self.COMPLETE()
                                 
                         t = Thread(target = sim_duration)
                         t.start()
@@ -109,19 +106,19 @@ class Response(object):
             @check_state_calls
             def FAILURE(self):
                 self.interface.value = "FAIL"
-                self.parent.superstate.FAILED()
+                #self.parent.superstate.FAILED()
                 def fail_reset():
                     time.sleep(self.fail_reset_delay)
+                    self.not_ready()
                 t = Thread(target = fail_reset)
                 t.start()
-                self.not_ready()
 
             @check_state_calls  
             def COMPLETE(self):
                 self.interface.value = "COMPLETE"
                 if self.simulate:
                     self.response_state = self.dest_state
-                self.parent.superstate.COMPLETED()
+                #self.parent.superstate.COMPLETED()
 
             def void(self):
                 pass
@@ -139,6 +136,10 @@ class Response(object):
             @check_state_calls
             def RESET(self):
                 self.reset()
+
+            @check_state_calls
+            def DEFAULT(self):
+                self.default()
 
         
         self.superstate = statemachineModel(interface)
