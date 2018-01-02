@@ -134,11 +134,11 @@ class cnc(object):
 
             def EXIT_LOADING(self):
                 self.material_load_interface.superstate.DEACTIVATE()
-                self.has_material = True
+                self.has_material = True #here vs under completed method
 
             def EXIT_UNLOADING(self):
                 self.material_unload_interface.superstate.DEACTIVATE()
-                self.has_material = False
+                self.has_material = False #here vs under completed method
 
             #might be useful later. 
             def timer_thread(self, input_time):
