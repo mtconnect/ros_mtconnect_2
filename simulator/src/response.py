@@ -17,14 +17,13 @@ class Response(object):
         self.parent = parent
         self.adapter = adapter
         self.interface = interface
-        self.superstate = statemachineModel(interface)
         self.prefix = prefix
         self.dest_state = prefix + dest_state
         self.transition_state = prefix + transition_state
         if rel: self.related = rel
         else: self.related = rel
         self.simulate = simulate
-        self.is_active = 
+        self.is_active = True
 
         class statemachineModel(object):
 
@@ -110,6 +109,7 @@ class Response(object):
             @check_state_calls
             def FAILURE(self):
                 self.interface.value = "FAIL"
+                self.parent.superstate.FAILED()
                 def fail_reset():
                     time.sleep(self.fail_reset_delay)
                 t = Thread(target = fail_reset)
@@ -121,6 +121,7 @@ class Response(object):
                 self.interface.value = "COMPLETE"
                 if self.simulate:
                     self.response_state = self.dest_state
+                self.parent.superstate.COMPLETED()
 
             def void(self):
                 pass
@@ -139,7 +140,8 @@ class Response(object):
             def RESET(self):
                 self.reset()
 
-            
+        
+        self.superstate = statemachineModel(interface)
 
     def create_statemachine(self):
         NestedState.separator = ':'

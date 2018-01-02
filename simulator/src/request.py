@@ -123,13 +123,13 @@ class Request(object):
 
             def complete_failed(self):
                 self.failing = True
-                #self.parent.failed
+                self.parent.superstate.FAILED()
                 self.failing = False
 
             @check_state_calls 
             def COMPLETE(self):
                 self.complete()
-                #self.parent.completed
+                self.parent.superstate.COMPLETED()
 
             def void(self):
                 pass
@@ -191,6 +191,7 @@ class Request(object):
             @check_state_calls
             def DEFAULT(self):
                 self.default()
+
                 
         self.superstate = statemachineModel(interface)
         self.interface = self.superstate.interface

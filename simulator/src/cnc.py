@@ -22,7 +22,7 @@ class cnc(object):
 
         class statemachineModel(object):
 
-            def __init__(self, ):
+            def __init__(self):
                 #self.open_door = str() #adapter dataitems???
                 #self.close_door = str()
                 #self.open_chuck = str()
@@ -134,9 +134,11 @@ class cnc(object):
 
             def EXIT_LOADING(self):
                 self.material_load_interface.superstate.DEACTIVATE()
+                self.has_material = True
 
             def EXIT_UNLOADING(self):
                 self.material_unload_interface.superstate.DEACTIVATE()
+                self.has_material = False
 
             #might be useful later. 
             def timer_thread(self, input_time):
@@ -160,6 +162,19 @@ class cnc(object):
             def status(self):
                 'state'
                 #return all the states. Necessary for the first draft?
+
+            def interface_type(self, value = None, subtype = None):
+                self.interfaceType = value
+
+            def COMPLETED(self):
+                if self.interfaceType == "Request":
+                    self.complete()
+
+            def FAILED(self):
+                if self.interfaceType == "Request":
+                    self.failed()
+                elif self.interfaceType == "Response":
+                    self.fault()
          
         self.superstate = statemachineModel()
 
