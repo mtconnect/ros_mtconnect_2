@@ -1,15 +1,14 @@
 from response import *
 
 
-#create parent centrally
+def OpenDoor(parent):
+    OpenDoor = Response(parent, 'adapter', parent.open_door, 'door', 'OPEN', 'UNLATCHED', rel = True, simulate = True)
+    OpenDoor.create_statemachine()
+    OpenDoor.superstate.start()
+    return OpenDoor
 
-OpenDoor = Response('cnc', 'cnc.adapter', interface, 'door', 'OPEN', 'UNLATCHED', True, simulate= True)
-OpenDoor.create_statemachine()
-OpenDoor.superstate.start()
-
-
-"""
-CloseDoor = Response('cnc', 'cnc.adapter', cnc.close_door, 'door', 'CLOSED', 'UNLATCHED', True, simulate= True)
-CloseDoor.create_statemachine()
-CloseDoor.superstate.start()
-"""
+def CloseDoor(parent):
+    CloseDoor = Response(parent, 'adapter', parent.close_door, 'door', 'CLOSED', 'UNLATCHED', rel = True, simulate = True)
+    CloseDoor.create_statemachine()
+    CloseDoor.superstate.start()
+    return CloseDoor
