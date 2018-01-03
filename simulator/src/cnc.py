@@ -67,6 +67,8 @@ class cnc(object):
                 self.load_failed_time_limit(30)
                 self.unload_failed_time_limit(30)
 
+                self.events = []
+
             def CNC_NOT_READY(self):
                 self.open_chuck_interface.superstate.DEACTIVATE()
                 self.close_chuck_interface.superstate.DEACTIVATE()
@@ -176,7 +178,36 @@ class cnc(object):
                     self.failed()
                 elif self.interfaceType == "Response":
                     self.fault()
-         
+
+
+            def event(self, source, comp, name, value, code = None, text = None):
+                print "CNC received " + comp + name + value + "from " + source
+                self.events.append([source, comp, name, value, code, text])
+
+                action= value.lower()
+
+                if action == "fail":
+                    action = "failure"
+
+                if name == "Open":
+                    if comp == "DoorInterface":
+                        eval('self.open_door_interface.superstate.'+action+'()')
+                    elif comp == "ChuckInterface":
+                        eval('self.open_chuck_interface.superstate.'+action+'()')
+
+                elif name == "Close":
+                    if comp == "DoorInterface":
+                        eval('self.close_door_interface.superstate.'+action+'()')
+                    elif comp == "ChuckInterface":
+                        eval('self.close_chuck_interface.superstate.'+action+'()')
+                    
+                elif comp == "MaterialLoad":
+                    eval('self.material_load_interface.superstate.'+action+'()')
+
+                elif comp == "MaterialUnload":
+                    eval('self.material_unload_interface.superstate.'+action+'()')
+                
+
         self.superstate = statemachineModel()
 
 
