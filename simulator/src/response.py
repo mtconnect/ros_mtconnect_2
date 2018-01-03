@@ -106,7 +106,10 @@ class Response(object):
             @check_state_calls
             def FAILURE(self):
                 self.interface.value = "FAIL"
-                #self.parent.superstate.FAILED()
+                try:
+                    self.parent.FAILED()
+                except:
+                    "Local Spec Testing"
                 def fail_reset():
                     time.sleep(self.fail_reset_delay)
                     self.not_ready()
@@ -118,7 +121,10 @@ class Response(object):
                 self.interface.value = "COMPLETE"
                 if self.simulate:
                     self.response_state = self.dest_state
-                #self.parent.superstate.COMPLETED()
+                try:
+                    self.parent.COMPLETED()
+                except:
+                    "Local Spec Testing"
 
             def void(self):
                 pass
