@@ -18,17 +18,18 @@ class adapter(object):
 
 class cnc(object):
 
-    def __init__(self, adapter):
+    def __init__(self, interface):
 
         class statemachineModel(object):
 
             def __init__(self):
-                #self.open_door = str() #adapter dataitems???
-                #self.close_door = str()
-                #self.open_chuck = str()
-                #self.close_chuck = str()
-                #self.material_load = str()
-                #self.material_unload = str()
+                #initializing the interfaces
+                self.open_door = interface() 
+                self.close_door = interface()
+                self.open_chuck = interface()
+                self.close_chuck = interface()
+                self.material_load = interface()
+                self.material_unload = interface()
 
                 self.material_load_interface = MaterialLoad
                 self.material_unload_interface = MaterialUnload
