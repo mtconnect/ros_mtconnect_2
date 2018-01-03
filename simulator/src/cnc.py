@@ -1,8 +1,8 @@
-"""
+
 from material import *
 from door import *
 from chuck import *
-"""
+
 
 from transitions.extensions import HierarchicalMachine as Machine
 from transitions.extensions.nesting import NestedState
@@ -31,12 +31,12 @@ class cnc(object):
                 self.material_load = interface()
                 self.material_unload = interface()
 
-                self.material_load_interface = MaterialLoad
-                self.material_unload_interface = MaterialUnload
-                self.open_chuck_interface = OpenChuck
-                self.close_chuck_interface = CloseChuck
-                self.open_door_interface = OpenDoor
-                self.close_door_interface = CloseDoor
+                self.material_load_interface = MaterialLoad(self)
+                self.material_unload_interface = MaterialUnload(self)
+                self.open_chuck_interface = OpenChuck(self)
+                self.close_chuck_interface = CloseChuck(self)
+                self.open_door_interface = OpenDoor(self)
+                self.close_door_interface = CloseDoor(self)
                 
                 self.door_state = "OPEN"
                 self.chuck_state = "OPEN"
