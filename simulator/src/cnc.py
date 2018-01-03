@@ -201,10 +201,10 @@ class cnc(object):
                     elif comp == "ChuckInterface":
                         eval('self.close_chuck_interface.superstate.'+action+'()')
                     
-                elif comp == "MaterialLoad":
+                elif name == "MaterialLoad":
                     eval('self.material_load_interface.superstate.'+action+'()')
 
-                elif comp == "MaterialUnload":
+                elif name == "MaterialUnload":
                     eval('self.material_unload_interface.superstate.'+action+'()')
                 
 
