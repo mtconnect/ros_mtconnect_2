@@ -11,5 +11,5 @@ def CloseChuck(parent):
     CloseChuck = Response(parent, 'adapter', parent.close_chuck, 'chuck', 'CLOSED', 'UNLATCHED', rel = True, simulate = True)
     CloseChuck.create_statemachine()
     CloseChuck.superstate.start()
-    return OpenChuck
+    return CloseChuck
 
