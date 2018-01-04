@@ -181,7 +181,7 @@ class cnc(object):
 
 
             def event(self, source, comp, name, value, code = None, text = None):
-                print "CNC received " + comp + name + value + "from " + source
+                print "CNC received " + comp " " + name + " " + value + "from " + source
                 self.events.append([source, comp, name, value, code, text])
 
                 action= value.lower()
@@ -192,15 +192,17 @@ class cnc(object):
                 if name == "Open":
                     if comp == "DoorInterface":
                         eval('self.open_door_interface.superstate.'+action+'()')
+                        
                     elif comp == "ChuckInterface":
                         eval('self.open_chuck_interface.superstate.'+action+'()')
 
                 elif name == "Close":
                     if comp == "DoorInterface":
                         eval('self.close_door_interface.superstate.'+action+'()')
+
                     elif comp == "ChuckInterface":
                         eval('self.close_chuck_interface.superstate.'+action+'()')
-                    
+
                 elif name == "MaterialLoad":
                     eval('self.material_load_interface.superstate.'+action+'()')
 
