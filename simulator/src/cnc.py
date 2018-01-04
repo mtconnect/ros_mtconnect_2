@@ -213,7 +213,7 @@ class cnc(object):
 
     def create_statemachine(self):
         NestedState.separator = ':'
-        states = [{'name':'base', 'children':['cycle_start', 'activated']}, {'name':'operational', 'children':['loading', 'unloading', 'idle']}, {'name':'disabled', 'children':['fault', 'not_ready']}]
+        states = [{'name':'base', 'children':['activated']}, {'name':'operational', 'children':['loading', 'cycle_start', 'unloading', 'idle']}, {'name':'disabled', 'children':['fault', 'not_ready']}]
 
         transitions= [['start', 'base', 'disabled'],
                       
