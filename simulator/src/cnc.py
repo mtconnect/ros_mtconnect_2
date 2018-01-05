@@ -47,11 +47,11 @@ class cnc(object):
                 self.execution = "READY"
                 self.controller_mode = "AUTOMATIC"
                 
-                self.robot_availability = str() #intialized
-                self.robot_execution = str()
-                self.robot_controller_mode = str() 
+                self.robot_availability = "AVAILABLE" #intialized for testing
+                self.robot_execution = "ACTIVE"
+                self.robot_controller_mode = "AUTOMATIC"
                 
-                self.cycle_time = 4
+                self.cycle_time = 2.0
 
                 self.system = []
 
@@ -110,20 +110,23 @@ class cnc(object):
             def CYCLING(self):
                 if self.fail_next:
                     self.system.append(['FAULT', 'Cycle failed to start', 'CYCLE'])
-                    self.fault()
+                    self.cnc_fault()
                     self.fail_next = False
 
-                elif self.door_state != "CLOSED" or self.chuck_state != "CLOSED":
+                elif self.close_door_interface.superstate.response_state != "CLOSED" or self.close_chuck_interface.superstate.response_state != "CLOSED":
                     self.system.append(['FAULT', 'Door or Chuck in invalid state', 'CYCLE'])
-                    self.fault()
+                    self.cnc_fault()
 
                 else:
                     self.execution = "ACTIVE"
+                    def func(self = self):
+                        self.execution = "READY"
+                        self.LOADED()
+                        self.cnc_execution_ready()
+                    timer_cycling = Timer(self.cycle_time,func)
+                    timer_cycling.start()
                     
-                    time.sleep(self.cycle_time)
-                    self.execution = "READY"
-
-                    self.cnc_execution_ready()
+                    
 
             def LOADING(self):
                 if not self.has_material:
@@ -173,15 +176,24 @@ class cnc(object):
                 if self.interfaceType == "Request":
                     self.complete()
 
+            def LOADED(self):
+                self.has_material = True
+
+            def UNLOADED(self):
+                self.has_material = False
+
             def FAILED(self):
                 if self.interfaceType == "Request":
                     self.failed()
                 elif self.interfaceType == "Response":
                     self.fault()
 
+            def void(self):
+                pass
+
 
             def event(self, source, comp, name, value, code = None, text = None):
-                print "CNC received " + comp " " + name + " " + value + "from " + source
+                print "CNC received " + comp + " " + name + " " + value + " from " + source
                 self.events.append([source, comp, name, value, code, text])
 
                 action= value.lower()
@@ -191,23 +203,23 @@ class cnc(object):
 
                 if name == "Open":
                     if comp == "DoorInterface":
-                        eval('self.open_door_interface.superstate.'+action+'()')
+                        exec('self.open_door_interface.superstate.'+action+'()')
                         
                     elif comp == "ChuckInterface":
-                        eval('self.open_chuck_interface.superstate.'+action+'()')
+                        exec('self.open_chuck_interface.superstate.'+action+'()')
 
                 elif name == "Close":
                     if comp == "DoorInterface":
-                        eval('self.close_door_interface.superstate.'+action+'()')
+                        exec('self.close_door_interface.superstate.'+action+'()')
 
                     elif comp == "ChuckInterface":
-                        eval('self.close_chuck_interface.superstate.'+action+'()')
+                        exec('self.close_chuck_interface.superstate.'+action+'()')
 
                 elif name == "MaterialLoad":
-                    eval('self.material_load_interface.superstate.'+action+'()')
+                    exec('self.material_load_interface.superstate.'+action+'()')
 
                 elif name == "MaterialUnload":
-                    eval('self.material_unload_interface.superstate.'+action+'()')
+                    exec('self.material_unload_interface.superstate.'+action+'()')
                 
 
         self.superstate = statemachineModel()
@@ -241,7 +253,7 @@ class cnc(object):
                       ['robot_material_unload_ready', 'disabled', 'base:activated'],
 
                       ['default', 'operational:cycle_start', 'operational:cycle_start'],
-                      ['unloading', 'operational:loading', 'operational:cycle_start'],
+                      ['complete', 'operational:loading', 'operational:cycle_start'],
 
                       ['fault', 'base', 'disabled:fault'],
                       ['robot_system_fault', 'base', 'disabled:fault'],
@@ -259,17 +271,17 @@ class cnc(object):
                       ['complete', 'operational:unloading', 'operational:loading'],
 
                       ['unloading', 'operational', 'operational:unloading'],
-                      ['default', 'operational_unloading', 'operational_unloading'],
+                      ['default', 'operational:unloading', 'operational:unloading'],
                       ['cnc_execution_ready', 'operational:cycle_start', 'operational:unloading'],
 
-                      ['failed', 'operational:loading', 'operational_idle'],
-                      ['failed', 'operational:unloading', 'operational_idle'],
-                      ['start', 'operational', 'operational_idle'],
-                      ['robot_material_unload_ready', 'operational:idle', 'operational_idle'],
-                      ['robot_material_load_ready', 'operational:idle', 'operational_idle'],
-                      ['default', 'operational:idle', 'operational_idle'],
+                      ['failed', 'operational:loading', 'operational:idle'],
+                      ['failed', 'operational:unloading', 'operational:idle'],
+                      ['start', 'operational', 'operational:idle'],
+                      ['robot_material_unload_ready', 'operational:idle', 'operational:idle'],
+                      ['robot_material_load_ready', 'operational:idle', 'operational:idle'],
+                      ['default', 'operational:idle', 'operational:idle'],
                       
-                      ['make_operational', 'operational', 'base:activated']
+                      ['make_operational', 'base:activated', 'operational']
       
                       
                       ]
