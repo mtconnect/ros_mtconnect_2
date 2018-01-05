@@ -122,6 +122,7 @@ class Response(object):
                 if self.simulate:
                     self.response_state = self.dest_state
                 try:
+                    self.parent.interface_type(value = 'Response')
                     self.parent.COMPLETED()
                 except:
                     "Local Spec Testing"

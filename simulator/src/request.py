@@ -133,6 +133,7 @@ class Request(object):
             def COMPLETE(self):
                 self.complete()
                 try:
+                    self.parent.interface_type(value = 'Request')
                     self.parent.COMPLETED()
                 except:
                     "Local Spec Testing"
@@ -226,7 +227,7 @@ class Request(object):
                       ['failure','base:active','base:fail'],
                       ['active','base:active','base:processing'],
                       
-                      ['complete','base:processing','base:not_ready'],
+                      {'trigger':'complete','source':'base:processing','dest':'base:not_ready', 'after': 'COMPLETE'},
                       ['default','base:processing','base:fail'],
                       ['default','base:fail','base:ready'],
                       ['default','base:not_ready','base:not_ready'],
