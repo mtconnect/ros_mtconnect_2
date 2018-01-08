@@ -141,6 +141,39 @@ with description('cnc'):
 
             expect(self.cnc.superstate.material_unload_interface.superstate.interface.value).to(equal('ACTIVE'))
             expect(self.cnc.superstate.material_load_interface.superstate.interface.value).to(equal('NOT_READY'))
+
+        with it('should unload when after the machine has cut a part'):
+            self.cnc.statemachine.set_state('base:activated')
+            self.cnc.superstate.has_material = True
+            self.cnc.superstate.make_operational()
+            
+            expect(self.cnc.superstate.material_load_interface.interface.value).to(equal('NOT_READY'))
+            expect(self.cnc.superstate.material_unload_interface.interface.value).to(equal('ACTIVE'))
+
+            self.cnc.superstate.event('robot', 'MaterialHandlerInterface', 'MaterialUnload', 'ACTIVE')
+            self.cnc.superstate.event('robot', 'DoorInterface', 'Open', 'ACTIVE')
+            self.cnc.superstate.event('robot', 'ChuckInterface', 'Open', 'ACTIVE')
+
+            time.sleep(1.1)
+
+            self.cnc.superstate.event('robot', 'DoorInterface', 'Open', 'READY')
+            self.cnc.superstate.event('robot', 'ChuckInterface', 'Open', 'READY')
+
+            expect(self.cnc.superstate.open_door_interface.superstate.response_state).to(equal('OPEN'))
+
+            expect(self.cnc.superstate.open_chuck_interface.superstate.response_state).to(equal('OPEN'))
+
+            self.cnc.superstate.event('robot', 'MaterialHandlerInterface', 'MaterialUnload', 'COMPLETE')
+            self.cnc.superstate.event('robot', 'MaterialHandlerInterface', 'MaterialUnload', 'READY')
+
+            expect(self.cnc.superstate.state).to(equal('operational:loading'))
+
+            expect(self.cnc.superstate.material_load_interface.interface.value).to(equal('ACTIVE'))
+            expect(self.cnc.superstate.material_unload_interface.interface.value).to(equal('NOT_READY'))
+            
+
+            
+            
             
             
 
