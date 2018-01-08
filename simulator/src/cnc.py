@@ -235,10 +235,10 @@ class cnc(object):
                       ['robot_execution_interrupted', 'base', 'base:activated'],
                       ['robot_execution_stopped', 'base', 'base:activated'],
                       ['robot_execution_active', 'base', 'base:activated'],
+                      ['robot_execution_ready', 'base', 'base:activated'],
                       ['robot_controller_mode_manual_data_input', 'base', 'base:activated'],
                       ['robot_controller_mode_manual', 'base', 'base:activated'],
                       ['robot_controller_mode_automatic', 'base', 'base:activated'],
-                      ['cnc_controller_mode_automatic', 'base', 'base:activated'],
                       ['robot_availability_available', 'base', 'base:activated'],
                       ['robot_availability_unavailable', 'base', 'base:activated'],
                       ['robot_system_warning', 'base', 'base:activated'],
@@ -269,6 +269,12 @@ class cnc(object):
                       ['loading', 'operational', 'operational:loading'],
                       ['default', 'operational:loading', 'operational:loading'],
                       ['complete', 'operational:unloading', 'operational:loading'],
+
+                      ['robot_controller_mode_manual', 'operational', 'base:activated'],
+                      ['robot_controller_mode_manual_data_input', 'operational', 'base:activated'],
+                      ['robot_controller_mode_stopped', 'operational', 'base:activated'],
+                      ['robot_execution_stopped', 'operational', 'base:activated'],
+                      
 
                       ['unloading', 'operational', 'operational:unloading'],
                       ['default', 'operational:unloading', 'operational:unloading'],
