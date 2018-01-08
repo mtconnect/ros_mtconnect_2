@@ -7,7 +7,7 @@ from chuck import *
 from transitions.extensions import HierarchicalMachine as Machine
 from transitions.extensions.nesting import NestedState
 from threading import Timer, Thread
-import functools, time
+import functools, time, re
 
 
 class adapter(object):
@@ -220,6 +220,30 @@ class cnc(object):
 
                 elif name == "MaterialUnload":
                     exec('self.material_unload_interface.superstate.'+action+'()')
+
+                elif comp == "Controller":
+                    
+                    if name == "ControllerMode":
+                        if source.lower() == 'cnc':
+                            self.controller_mode = value.upper()
+                        elif source.lower() == 'robot':
+                            self.robot_controller_mode = value.upper()
+                        exec('self.'+source.lower()+'_controller_mode_'+value.lower()+'()')
+
+                    elif name == "Execution":
+                        if source.lower() == 'cnc':
+                            self.execution = value.upper()
+                        elif source.lower() == 'robot':
+                            self.robot_execution = value.upper()
+                        exec('self.'+source.lower()+'_execution_'+value.lower()+'()')
+
+                    elif name == "Availability":
+                        if source.lower() == 'cnc':
+                            self.availability = value.upper()
+                        elif source.lower() == 'robot':
+                            self.robot_availability = value.upper()
+                        exec('self.'+source.lower()+'_execution_'+value.lower()+'()')
+                        
                 
 
         self.superstate = statemachineModel()
