@@ -26,7 +26,6 @@ class Request(object):
                 self.failing = False
                 self.parent = parent
 
-
             def check_state_calls(func):
                 @functools.wraps(func)
                 def wrapper(*args, **kwargs):
@@ -124,13 +123,20 @@ class Request(object):
 
             def complete_failed(self):
                 self.failing = True
-                #self.parent.failed
+                try:
+                    self.parent.FAILED()
+                except:
+                    "Local Spec Testing"
                 self.failing = False
 
             @check_state_calls 
             def COMPLETE(self):
                 self.complete()
-                #self.parent.completed
+                try:
+                    self.parent.interface_type(value = 'Request')
+                    self.parent.COMPLETED()
+                except:
+                    "Local Spec Testing"
 
             def void(self):
                 pass
@@ -192,6 +198,7 @@ class Request(object):
             @check_state_calls
             def DEFAULT(self):
                 self.default()
+
                 
         self.superstate = statemachineModel(interface)
         self.interface = self.superstate.interface
@@ -220,7 +227,7 @@ class Request(object):
                       ['failure','base:active','base:fail'],
                       ['active','base:active','base:processing'],
                       
-                      ['complete','base:processing','base:not_ready'],
+                      {'trigger':'complete','source':'base:processing','dest':'base:not_ready', 'after': 'COMPLETE'},
                       ['default','base:processing','base:fail'],
                       ['default','base:fail','base:ready'],
                       ['default','base:not_ready','base:not_ready'],
@@ -228,6 +235,7 @@ class Request(object):
                       ['default','base:active','base:active'],
                       ['reset','*','base:not_ready']]
 
+        
         self.statemachine = Machine(model = self.superstate, states = states, transitions = transitions, initial = 'base',ignore_invalid_triggers=True)
         self.statemachine.on_enter('base:ready', 'READY')
         self.statemachine.on_enter('base:active', 'ACTIVE')
