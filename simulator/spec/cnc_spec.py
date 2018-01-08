@@ -22,8 +22,6 @@ with description('cnc'):
 
     with it('should become ready when the link is enabled, all interfaces are ready, and the robot and machine tool are in automatic'):
         self.cnc.create_statemachine()
-        self.cnc.superstate.enable()
-        expect(self.cnc.superstate.state).to(equal('operational:loading'))
         self.cnc.superstate.has_material = False
         self.cnc.superstate.event('robot', 'Device', 'Availability', 'AVAILABLE')
         self.cnc.superstate.event('robot', 'Controller', 'ControllerMode', 'AUTOMATIC')
@@ -53,23 +51,19 @@ with description('cnc'):
         
         with before.each:
             self.cnc.create_statemachine()
-        
+            self.cnc.superstate.has_material = False
             self.cnc.superstate.event('robot', 'Device', 'Availability', 'AVAILABLE')
             self.cnc.superstate.event('robot', 'Controller', 'ControllerMode', 'AUTOMATIC')
             self.cnc.superstate.event('robot', 'Controller', 'Execution', 'ACTIVE')
             self.cnc.superstate.event('robot', 'MaterialHandlerInterface', 'MaterialLoad', 'READY')
-            self.cnc.superstate.material_load_interface.superstate.idle()
 
             self.cnc.superstate.event('robot', 'MaterialHandlerInterface', 'MaterialUnload', 'READY')
-            self.cnc.superstate.material_unload_interface.superstate.idle()
-
             self.cnc.superstate.event('robot', 'DoorInterface', 'Open', 'READY')
             self.cnc.superstate.event('robot', 'DoorInterface', 'Close', 'READY')
             self.cnc.superstate.event('robot', 'ChuckInterface', 'Open', 'READY')
             self.cnc.superstate.event('robot', 'ChuckInterface', 'Close', 'READY')
 
-            self.cnc.superstate.enable()
-
+        
         with it('should have the material load active'):
             expect(self.cnc.superstate.has_material).to(equal(False))
             expect(self.cnc.superstate.material_load_interface.interface.value).to(equal('ACTIVE'))
@@ -171,8 +165,12 @@ with description('cnc'):
             expect(self.cnc.superstate.material_load_interface.interface.value).to(equal('ACTIVE'))
             expect(self.cnc.superstate.material_unload_interface.interface.value).to(equal('NOT_READY'))
             
-
+        
             
+        with it('should be not ready when machine goes into manual mode'):
+            expect(self.cnc.superstate.material_load_interface.interface.value).to(equal('ACTIVE'))
+            self.cnc.superstate.event('robot', 'Controller', 'ControllerMode', 'MANUAL')
+            expect(self.cnc.superstate.material_load_interface.interface.value).to(equal('NOT_READY'))
             
             
             
