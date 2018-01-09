@@ -109,12 +109,12 @@ class cnc(object):
 
             def CYCLING(self):
                 if self.fail_next:
-                    self.system.append(['FAULT', 'Cycle failed to start', 'CYCLE'])
+                    self.system.append(['cnc', 'Device', 'SYSTEM', 'FAULT', 'Cycle failed to start', 'CYCLE'])
                     self.cnc_fault()
                     self.fail_next = False
 
                 elif self.close_door_interface.superstate.response_state != "CLOSED" or self.close_chuck_interface.superstate.response_state != "CLOSED":
-                    self.system.append(['FAULT', 'Door or Chuck in invalid state', 'CYCLE'])
+                    self.system.append(['cnc', 'Device', 'SYSTEM', 'FAULT', 'Door or Chuck in invalid state', 'CYCLE'])
                     self.cnc_fault()
 
                 else:
@@ -175,8 +175,16 @@ class cnc(object):
                 elif "Response" and "chuck" in self.interfaceType:
                     if "open" in self.interfaceType:
                         self.has_material = False
-                    elif "closed" in self.interfaceType:
+                        self.chuck_state = "OPEN"
+                    elif "close" in self.interfaceType:
                         self.has_material = True
+                        self.chuck_state = "CLOSED"
+
+                elif "Response" and "door" in self.interfaceType:
+                    if "open" in self.interfaceType:
+                        self.door_state = "OPEN"
+                    elif "close" in self.interfaceType:
+                        self.door_state = "CLOSED"
                     
                 
             def EXITING_IDLE(self):
@@ -192,9 +200,9 @@ class cnc(object):
                 self.has_material = False
 
             def FAILED(self):
-                if self.interfaceType == "Request":
+                if "Request" in self.interfaceType:
                     self.failed()
-                elif self.interfaceType == "Response":
+                elif "Response" in self.interfaceType:
                     self.fault()
 
             def void(self):
@@ -249,7 +257,6 @@ class cnc(object):
                 elif comp == "Device":
 
                     if name == "SYSTEM":
-                        
                         exec('self.'+source.lower()+'_system_'+value.lower()+'()')
 
                     elif name == "Availability":
@@ -259,6 +266,21 @@ class cnc(object):
                             self.robot_availability = value.upper()
                         exec('self.'+source.lower()+'_availability_'+value.lower()+'()')
 
+                elif source == "cnc" and name == "ChuckState":
+                    self.chuck_state = value.upper()
+                    if self.chuck_state == "OPEN":
+                        self.open_chuck_interface.statemachine.set_state('base:active')
+                    elif self.chuck_state == "CLOSED":
+                        self.close_chuck_interface.statemachine.set_state('base:not_ready')
+                    
+
+                elif source == "cnc" and name == "DoorState":
+                    self.door_state = value.upper()
+                    if self.door_state == "OPEN":
+                        self.open_door_interface.statemachine.set_state('base:active')
+                    elif self.door_state == "CLOSED":
+                        self.close_door_interface.statemachine.set_state('base:not_ready')
+                    
       
 
         self.superstate = statemachineModel()
