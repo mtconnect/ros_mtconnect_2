@@ -121,7 +121,6 @@ class cnc(object):
                     self.execution = "ACTIVE"
                     def func(self = self):
                         self.execution = "READY"
-                        self.LOADED()
                         self.cnc_execution_ready()
                     timer_cycling = Timer(self.cycle_time,func)
                     timer_cycling.start()
@@ -140,11 +139,9 @@ class cnc(object):
 
             def EXIT_LOADING(self):
                 self.material_load_interface.superstate.DEACTIVATE()
-                self.has_material = True #here vs under completed method
 
             def EXIT_UNLOADING(self):
                 self.material_unload_interface.superstate.DEACTIVATE()
-                self.has_material = False #here vs under completed method
 
             #might be useful later. 
             def timer_thread(self, input_time):
@@ -175,7 +172,19 @@ class cnc(object):
             def COMPLETED(self):
                 if self.interfaceType == "Request":
                     self.complete()
-
+                elif "Response" and "chuck" in self.interfaceType:
+                    if "open" in self.interfaceType:
+                        self.has_material = False
+                    elif "closed" in self.interfaceType:
+                        self.has_material = True
+                    
+                
+            def EXITING_IDLE(self):
+                if self.has_material:
+                    self.unloading()
+                else:
+                    self.loading()
+                    
             def LOADED(self):
                 self.has_material = True
 
@@ -240,6 +249,7 @@ class cnc(object):
                 elif comp == "Device":
 
                     if name == "SYSTEM":
+                        
                         exec('self.'+source.lower()+'_system_'+value.lower()+'()')
 
                     elif name == "Availability":
@@ -256,9 +266,9 @@ class cnc(object):
 
     def create_statemachine(self):
         NestedState.separator = ':'
-        states = [{'name':'base', 'children':['activated']}, {'name':'operational', 'children':['loading', 'cycle_start', 'unloading', 'idle']}, {'name':'disabled', 'children':['fault', 'not_ready']}]
+        states = [{'name':'base', 'children':['activated',{'name':'operational', 'children':['loading', 'cycle_start', 'unloading', 'idle']}, {'name':'disabled', 'children':['fault', 'not_ready']}]} ]
 
-        transitions= [['start', 'base', 'disabled'],
+        transitions= [['start', 'base', 'base:disabled'],
                       
                       ['cnc_controller_mode_automatic', 'base', 'base:activated'],
                       ['robot_execution_interrupted', 'base', 'base:activated'],
@@ -277,63 +287,58 @@ class cnc(object):
                       ['disable', 'base', 'base:activated'],
                       ['cnc_controller_mode_manual', 'base', 'base:activated'],
                       ['cnc_controller_mode_manual_data_input', 'base', 'base:activated'],
-                      ['cnc_controller_mode_automatic', 'disabled', 'base:activated'],
-                      ['robot_material_load_ready', 'disabled', 'base:activated'],
-                      ['robot_material_unload_ready', 'disabled', 'base:activated'],
+                      ['cnc_controller_mode_automatic', 'base:disabled', 'base:activated'],
+                      ['robot_material_load_ready', 'base:disabled', 'base:activated'],
+                      ['robot_material_unload_ready', 'base:disabled', 'base:activated'],
 
-                      ['default', 'operational:cycle_start', 'operational:cycle_start'],
-                      ['complete', 'operational:loading', 'operational:cycle_start'],
+                      ['default', 'base:operational:cycle_start', 'base:operational:cycle_start'],
+                      ['complete', 'base:operational:loading', 'base:operational:cycle_start'],
 
-                      ['fault', 'base', 'disabled:fault'],
-                      ['robot_system_fault', 'base', 'disabled:fault'],
-                      ['default', 'disabled:fault', 'disabled:fault'],
-                      ['faulted', 'base:activated', 'disabled:fault'],
-                      ['cnc_fault', 'operational:cycle_start','disabled:fault'],
+                      ['fault', 'base', 'base:disabled:fault'],
+                      ['robot_system_fault', 'base', 'base:disabled:fault'],
+                      ['default', 'base:disabled:fault', 'base:disabled:fault'],
+                      ['faulted', 'base:activated', 'base:disabled:fault'],
+                      ['cnc_fault', 'base:operational:cycle_start','base:disabled:fault'],
                       
-                      ['start', 'disabled', 'disabled:not_ready'],
-                      ['default', 'disabled:not_ready', 'disabled:not_ready'],
-                      ['default', 'disabled', 'disabled:not_ready'],
-                      ['still_not_ready', 'base:activated', 'disabled:not_ready'],
+                      ['start', 'base:disabled', 'base:disabled:not_ready'],
+                      ['default', 'base:disabled:not_ready', 'base:disabled:not_ready'],
+                      ['default', 'base:disabled', 'base:disabled:not_ready'],
+                      ['still_not_ready', 'base:activated', 'base:disabled:not_ready'],
 
-                      ['loading', 'operational', 'operational:loading'],
-                      ['default', 'operational:loading', 'operational:loading'],
-                      ['complete', 'operational:unloading', 'operational:loading'],
+                      ['loading', 'base:operational', 'base:operational:loading'],
+                      ['default', 'base:operational:loading', 'base:operational:loading'],
+                      ['complete', 'base:operational:unloading', 'base:operational:loading'],
+                    
+                      ['unloading', 'base:operational', 'base:operational:unloading'],
+                      ['default', 'base:operational:unloading', 'base:operational:unloading'],
+                      ['cnc_execution_ready', 'base:operational:cycle_start', 'base:operational:unloading'],
 
-                      ['robot_controller_mode_manual', 'operational', 'base:activated'],
-                      ['robot_controller_mode_manual_data_input', 'operational', 'base:activated'],
-                      ['robot_controller_mode_stopped', 'operational', 'base:activated'],
-                      ['robot_execution_stopped', 'operational', 'base:activated'],
-                      ['robot_execution_ready', 'operational', 'base:activated'],
+                      ['failed', 'base:operational:loading', 'base:operational:idle'],
+                      ['failed', 'base:operational:unloading', 'base:operational:idle'],
+                      ['start', 'base:operational', 'base:operational:idle'],
+                      ['robot_material_unload_ready', 'base:operational:idle', 'base:operational:idle'],
+                      ['robot_material_load_ready', 'base:operational:idle', 'base:operational:idle'],
+                      ['default', 'base:operational:idle', 'base:operational:idle'],
                       
-                      ['unloading', 'operational', 'operational:unloading'],
-                      ['default', 'operational:unloading', 'operational:unloading'],
-                      ['cnc_execution_ready', 'operational:cycle_start', 'operational:unloading'],
-
-                      ['failed', 'operational:loading', 'operational:idle'],
-                      ['failed', 'operational:unloading', 'operational:idle'],
-                      ['start', 'operational', 'operational:idle'],
-                      ['robot_material_unload_ready', 'operational:idle', 'operational:idle'],
-                      ['robot_material_load_ready', 'operational:idle', 'operational:idle'],
-                      ['default', 'operational:idle', 'operational:idle'],
-                      
-                      ['make_operational', 'base:activated', 'operational']
+                      ['make_operational', 'base:activated', 'base:operational']
       
                       
                       ]
 
         self.statemachine = Machine(model = self.superstate, states = states, transitions = transitions, initial = 'base',ignore_invalid_triggers=True)            
             
-        self.statemachine.on_enter('disabled', 'CNC_NOT_READY')
-        self.statemachine.on_enter('disabled:not_ready', 'CNC_NOT_READY')
-        self.statemachine.on_enter('disabled:fault', 'CNC_NOT_READY')
+        self.statemachine.on_enter('base:disabled', 'CNC_NOT_READY')
+        self.statemachine.on_enter('base:disabled:not_ready', 'CNC_NOT_READY')
+        self.statemachine.on_enter('base:disabled:fault', 'CNC_NOT_READY')
         self.statemachine.on_enter('base:activated', 'ACTIVATE')
-        self.statemachine.on_enter('operational', 'OPERATIONAL')
-        self.statemachine.on_enter('operational:idle','IDLE')
-        self.statemachine.on_enter('operational:cycle_start', 'CYCLING')
-        self.statemachine.on_enter('operational:loading', 'LOADING')
-        self.statemachine.on_exit('operational:loading', 'EXIT_LOADING')
-        self.statemachine.on_enter('operational:unloading', 'UNLOADING')
-        self.statemachine.on_exit('operational:unloading', 'EXIT_UNLOADING')
+        self.statemachine.on_enter('base:operational', 'OPERATIONAL')
+        self.statemachine.on_enter('base:operational:idle','IDLE')
+        self.statemachine.on_exit('base:operational:idle','EXITING_IDLE')
+        self.statemachine.on_enter('base:operational:cycle_start', 'CYCLING')
+        self.statemachine.on_enter('base:operational:loading', 'LOADING')
+        self.statemachine.on_exit('base:operational:loading', 'EXIT_LOADING')
+        self.statemachine.on_enter('base:operational:unloading', 'UNLOADING')
+        self.statemachine.on_exit('base:operational:unloading', 'EXIT_UNLOADING')
 
         
         
