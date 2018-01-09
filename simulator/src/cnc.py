@@ -237,14 +237,19 @@ class cnc(object):
                             self.robot_execution = value.upper()
                         exec('self.'+source.lower()+'_execution_'+value.lower()+'()')
 
+                elif comp == "Device":
+
+                    if name == "SYSTEM":
+                        exec('self.'+source.lower()+'_system_'+value.lower()+'()')
+
                     elif name == "Availability":
                         if source.lower() == 'cnc':
                             self.availability = value.upper()
                         elif source.lower() == 'robot':
                             self.robot_availability = value.upper()
-                        exec('self.'+source.lower()+'_execution_'+value.lower()+'()')
-                        
-                
+                        exec('self.'+source.lower()+'_availability_'+value.lower()+'()')
+
+      
 
         self.superstate = statemachineModel()
 
@@ -298,8 +303,8 @@ class cnc(object):
                       ['robot_controller_mode_manual_data_input', 'operational', 'base:activated'],
                       ['robot_controller_mode_stopped', 'operational', 'base:activated'],
                       ['robot_execution_stopped', 'operational', 'base:activated'],
+                      ['robot_execution_ready', 'operational', 'base:activated'],
                       
-
                       ['unloading', 'operational', 'operational:unloading'],
                       ['default', 'operational:unloading', 'operational:unloading'],
                       ['cnc_execution_ready', 'operational:cycle_start', 'operational:unloading'],
