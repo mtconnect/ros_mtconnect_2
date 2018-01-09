@@ -186,13 +186,13 @@ class cnc(object):
                     elif "close" in self.interfaceType:
                         self.door_state = "CLOSED"
                     
-                
+            
             def EXITING_IDLE(self):
                 if self.has_material:
                     self.unloading()
                 else:
                     self.loading()
-                    
+              
             def LOADED(self):
                 self.has_material = True
 
@@ -233,9 +233,14 @@ class cnc(object):
                         exec('self.close_chuck_interface.superstate.'+action+'()')
 
                 elif name == "MaterialLoad":
+                    if value.lower() == 'ready':
+                        exec('self.robot_material_load_ready()')
+                        
                     exec('self.material_load_interface.superstate.'+action+'()')
 
                 elif name == "MaterialUnload":
+                    if value.lower() == 'ready':
+                        exec('self.robot_material_unload_ready()')
                     exec('self.material_unload_interface.superstate.'+action+'()')
 
                 elif comp == "Controller":
@@ -338,8 +343,8 @@ class cnc(object):
                       ['failed', 'base:operational:loading', 'base:operational:idle'],
                       ['failed', 'base:operational:unloading', 'base:operational:idle'],
                       ['start', 'base:operational', 'base:operational:idle'],
-                      ['robot_material_unload_ready', 'base:operational:idle', 'base:operational:idle'],
-                      ['robot_material_load_ready', 'base:operational:idle', 'base:operational:idle'],
+                      {'trigger':'robot_material_unload_ready','source':'base:operational:idle','dest':'base:operational', 'after':'EXITING_IDLE'},
+                      {'trigger':'robot_material_load_ready','source':'base:operational:idle','dest':'base:operational', 'after':'EXITING_IDLE'},
                       ['default', 'base:operational:idle', 'base:operational:idle'],
                       
                       ['make_operational', 'base:activated', 'base:operational']
@@ -355,7 +360,6 @@ class cnc(object):
         self.statemachine.on_enter('base:activated', 'ACTIVATE')
         self.statemachine.on_enter('base:operational', 'OPERATIONAL')
         self.statemachine.on_enter('base:operational:idle','IDLE')
-        self.statemachine.on_exit('base:operational:idle','EXITING_IDLE')
         self.statemachine.on_enter('base:operational:cycle_start', 'CYCLING')
         self.statemachine.on_enter('base:operational:loading', 'LOADING')
         self.statemachine.on_exit('base:operational:loading', 'EXIT_LOADING')
