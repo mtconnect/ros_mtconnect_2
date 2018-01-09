@@ -21,8 +21,8 @@ class Request(object):
         
             def __init__(self,interface = interface, parent = parent):
                 self.interface = interface
-                self.processing_time_limit = 20.0
-                self.fail_time_limit = 20.0
+                self.processing_time_limit = 2
+                self.fail_time_limit = 2
                 self.failing = False
                 self.parent = parent
 
@@ -229,6 +229,7 @@ class Request(object):
                       
                       {'trigger':'complete','source':'base:processing','dest':'base:not_ready', 'after': 'COMPLETE'},
                       ['default','base:processing','base:fail'],
+                      ['failure','base:processing','base:fail'],
                       ['default','base:fail','base:ready'],
                       ['default','base:not_ready','base:not_ready'],
                       ['default','base:ready','base:ready'],
