@@ -19,7 +19,7 @@ with description('cnc'):
         expect(self.cnc.superstate.close_chuck_interface).to(be_a(Response))
         expect(self.cnc.superstate.open_door_interface).to(be_a(Response))
         expect(self.cnc.superstate.close_door_interface).to(be_a(Response))
-
+    
     with it('should become ready when the link is enabled, all interfaces are ready, and the robot and machine tool are in automatic'):
         self.cnc.create_statemachine()
         self.cnc.superstate.has_material = False
@@ -46,7 +46,7 @@ with description('cnc'):
         self.cnc.superstate.event('robot', 'ChuckInterface', 'Close', 'READY')
         expect(self.cnc.superstate.close_chuck_interface.superstate.state).to(equal('base:ready'))
         expect(self.cnc.superstate.close_chuck_interface.interface.value).to(equal('READY'))
-        
+
     with context('when loading material'):
         
         with before.each:
@@ -112,13 +112,13 @@ with description('cnc'):
             self.cnc.superstate.event('robot', 'DoorInterface', 'Close', 'READY')
             self.cnc.superstate.event('robot', 'ChuckInterface', 'Close', 'READY')
             
-            expect(self.cnc.superstate.state).to(equal('operational:loading'))
+            expect(self.cnc.superstate.state).to(equal('base:operational:loading'))
 
             expect(self.cnc.superstate.material_load_interface.interface.value).to(equal('ACTIVE'))
 
             self.cnc.superstate.event('robot', 'MaterialHandlerInterface', 'MaterialLoad', 'COMPLETE')
 
-            expect(self.cnc.superstate.state).to(equal('operational:cycle_start'))
+            expect(self.cnc.superstate.state).to(equal('base:operational:cycle_start'))
             
             self.cnc.superstate.event('robot', 'MaterialHandlerInterface', 'MaterialLoad', 'READY')
 
@@ -131,7 +131,7 @@ with description('cnc'):
 
             time.sleep(2.1)
 
-            expect(self.cnc.superstate.state).to(equal('operational:unloading'))
+            expect(self.cnc.superstate.state).to(equal('base:operational:unloading'))
 
             expect(self.cnc.superstate.material_unload_interface.superstate.interface.value).to(equal('ACTIVE'))
             expect(self.cnc.superstate.material_load_interface.superstate.interface.value).to(equal('NOT_READY'))
@@ -160,17 +160,128 @@ with description('cnc'):
             self.cnc.superstate.event('robot', 'MaterialHandlerInterface', 'MaterialUnload', 'COMPLETE')
             self.cnc.superstate.event('robot', 'MaterialHandlerInterface', 'MaterialUnload', 'READY')
 
-            expect(self.cnc.superstate.state).to(equal('operational:loading'))
+            expect(self.cnc.superstate.state).to(equal('base:operational:loading'))
 
             expect(self.cnc.superstate.material_load_interface.interface.value).to(equal('ACTIVE'))
             expect(self.cnc.superstate.material_unload_interface.interface.value).to(equal('NOT_READY'))
             
         
-            
+                   
         with it('should be not ready when machine goes into manual mode'):
             expect(self.cnc.superstate.material_load_interface.interface.value).to(equal('ACTIVE'))
             self.cnc.superstate.event('robot', 'Controller', 'ControllerMode', 'MANUAL')
             expect(self.cnc.superstate.material_load_interface.interface.value).to(equal('NOT_READY'))
+            expect(self.cnc.superstate.state).to(equal('base:disabled:not_ready'))
+
+        with it('should be not ready when the execution state becomes ready'):
+            expect(self.cnc.superstate.material_load_interface.interface.value).to(equal('ACTIVE'))
+            self.cnc.superstate.event('robot', 'Controller', 'Execution', 'READY')
+            expect(self.cnc.superstate.material_load_interface.interface.value).to(equal('NOT_READY'))
+            expect(self.cnc.superstate.state).to(equal('base:disabled:not_ready'))
+
+        with it('should be not ready when a fault occurs'):
+            expect(self.cnc.superstate.material_load_interface.interface.value).to(equal('ACTIVE'))
+            self.cnc.superstate.event('robot', 'Device', 'SYSTEM', 'Fault', '1', 'failure')
+            expect(self.cnc.superstate.state).to(equal('base:disabled:fault'))
+            expect(self.cnc.superstate.material_load_interface.interface.value).to(equal('NOT_READY'))
+    
+        with it('should be ready after a fault clears'):
+            expect(self.cnc.superstate.material_load_interface.interface.value).to(equal('ACTIVE'))
+            self.cnc.superstate.event('robot', 'Device', 'SYSTEM', 'Fault', '1', 'failure')
+            expect(self.cnc.superstate.state).to(equal('base:disabled:fault'))
+            
+            expect(self.cnc.superstate.material_load_interface.interface.value).to(equal('NOT_READY'))
+            self.cnc.superstate.event('robot', 'Device', 'SYSTEM', 'Normal')
+            
+            expect(self.cnc.superstate.material_load_interface.interface.value).to(equal('ACTIVE'))
+            expect(self.cnc.superstate.state).to(equal('base:operational:loading'))
+
+
+        #later: single faults clear
+        
+        with it('should fail if the chuck is open when it tries to cycle start'):
+            self.cnc.superstate.event('robot', 'MaterialHandlerInterface', 'MaterialLoad', 'ACTIVE')
+            self.cnc.superstate.event('robot', 'DoorInterface', 'Close', 'ACTIVE')
+            time.sleep(1.2)
+            expect(self.cnc.superstate.door_state).to(equal('CLOSED'))
+            self.cnc.superstate.event('cnc', 'Rotary', 'ChuckState', 'OPEN')
+            expect(self.cnc.superstate.chuck_state).to(equal('OPEN'))
+            self.cnc.superstate.event('robot', 'DoorInterface', 'Close', 'READY')
+            self.cnc.superstate.event('robot', 'MaterialHandlerInterface', 'MaterialLoad', 'COMPLETE')
+            self.cnc.superstate.event('robot', 'MaterialHandlerInterface', 'MaterialLoad', 'READY')
+
+            expect(self.cnc.superstate.state).to(equal('base:disabled:fault'))
+        
+
+        with it('should fail if the door is open when it tries to cycle start'):
+            self.cnc.superstate.event('robot', 'MaterialHandlerInterface', 'MaterialLoad', 'ACTIVE')
+            self.cnc.superstate.event('robot', 'ChuckInterface', 'Close', 'ACTIVE')
+            time.sleep(1.2)
+            self.cnc.superstate.event('cnc', 'Rotary', 'ChuckState', 'CLOSED')
+            
+            expect(self.cnc.superstate.chuck_state).to(equal('CLOSED'))
+            expect(self.cnc.superstate.door_state).to(equal('OPEN'))
+
+            self.cnc.superstate.event('robot', 'ChuckInterface', 'Close', 'READY')
+            
+            self.cnc.superstate.event('robot', 'MaterialHandlerInterface', 'MaterialLoad', 'COMPLETE')
+            self.cnc.superstate.event('robot', 'MaterialHandlerInterface', 'MaterialLoad', 'READY')
+
+            expect(self.cnc.superstate.state).to(equal('base:disabled:fault'))
+
+        
+        #review this test: fail to ready transition at times too fast to test. why? timers?
+        with it('should fail a material load if the robot fails'):
+            self.cnc.superstate.event('robot', 'MaterialHandlerInterface', 'MaterialLoad', 'ACTIVE')
+            self.cnc.superstate.event('robot', 'DoorInterface', 'Close', 'ACTIVE')
+            self.cnc.superstate.event('robot', 'ChuckInterface', 'Close', 'ACTIVE')
+            time.sleep(1.2)
+
+            expect(self.cnc.superstate.chuck_state).to(equal('CLOSED'))
+            expect(self.cnc.superstate.door_state).to(equal('CLOSED'))
+
+            self.cnc.superstate.event('robot', 'DoorInterface', 'Close', 'READY')
+            self.cnc.superstate.event('robot', 'ChuckInterface', 'Close', 'READY')
+
+            expect(self.cnc.superstate.state).to(equal('base:operational:loading'))
+            #print self.cnc.superstate.material_load_interface.interface.value
+            self.cnc.superstate.event('robot', 'MaterialHandlerInterface', 'MaterialLoad', 'FAIL')
+            #print self.cnc.superstate.material_load_interface.interface.value
+            expect(self.cnc.superstate.material_load_interface.interface.value).to(equal('FAIL'))
+            #print self.cnc.superstate.material_load_interface.interface.value
+            self.cnc.superstate.event('robot', 'MaterialHandlerInterface', 'MaterialLoad', 'NOT_READY')
+            
+            expect(self.cnc.superstate.state).to(equal('base:operational:idle'))
+            
+            time.sleep(0.1)
+            
+            expect(self.cnc.superstate.material_load_interface.interface.value).to(equal('READY'))
+            expect(self.cnc.superstate.material_unload_interface.interface.value).to(equal('READY'))
+
+            self.cnc.superstate.event('robot', 'MaterialHandlerInterface', 'MaterialLoad', 'READY')
+            time.sleep(0.1)
+            expect(self.cnc.superstate.state).to(equal('base:operational:unloading'))
+
+            expect(self.cnc.superstate.material_unload_interface.interface.value).to(equal('ACTIVE'))
+        
+        with it('should fail a material unload if the robot fails and return to active when ready'):
+            self.cnc.statemachine.set_state('base:activated')
+            self.cnc.superstate.has_material = True
+            self.cnc.superstate.make_operational()
+            self.cnc.superstate.event('robot', 'MaterialHandlerInterface', 'MaterialUnload', 'ACTIVE')
+
+            self.cnc.superstate.event('robot', 'MaterialHandlerInterface', 'MaterialUnload', 'FAIL')
+            expect(self.cnc.superstate.material_unload_interface.interface.value).to(equal('FAIL'))
+
+            time.sleep(2.2)
+            
+            self.cnc.superstate.event('robot', 'MaterialHandlerInterface', 'MaterialUnload', 'READY')
+            expect(self.cnc.superstate.material_unload_interface.interface.value).to(equal('ACTIVE'))
+            expect(self.cnc.superstate.state).to(equal('base:operational:unloading'))
+
+            
+
+                                                 
             
             
             
