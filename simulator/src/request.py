@@ -124,6 +124,7 @@ class Request(object):
             def complete_failed(self):
                 self.failing = True
                 try:
+                    self.parent.interface_type(value = 'Request')
                     self.parent.FAILED()
                 except:
                     "Local Spec Testing"
