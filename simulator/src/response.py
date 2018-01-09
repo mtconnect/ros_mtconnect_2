@@ -27,10 +27,11 @@ class Response(object):
 
         class statemachineModel(object):
 
-            def __init__(self, interface = interface, parent = parent, dest_state = dest_state, simulate = simulate, rel = rel):
+            def __init__(self, interface = interface, parent = parent, prefix = prefix, dest_state = dest_state, simulate = simulate, rel = rel):
 
                 self.interface = interface
                 self.dest_state = dest_state
+                self.prefix = prefix
                 self.response_state = str()
                 self.simulate = simulate
                 self.fail_reset_delay = 1.0
@@ -122,7 +123,7 @@ class Response(object):
                 if self.simulate:
                     self.response_state = self.dest_state
                 try:
-                    self.parent.interface_type(value = 'Response')
+                    self.parent.interface_type(value = 'Response'+self.prefix.lower()+self.dest_state.lower())
                     self.parent.COMPLETED()
                 except:
                     "Local Spec Testing"
