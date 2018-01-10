@@ -63,7 +63,6 @@ class Request(object):
 
             @check_state_calls
             def READY(self):
-                print 'ready here'
                 self.interface.value = "READY"
 
             @check_state_calls
@@ -72,15 +71,10 @@ class Request(object):
 
             @check_state_calls
             def FAILURE(self):
-                time.sleep(0.1)
-                #trnasitioning error without pause!??
                 self.interface.value = "FAIL"
-                
                 check_state_list=[
                     self.FAILURE.has_been_called, self.ACTIVE.has_been_called, self.READY.has_been_called, self.IDLE.has_been_called, self.NOT_READY.has_been_called, self.ACTIVATE.has_been_called, self.COMPLETE.has_been_called, self.DEFAULT.has_been_called
                     ]
-                
-                #print self.FAILURE.has_been_called, self.ACTIVE.has_been_called, self.READY.has_been_called, self.IDLE.has_been_called, self.NOT_READY.has_been_called, self.ACTIVATE.has_been_called, self.COMPLETE.has_been_called, self.DEFAULT.has_been_called
 
                 #all the triggers addressed except active,not_ready,ready which would come from the bot interface. To be done.
                 def complete_check():
@@ -121,8 +115,8 @@ class Request(object):
                             timer_failure.cancel()
                             self.DEFAULT()
                             break
-                    #print self.FAILURE.has_been_called, self.ACTIVE.has_been_called, self.READY.has_been_called, self.IDLE.has_been_called, self.NOT_READY.has_been_called, self.ACTIVATE.has_been_called, self.COMPLETE.has_been_called, self.DEFAULT.has_been_called
-                    if self.DEFAULT.has_been_called==check_state_list[7]:
+                    
+                    if self.DEFAULT.has_been_called==check_state_list[7] and self.state == 'base:fail':
                         self.DEFAULT()
                     
                         
@@ -139,7 +133,7 @@ class Request(object):
                 except:
                     "Local Spec Testing"
                 self.failing = False
-                print 'comp fail here'
+                #print 'comp fail here'
 
             @check_state_calls 
             def COMPLETE(self):
@@ -165,11 +159,6 @@ class Request(object):
                     while timer_processing.isAlive():
                         if self.COMPLETE.has_been_called:
                             timer_processing.cancel()
-                            break
-
-                        elif self.FAILURE.has_been_called!=check_state_list[0]:
-                            timer_processing.cancel()
-                            self.DEFAULT()
                             break
                             
                         elif self.ACTIVE.has_been_called!=check_state_list[1]:
