@@ -133,7 +133,6 @@ class Request(object):
                 except:
                     "Local Spec Testing"
                 self.failing = False
-                #print 'comp fail here'
 
             @check_state_calls 
             def COMPLETE(self):
