@@ -61,11 +61,11 @@ class cnc(object):
 
                 self.adapter = adapter
 
-                self.load_time_limit(5 * 60)
-                self.unload_time_limit(5 * 60)
+                self.load_time_limit(2)
+                self.unload_time_limit(2)
 
-                self.load_failed_time_limit(30)
-                self.unload_failed_time_limit(30)
+                self.load_failed_time_limit(2)
+                self.unload_failed_time_limit(2)
 
                 self.events = []
 
@@ -151,16 +151,16 @@ class cnc(object):
                 thread.start()                
 
             def load_time_limit(self, limit):
-                self.material_load_interface.processing_time_limit = limit
+                self.material_load_interface.superstate.processing_time_limit = limit
 
             def load_failed_time_limit(self, limit):
-                self.material_load_interface.fail_time_limit = limit
+                self.material_load_interface.superstate.fail_time_limit = limit
 
             def unload_time_limit(self, limit):
-                self.material_unload_interface.processing_time_limit = limit
+                self.material_unload_interface.superstate.processing_time_limit = limit
 
             def unload_failed_time_limit(self, limit):
-                self.material_unload_interface.fail_time_limit = limit
+                self.material_unload_interface.superstate.fail_time_limit = limit
 
             def status(self):
                 'state'
@@ -233,13 +233,13 @@ class cnc(object):
                         exec('self.close_chuck_interface.superstate.'+action+'()')
 
                 elif name == "MaterialLoad":
-                    if value.lower() == 'ready':
+                    if value.lower() == 'ready' and self.state == 'base:operational:idle':
                         exec('self.robot_material_load_ready()')
-                        
-                    exec('self.material_load_interface.superstate.'+action+'()')
+                    else:
+                        exec('self.material_load_interface.superstate.'+action+'()')
 
                 elif name == "MaterialUnload":
-                    if value.lower() == 'ready':
+                    if value.lower() == 'ready' and self.state == 'base:operational:idle':
                         exec('self.robot_material_unload_ready()')
                     exec('self.material_unload_interface.superstate.'+action+'()')
 
