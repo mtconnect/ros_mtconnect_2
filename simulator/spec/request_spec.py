@@ -115,7 +115,7 @@ with description('request'):
             if self.bot_interface=="ACTIVE":
                 self.request.superstate.active()
                 expect(self.request.superstate.state).to(equal('base:processing'))
-                time.sleep(20.100)
+                time.sleep(2.100)
                 expect(self.request.superstate.state).to(equal('base:fail'))
                 expect(self.request.interface.value).to(equal('FAIL'))
 
