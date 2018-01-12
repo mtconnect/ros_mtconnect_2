@@ -4,7 +4,7 @@ from door import *
 from chuck import *
 
 
-from transitions.extensions import HierarchicalMachine as Machine
+from transitions.extensions import HierarchicalGraphMachine as Machine
 from transitions.extensions.nesting import NestedState
 from threading import Timer, Thread
 import functools, time
@@ -224,6 +224,9 @@ class cnc(object):
 
         self.superstate = statemachineModel()
 
+    def draw(self):
+        print "Creating cnc.png diagram"
+        self.statemachine.get_graph().draw('cnc.png', prog='dot')
 
     def create_statemachine(self):
         NestedState.separator = ':'

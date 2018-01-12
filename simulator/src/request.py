@@ -1,5 +1,5 @@
 
-from transitions.extensions import HierarchicalMachine as Machine
+from transitions.extensions import HierarchicalGraphMachine as Machine
 from transitions.extensions.nesting import NestedState
 from threading import Timer, Thread
 import functools, time
@@ -207,6 +207,10 @@ class Request(object):
         self.parent = self.superstate.parent
         self.adapter = adapter
         self.failing = self.superstate.failing
+    
+    def draw(self):
+        print "Creating request.png diagram"
+        self.statemachine.get_graph().draw('request.png', prog='dot')
 
     def create_statemachine(self):
         NestedState.separator = ':'

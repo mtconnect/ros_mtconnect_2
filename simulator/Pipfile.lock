@@ -1,7 +1,7 @@
 {
     "_meta": {
         "hash": {
-            "sha256": "666182df95c0b37ae9ec63f7e2d9ed37350c7772d12e4bf4f659ea87fa92cc15"
+            "sha256": "52c86306c2cdca52e649894a2d2e0a09c488f0112a23e29e5255bcaeb8ad13e7"
         },
         "host-environment-markers": {
             "implementation_name": "cpython",
@@ -29,6 +29,13 @@
         ]
     },
     "default": {
+        "pygraphviz": {
+            "hashes": [
+                "sha256:7c294cbc9d88946be671cc0d8602aac176d8c56695c0a7d871eadea75a958408",
+                "sha256:1aabe3efabe3691e889aec6d10ae28e7e10f3c153fa1235a4cd58b0724481fca"
+            ],
+            "version": "==1.3.1"
+        },
         "six": {
             "hashes": [
                 "sha256:832dc0e10feb1aa2c68dcc57dbb658f1c7e65b9b61af69048abc87a2db00a0eb",
