@@ -97,45 +97,45 @@ with description('request'):
                 expect(self.request.superstate.state).to(equal('base:processing'))
                 
         with it('should become fail from processing when unrecognized event'):
-                self.bot_interface="ACTIVE"
-                self.request.superstate.activate()
-                #We could probably add this 'if' statement as a method in request!?
-                if self.bot_interface=="ACTIVE":
-                    self.request.superstate.active()
-                expect(self.request.superstate.state).to(equal('base:processing'))
-                self.request.superstate.IDLE()
-                time.sleep(0.100)
-                expect(self.request.superstate.state).to(equal('base:fail'))
-                expect(self.request.interface.value).to(equal('FAIL'))
+            self.bot_interface="ACTIVE"
+            self.request.superstate.activate()
+            #We could probably add this 'if' statement as a method in request!?
+            if self.bot_interface=="ACTIVE":
+                self.request.superstate.active()
+            expect(self.request.superstate.state).to(equal('base:processing'))
+            self.request.superstate.IDLE()
+            time.sleep(0.100)
+            expect(self.request.superstate.state).to(equal('base:fail'))
+            expect(self.request.interface.value).to(equal('FAIL'))
 
-            with it('should become fail from processing when timeout'):
-                self.bot_interface="ACTIVE"
-                self.request.superstate.activate()
-                #We could probably add this 'if' statement as a method in request!?
-                if self.bot_interface=="ACTIVE":
-                    self.request.superstate.active()
+        with it('should become fail from processing when timeout'):
+            self.bot_interface="ACTIVE"
+            self.request.superstate.activate()
+            #We could probably add this 'if' statement as a method in request!?
+            if self.bot_interface=="ACTIVE":
+                self.request.superstate.active()
                 expect(self.request.superstate.state).to(equal('base:processing'))
                 time.sleep(20.100)
                 expect(self.request.superstate.state).to(equal('base:fail'))
                 expect(self.request.interface.value).to(equal('FAIL'))
 
-            with it('should become ready from fail when unrecognized event'):
-                self.bot_interface="ACTIVE"
-                self.request.superstate.activate()
-                self.request.superstate.failure()
-                expect(self.request.superstate.state).to(equal('base:fail'))
-                expect(self.request.interface.value).to(equal('FAIL'))
-                self.request.superstate.IDLE()
-                time.sleep(0.100)
-                expect(self.request.superstate.state).to(equal('base:ready'))
-                expect(self.request.interface.value).to(equal('READY'))
+        with it('should become ready from fail when unrecognized event'):
+            self.bot_interface="ACTIVE"
+            self.request.superstate.activate()
+            self.request.superstate.failure()
+            expect(self.request.superstate.state).to(equal('base:fail'))
+            expect(self.request.interface.value).to(equal('FAIL'))
+            self.request.superstate.IDLE()
+            time.sleep(0.100)
+            expect(self.request.superstate.state).to(equal('base:ready'))
+            expect(self.request.interface.value).to(equal('READY'))
 
-            with it('should become ready from fail when timeout'):
-                self.bot_interface="ACTIVE"
-                self.request.superstate.activate()
-                self.request.superstate.failure()
-                time.sleep(20.100)
-                expect(self.request.superstate.state).to(equal('base:ready'))
-                expect(self.request.interface.value).to(equal('READY'))
+        with it('should become ready from fail when timeout'):
+            self.bot_interface="ACTIVE"
+            self.request.superstate.activate()
+            self.request.superstate.failure()
+            time.sleep(20.100)
+            expect(self.request.superstate.state).to(equal('base:ready'))
+            expect(self.request.interface.value).to(equal('READY'))
                 
          
