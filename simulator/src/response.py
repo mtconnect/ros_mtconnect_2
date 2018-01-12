@@ -1,4 +1,4 @@
-from transitions.extensions import HierarchicalMachine as Machine
+from transitions.extensions import HierarchicalGraphMachine as Machine
 from transitions.extensions.nesting import NestedState
 from threading import Timer, Thread
 import functools, time
@@ -151,6 +151,10 @@ class Response(object):
 
         
         self.superstate = statemachineModel(interface)
+    
+    def draw(self):
+        print "Creating response.png diagram"
+        self.statemachine.get_graph().draw('response.png', prog='dot')
 
     def create_statemachine(self):
         NestedState.separator = ':'
