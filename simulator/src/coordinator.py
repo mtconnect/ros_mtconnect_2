@@ -33,7 +33,7 @@ class coordinator(object):
 
         transitions = [['unavailable', 'base', 'base:inactive'],
 
-                       ['committed', 'base:inactive', 'base:committed'],
+                       ['all_commit', 'base:inactive', 'base:committed'],
 
                        ['completed', 'base:committed', 'base:inactive'],
                        ['failed', 'base:committed', 'base:inactive'],
