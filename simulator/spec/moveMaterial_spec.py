@@ -1,11 +1,11 @@
 from expects import *
 from doublex import *
 
-from src2.cnc import *
-from src2.cmm import *
-from src2.buffer import *
-from src2.inputConveyor import *
-from src2.outputConveyor import *
+from src.binding.cnc import *
+from src.binding.cmm import *
+from src.binding.buffer import *
+from src.binding.inputConveyor import *
+from src.binding.outputConveyor import *
 
 with description('moveMaterial'):
     with before.each:
