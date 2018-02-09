@@ -1,0 +1,12 @@
+#!/usr/bin/env python
+
+import rospy
+import mtconnect_bridge
+
+def main():
+    rospy.init_node('mtconnect_ros_bridge')
+    bridge = mtconnect_bridge.Bridge()
+    bridge.spin()
+
+if __name__ == '__main__':
+  main()

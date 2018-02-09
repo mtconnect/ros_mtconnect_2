@@ -1,0 +1,9 @@
+#Bring in imports so they can be accessed directly from the `mtconnect_bridge` package
+from __future__ import print_function
+
+import sys
+import os
+
+sys.path.append(os.path.join(os.getenv('HOME'), 'Workspaces/ceccrebot/src/ros_mtconnect_2'))
+
+from bridge import Bridge
