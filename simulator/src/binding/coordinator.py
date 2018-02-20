@@ -45,20 +45,20 @@ class coordinator(object):
             def event(self, source, comp, name, value, code = None, text = None):
                 #samplevent('robot_r1','collaborator','subtask_address',["open_door",'COMMITTED'],execution_lines, 'execute')
                 
-                if comp == 'Task:Collaborator':
-                    if name == 'state':
+                if comp == 'Task_Collaborator':
+                    if name == 'binding_state':
                         self.parent.master_tasks[code]['collaborators'][text]['state'][2] = value
                         if value.lower() == 'preparing':
                             self.task.superstate.prepare()
 
-                elif comp == 'SubTask:Collaborator':
                     if name == 'state':
                         self.parent.master_tasks[code]['coordinator'][self.coordinator_name]['SubTask'][text][1] = value
                         if value.lower() == 'fail' or value.lower() == 'complete':
                             self.task.superstate.commit()
-
+                elif 'SubTask' in name:
+                    self.task.superstate.event(source, comp, name, value, code, text)
                 else:
-                    self.parent.event(source, comp, name, value, code = None, text = None)
+                    self.parent.event(source, comp, name, value, code, text)
              
         self.superstate = statemachineModel(parent = parent, interface = interface, master_task_uuid = master_task_uuid, coordinator_name =coordinator_name)
 
