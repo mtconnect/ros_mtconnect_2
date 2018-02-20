@@ -1,7 +1,7 @@
 from transitions.extensions import HierarchicalMachine as Machine
 from transitions.extensions.nesting import NestedState
 from threading import Timer, Thread
-import functools, time
+import functools, time, copy
 
 import subTask
 
@@ -24,6 +24,8 @@ class collaborator(object):
                 self.collaborator_name = collaborator_name
                 self.task_name = None
                 self.id = collaborator_name #which one?
+                self.subTask = {}
+                self.currentSubTask = str()
                 
             def INACTIVE(self): 
                 self.interface.value = 'INACTIVE'
@@ -34,25 +36,29 @@ class collaborator(object):
                 
             def committed(self, value, code, text):
                 if self.collaborator_name in value['coordinator'][text]['SubTask']:
-                    self.subTask = subTask.subTask(parent = self , interface = interface, master_task_uuid = code, collaborators = value['coordinator'][text]['SubTask'][self.collaborator_name][2])
-                    self.subTask.create_statemachine()
-                    self.subTask.superstate.create()
+                    self.subTask[value['coordinator'][text]['SubTask'][self.collaborator_name][0]] = subTask.subTask(parent = self , interface = interface, master_task_uuid = code, collaborators = value['coordinator'][text]['SubTask'][self.collaborator_name][2])
+                    self.subTask[value['coordinator'][text]['SubTask'][self.collaborator_name][0]].create_statemachine()
+                    self.subTask[value['coordinator'][text]['SubTask'][self.collaborator_name][0]].superstate.create()
+                    self.currentSubTask = copy.deepcopy(value['coordinator'][text]['SubTask'][self.collaborator_name][0])
 
                     for key, val in self.parent.master_tasks[code]['collaborators'].iteritems():
 
                         if self.task_name in val['SubTask'].keys():
                             for i,x in enumerate(val['SubTask'][self.task_name]):
                                 
-                                self._subTask = subTask.subTask(parent = self , interface = interface, master_task_uuid = code, collaborators = x[4])
-                                self._subTask.create_statemachine()
-                                self._subTask.superstate.create()
+                                self.subTask[x[0]] = subTask.subTask(parent = self , interface = interface, master_task_uuid = code, collaborators = x[4])
+                                self.subTask[x[0]].create_statemachine()
+                                self.subTask[x[0]].superstate.create()
+                                self.currentSubTask = copy.deepcopy(x[0])
 
-                                while self._subTask.superstate.state != 'removed':
+                                while self.subTask[self.currentSubTask].superstate.state != 'removed':
                                     pass
                                 self.parent.master_tasks[code]['collaborators'][key]['SubTask'][self.task_name][i][2] = 'COMPLETE'
+
+                    self.currentSubTask = copy.deepcopy(value['coordinator'][text]['SubTask'][self.collaborator_name][0])
                                 
  
-                    while self.subTask.superstate.state != 'removed':
+                    while self.subTask[self.currentSubTask].superstate.state != 'removed':
                         pass
                     self.parent.master_tasks[code]['coordinator'][text]['SubTask'][self.collaborator_name][1] = 'COMPLETE'
                     
@@ -61,43 +67,51 @@ class collaborator(object):
                     for key, val in self.parent.master_tasks[code]['collaborators'].iteritems():
                         if self.task_name in val['SubTask'].keys():
                             for i,x in enumerate(val['SubTask'][self.task_name]):
-                                self.subTask = subTask.subTask(parent = self , interface = interface, master_task_uuid = code, collaborators = x[4])
-                                self.subTask.create_statemachine()
-                                self.subTask.superstate.create()
-                                while self.subTask.superstate.state != 'removed':
+                                self.subTask[x[0]] = subTask.subTask(parent = self , interface = interface, master_task_uuid = code, collaborators = x[4])
+                                self.subTask[x[0]].create_statemachine()
+                                self.subTask[x[0]].superstate.create()
+                                self.currentSubTask = copy.deepcopy(x[0])
+                                while self.subTask[self.currentSubTask].superstate.state != 'removed':
                                     pass
                                 self.parent.master_tasks[code]['collaborators'][key]['SubTask'][self.task_name][i][2] = 'COMPLETE'
+
+                
                                 
             def COMMITTED(self):
                 self.interface.value = 'COMMITTED'
                 self.parent.binding_state = 'COMMITTED'
 
+
             def event(self, source, comp, name, value, code = None, text = None):
                 #sample: ('cnc', 'Coordinator', 'information_model',{..}, code = 'master_task_uuid', text = 'cnc1') 
-                if comp == 'Coordinator' and name == 'querry':
-                    if value.lower() == 'initiation':
-                        self.parent.master_tasks[code[0]] = code[1]
+                if comp == 'Coordinator' and name == 'binding_state' and value.lower() == 'preparing':
+                    self.parent.master_tasks[code[0]] = code[1]
 
-                elif comp == 'Coordinator' and value.lower() == 'start':
-                        self.committed(code[1], code[0], text)
+                #elif comp == 'Coordinator' and value.lower() == 'start':
+                #        self.committed(code[1], code[0], text)
                     
-                elif comp == 'Coordinator' and name == 'state':
+                elif comp == 'Coordinator' and name == 'binding_state':
                     if value.lower() == 'committing':
                         self.commit()
 
                     elif value.lower() == 'committed':
                         self.parent.master_tasks[code]['coordinator'][text]['state'][2] = value
 
-                elif comp == 'SubTask:Collaborator':
-                    if name == 'request' and value.lower() == 'start':
+                elif 'SubTask' in name:
+                    
+                    if not self.subTask:
                         def subt():
                             self.committed(self.parent.master_tasks[code],code, self.parent.master_tasks[code]['coordinator'].keys()[0])
                         t0= Thread(target = subt)
                         t0.start()
-              
+                        time.sleep(0.3)
+                        
+                    self.subTask[self.currentSubTask].superstate.event(source, comp, name, value, code, text)
                 else:
-                    self.parent.event(source, comp, name, value, code = None, text = None)
-                    
+                    if 'complete' in value.lower():
+                        self.parent.binding_state = 'INACTIVE'
+                    self.parent.event(source, comp, name, value, code, text)
+                                    
                     
         self.superstate = statemachineModel(parent = parent, interface = interface, collaborator_name = collaborator_name)
 
