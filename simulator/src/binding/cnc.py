@@ -82,6 +82,9 @@ class cnc(object):
 
                 self.binding_state = "INACTIVE"
 
+                self.iscoordinator = False
+                self.iscollaborator = False
+
             def CNC_NOT_READY(self):
                 self.open_chuck_interface.superstate.DEACTIVATE()
                 self.close_chuck_interface.superstate.DEACTIVATE()
@@ -109,6 +112,8 @@ class cnc(object):
 
                 if self.has_material and self.link == "ENABLED" and self.robot_controller_mode =="AUTOMATIC" and self.robot_execution == "ACTIVE" and self.robot_availability == "AVAILABLE":
                     self.unloading()
+                    self.iscoordinator = True
+                    self.iscollaborator = False
                     master_task_uuid = copy.deepcopy(self.master_uuid)
                     
                     self.coordinator = coordinator(parent = self, master_task_uuid = master_task_uuid, interface = interface , coordinator_name = self.master_tasks[master_task_uuid]['coordinator'].keys()[0])
@@ -118,7 +123,8 @@ class cnc(object):
                     self.coordinator.superstate.unavailable()
                 else:
                     self.loading()
-
+                    self.iscoordinator = False
+                    self.iscollaborator = True
                     self.collaborator = collaborator(parent = self, interface = interface, collaborator_name = 'cnc1')
                     self.collaborator.create_statemachine()
                     self.collaborator.superstate.task_name = "MaterialLoad"
@@ -149,6 +155,8 @@ class cnc(object):
                         self.execution = "READY"
                         master_task_uuid = copy.deepcopy(self.master_uuid)
                         self.cnc_execution_ready()
+                        self.iscoordinator = True
+                        self.iscollaborator = False
                         self.coordinator = coordinator(parent = self, master_task_uuid = master_task_uuid, interface = interface , coordinator_name = self.master_tasks[master_task_uuid]['coordinator'].keys()[0])
                         self.coordinator.create_statemachine()
                         self.coordinator.superstate.task_name = "MaterialUnload"
@@ -207,6 +215,8 @@ class cnc(object):
                 if self.interfaceType == "Request":
                     self.complete()
                     if self.has_material == False:
+                        self.iscoordinator = False
+                        self.iscollaborator = True
                         self.collaborator = collaborator(parent = self, interface = interface, collaborator_name = 'cnc1')
                         self.collaborator.create_statemachine()
                         self.collaborator.superstate.task_name = "MaterialLoad"
@@ -231,7 +241,8 @@ class cnc(object):
                 if self.has_material:
                     self.unloading()
                     master_task_uuid = copy.deepcopy(self.master_uuid)
-                    
+                    self.iscoordinator = True
+                    self.iscollaborator = False
                     self.coordinator = coordinator(parent = self, master_task_uuid = master_task_uuid, interface = interface , coordinator_name = self.master_tasks[master_task_uuid]['coordinator'].keys()[0])
                     self.coordinator.create_statemachine()
                     self.coordinator.superstate.task_name = "MaterialUnload"
@@ -239,6 +250,8 @@ class cnc(object):
                     self.coordinator.superstate.unavailable()
                 else:
                     self.loading()
+                    self.iscoordinator = False
+                    self.iscollaborator = True
                     self.collaborator = collaborator(parent = self, interface = interface, collaborator_name = 'cnc1')
                     self.collaborator.create_statemachine()
                     self.collaborator.superstate.task_name = "MaterialLoad"
@@ -269,30 +282,43 @@ class cnc(object):
                 if action == "fail":
                     action = "failure"
 
-                if name == "Open":
+                if comp == "Task_Collaborator":
+                    self.coordinator.superstate.event(source, comp, name, value, code, text)
+
+                elif comp == "Coordinator":
+                    self.collaborator.superstate.event(source, comp, name, value, code, text)
+
+                elif 'SubTask' in name:
+                    if self.iscoordinator == True:
+                        self.coordinator.superstate.event(source, comp, name, value, code, text)
+
+                    elif self.iscollaborator == True:
+                        self.collaborator.superstate.event(source, comp, name, value, code, text)
+                    
+                elif name == "Open":
                     if comp == "DoorInterface":
-                        exec('self.open_door_interface.superstate.'+action+'()')
+                        eval('self.open_door_interface.superstate.'+action+'()')
                         
                     elif comp == "ChuckInterface":
-                        exec('self.open_chuck_interface.superstate.'+action+'()')
+                        eval('self.open_chuck_interface.superstate.'+action+'()')
 
                 elif name == "Close":
                     if comp == "DoorInterface":
-                        exec('self.close_door_interface.superstate.'+action+'()')
+                        eval('self.close_door_interface.superstate.'+action+'()')
 
                     elif comp == "ChuckInterface":
-                        exec('self.close_chuck_interface.superstate.'+action+'()')
+                        eval('self.close_chuck_interface.superstate.'+action+'()')
 
                 elif name == "MaterialLoad":
                     if value.lower() == 'ready' and self.state == 'base:operational:idle':
-                        exec('self.robot_material_load_ready()')
+                        eval('self.robot_material_load_ready()')
                     else:
-                        exec('self.material_load_interface.superstate.'+action+'()')
+                        eval('self.material_load_interface.superstate.'+action+'()')
 
                 elif name == "MaterialUnload":
                     if value.lower() == 'ready' and self.state == 'base:operational:idle':
-                        exec('self.robot_material_unload_ready()')
-                    exec('self.material_unload_interface.superstate.'+action+'()')
+                        eval('self.robot_material_unload_ready()')
+                    eval('self.material_unload_interface.superstate.'+action+'()')
 
                 elif comp == "Controller":
                     
@@ -301,26 +327,26 @@ class cnc(object):
                             self.controller_mode = value.upper()
                         elif source.lower() == 'robot':
                             self.robot_controller_mode = value.upper()
-                        exec('self.'+source.lower()+'_controller_mode_'+value.lower()+'()')
+                        eval('self.'+source.lower()+'_controller_mode_'+value.lower()+'()')
 
                     elif name == "Execution":
                         if source.lower() == 'cnc':
                             self.execution = value.upper()
                         elif source.lower() == 'robot':
                             self.robot_execution = value.upper()
-                        exec('self.'+source.lower()+'_execution_'+value.lower()+'()')
+                        eval('self.'+source.lower()+'_execution_'+value.lower()+'()')
 
                 elif comp == "Device":
 
                     if name == "SYSTEM":
-                        exec('self.'+source.lower()+'_system_'+value.lower()+'()')
+                        eval('self.'+source.lower()+'_system_'+value.lower()+'()')
 
                     elif name == "Availability":
                         if source.lower() == 'cnc':
                             self.availability = value.upper()
                         elif source.lower() == 'robot':
                             self.robot_availability = value.upper()
-                        exec('self.'+source.lower()+'_availability_'+value.lower()+'()')
+                        eval('self.'+source.lower()+'_availability_'+value.lower()+'()')
 
                 elif source == "cnc" and name == "ChuckState":
                     self.chuck_state = value.upper()

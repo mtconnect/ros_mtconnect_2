@@ -62,6 +62,9 @@ class inputConveyor(object):
                 self.master_uuid = 1
 
                 self.binding_state = "INACTIVE"
+
+                self.iscoordinator = False
+                self.iscollaborator = False
                 
 
             def InputConveyor_NOT_READY(self):
@@ -83,7 +86,8 @@ class inputConveyor(object):
                 if self.has_material:
                     self.unloading()
                     master_task_uuid = copy.deepcopy(self.master_uuid)
-                    
+                    self.iscoordinator = True
+                    self.iscollaborator = False
                     self.coordinator = coordinator(parent = self, master_task_uuid = master_task_uuid, interface = interface , coordinator_name = self.master_tasks[master_task_uuid]['coordinator'].keys()[0])
                     self.coordinator.create_statemachine()
                     self.coordinator.superstate.task_name = "MaterialUnload"
@@ -146,7 +150,8 @@ class inputConveyor(object):
                 if self.has_material:
                     self.unloading()
                     master_task_uuid = copy.deepcopy(self.master_uuid)
-                    
+                    self.iscoordinator = True
+                    self.iscollaborator = False
                     self.coordinator = coordinator(parent = self, master_task_uuid = master_task_uuid, interface = interface , coordinator_name = self.master_tasks[master_task_uuid]['coordinator'].keys()[0])
                     self.coordinator.create_statemachine()
                     self.coordinator.superstate.task_name = "MaterialUnload"
@@ -177,16 +182,29 @@ class inputConveyor(object):
                 if action == "fail":
                     action = "failure"
 
-                if name == "MaterialLoad":
+                if comp == "Task_Collaborator":
+                    self.coordinator.superstate.event(source, comp, name, value, code, text)
+
+                elif comp == "Coordinator":
+                    self.collaborator.superstate.event(source, comp, name, value, code, text)
+
+                elif 'SubTask' in name:
+                    if self.iscoordinator == True:
+                        self.coordinator.superstate.event(source, comp, name, value, code, text)
+
+                    elif self.iscollaborator == True:
+                        self.collaborator.superstate.event(source, comp, name, value, code, text)
+
+                elif name == "MaterialLoad":
                     if value.lower() == 'ready' and self.state == 'base:operational:idle':
-                        exec('self.robot_material_load_ready()')
+                        eval('self.robot_material_load_ready()')
                     else:
-                        exec('self.material_load_interface.superstate.'+action+'()')
+                        eval('self.material_load_interface.superstate.'+action+'()')
 
                 elif name == "MaterialUnload":
                     if value.lower() == 'ready' and self.state == 'base:operational:idle':
-                        exec('self.robot_material_unload_ready()')
-                    exec('self.material_unload_interface.superstate.'+action+'()')
+                        eval('self.robot_material_unload_ready()')
+                    eval('self.material_unload_interface.superstate.'+action+'()')
 
                 elif comp == "Controller":
                     
@@ -195,26 +213,26 @@ class inputConveyor(object):
                             self.controller_mode = value.upper()
                         elif source == 'robot':
                             self.robot_controller_mode = value.upper()
-                        exec('self.'+source+'_controller_mode_'+value.lower()+'()')
+                        eval('self.'+source+'_controller_mode_'+value.lower()+'()')
 
                     elif name == "Execution":
                         if source == 'inputConveyor':
                             self.execution = value.upper()
                         elif source == 'robot':
                             self.robot_execution = value.upper()
-                        exec('self.'+source+'_execution_'+value.lower()+'()')
+                        eval('self.'+source+'_execution_'+value.lower()+'()')
 
                 elif comp == "Device":
 
                     if name == "SYSTEM":
-                        exec('self.'+source+'_system_'+value.lower()+'()')
+                        eval('self.'+source+'_system_'+value.lower()+'()')
 
                     elif name == "Availability":
                         if source == 'inputConveyor':
                             self.availability = value.upper()
                         elif source == 'robot':
                             self.robot_availability = value.upper()
-                        exec('self.'+source+'_availability_'+value.lower()+'()')
+                        eval('self.'+source+'_availability_'+value.lower()+'()')
 
                      
 
