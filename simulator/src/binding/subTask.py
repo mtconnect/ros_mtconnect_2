@@ -37,12 +37,23 @@ class subTask(object):
                 #self.check_for_subTasks()
 
             def event(self, source, comp, name, value, code = None , text = None):
-                if comp == 'SubTask:Collaborator' and value.lower() == 'completed':
-                    self.success()
-                elif comp == 'SubTask:Collaborator' and value.lower() == 'failed':
-                    self.failure()
-                else:
-                    self.parent.event(source, comp, name, value, code = None , text = None)
+                if 'SubTask' in name:
+                    if value.lower() == 'complete':
+                        self.success()
+                        time.sleep(0.2)
+                        self.parent.event(source, comp, name.split('_')[1], value, code , text)
+                        
+                    elif 'fail' in value.lower():
+                        self.failure()
+                        time.sleep(0.2)
+                        self.parent.event(source, comp, name.split('_')[1], value, code , text)
+
+                    elif value.lower() == 'completed':
+                        self.success()
+
+                    else:
+                        self.parent.event(source, comp, name.split('_')[1], value, code , text)
+                
                 
 
             def COMPLETE(self):
