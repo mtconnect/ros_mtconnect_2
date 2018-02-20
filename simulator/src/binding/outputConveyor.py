@@ -119,6 +119,7 @@ class outputConveyor(object):
 
             def EXIT_LOADING(self):
                 self.material_load_interface.superstate.DEACTIVATE()
+                self.LOADED()
 
             def EXIT_UNLOADING(self):
                 self.material_unload_interface.superstate.DEACTIVATE()              
