@@ -1,7 +1,7 @@
 from transitions.extensions import HierarchicalMachine as Machine
 from transitions.extensions.nesting import NestedState
 from threading import Timer, Thread
-import functools, time
+import functools, time, copy
 import subTask
 
 #will be included under assets!?
@@ -24,6 +24,8 @@ class task(object):
                 self.commit_time_limit = 2.0
                 self.master_task_uuid = master_task_uuid
                 self.coordinator = coordinator
+                self.subTask = {}
+                self.currentSubTask = str()
 
             def INACTIVE(self):
                 self.interface.value = 'INACTIVE'
@@ -87,22 +89,28 @@ class task(object):
                 
                 for key, value in self.parent.master_tasks[self.master_task_uuid]['coordinator'][self.coordinator.coordinator_name]['SubTask'].iteritems():
                     if key == self.coordinator.coordinator_name:
-                        self.subTask = subTask.subTask(parent = self.coordinator , interface = interface, master_task_uuid = self.master_task_uuid, collaborators = value[2])
-                        self.subTask.create_statemachine()
-                        self.subTask.superstate.create()
+                        self.subTask[value[0]] = subTask.subTask(parent = self.parent , interface = interface, master_task_uuid = self.master_task_uuid, collaborators = value[2])
+                        self.subTask[value[0]].create_statemachine()
+                        self.subTask[value[0]].superstate.create()
+                        self.currentSubTask = copy.deepcopy(value[0])
 
-                        for key, value in self.parent.master_tasks[self.master_task_uuid]['collaborators'].iteritems():
-                            if self.coordinator.task_name in value['SubTask']:
-                                for i,x in enumerate(value['SubTask'][self.coordinator.task_name]):
-                                    self._subTask = subTask.subTask(parent = self.coordinator , interface = interface, master_task_uuid = self.master_task_uuid, collaborators = x[4])
-                                    self._subTask.create_statemachine()
-                                    self._subTask.superstate.create()
-                                    while self._subTask.superstate.state != 'removed':
+                        for key, val in self.parent.master_tasks[self.master_task_uuid]['collaborators'].iteritems():
+
+                            if self.coordinator.task_name in val['SubTask']:
+                                for i,x in enumerate(val['SubTask'][self.coordinator.task_name]):
+                                    
+                                    self.subTask[x[0]] = subTask.subTask(parent = self.parent , interface = interface, master_task_uuid = self.master_task_uuid, collaborators = x[4])
+                                    self.subTask[x[0]].create_statemachine()
+                                    self.subTask[x[0]].superstate.create()
+                                    self.currentSubTask = copy.deepcopy(x[0])
+
+                                    while self.subTask[self.currentSubTask].superstate.state != 'removed':
                                         pass
                                     self.parent.master_tasks[self.master_task_uuid]['collaborators'][key]['SubTask'][self.coordinator.task_name][i][2] = 'COMPLETE'
-                                    
-                                    
-                        while self.subTask.superstate.state != 'removed':
+                                        
+                        self.currentSubTask = copy.deepcopy(value[0])
+                        
+                        while self.subTask[self.currentSubTask].superstate.state != 'removed':
                             pass
                         self.parent.master_tasks[self.master_task_uuid]['coordinator'][self.coordinator.coordinator_name]['SubTask'][self.coordinator.coordinator_name][1] = 'COMPLETE'
                         
@@ -110,11 +118,12 @@ class task(object):
                 if True: #replacing while loop
                     success = True
                     for key, value in self.parent.master_tasks[self.master_task_uuid]['coordinator'][self.coordinator.coordinator_name]['SubTask'].iteritems():
-                        if value[1] == 'COMPLETE' or value[1] == 'FAIL':
-                            success = True
-                        else:
-                            success = False
-                            break
+                        if value:
+                            if value[1] == 'COMPLETE' or value[1] == 'FAIL' or value[1] == '':
+                                success = True
+                            else:
+                                success = False
+                                break
                     if success == True:
                         self.success()
 
@@ -132,6 +141,9 @@ class task(object):
                 self.coordinator.interface.value = 'INACTIVE'
                 self.default()
 
+            def event(self, source, comp, name, value, code = None, text = None):
+                self.subTask[self.currentSubTask].superstate.event(source, comp, name, value, code, text)
+                
             def void(self):
                 pass
 
