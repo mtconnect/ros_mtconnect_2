@@ -35,6 +35,10 @@ class task(object):
                 self.interface.value = 'PREPARING'
                 self.parent.binding_state = 'PREPARING'
 
+                self.parent.adapter.begin_gather()
+                self.binding_state1.set_value("PREPARING")
+                self.parent.adapter.complete_gather()
+
             def prepare(self):
                 quorum = True
                 #remove while loops or add events to test
@@ -58,6 +62,11 @@ class task(object):
             def COMMITTING(self):
                 self.interface.value = 'COMMITTING'
                 self.parent.binding_state = 'COMMITTING'
+
+                self.parent.adapter.begin_gather()
+                self.binding_state1.set_value("COMMITTING")
+                self.parent.adapter.complete_gather()
+                
                 def commit_timer():
                     timer = Timer(self.commit_time_limit,self.void)
                     timer.start()
@@ -85,6 +94,10 @@ class task(object):
             def COMMITTED(self):
                 self.interface.value = 'COMMITTED'
                 self.parent.binding_state = 'COMMITTED'
+                
+                self.parent.adapter.begin_gather()
+                self.binding_state1.set_value("COMMITTED")
+                self.parent.adapter.complete_gather()
             
                 
                 for key, value in self.parent.master_tasks[self.master_task_uuid]['coordinator'][self.coordinator.coordinator_name]['SubTask'].iteritems():
@@ -131,6 +144,11 @@ class task(object):
                 self.interface.value = 'COMPLETE'
                 time.sleep(0.2)
                 self.parent.binding_state = 'INACTIVE'
+                
+                self.parent.adapter.begin_gather()
+                self.binding_state1.set_value("INACTIVE")
+                self.parent.adapter.complete_gather()
+
                 self.coordinator.interface.value = 'INACTIVE'
                 self.default()
 
@@ -138,6 +156,11 @@ class task(object):
                 self.interface.value = 'FAIL'
                 time.sleep(0.2)
                 self.parent.binding_state = 'INACTIVE'
+
+                self.parent.adapter.begin_gather()
+                self.binding_state1.set_value("INACTIVE")
+                self.parent.adapter.complete_gather()
+                
                 self.coordinator.interface.value = 'INACTIVE'
                 self.default()
 

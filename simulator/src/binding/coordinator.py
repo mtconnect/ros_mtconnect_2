@@ -30,6 +30,10 @@ class coordinator(object):
             def INACTIVE(self):
                 self.interface.value = 'INACTIVE'
                 self.parent.binding_state = 'INACTIVE'
+                self.parent.adapter.begin_gather()
+                self.binding_state1.set_value("INACTIVE")
+                self.parent.adapter.complete_gather()
+                
                 if self.parent.master_tasks[self.master_task_uuid]['coordinator'][self.coordinator_name]['Task']:
                     
                     self.task = task.task(parent = self.parent, interface = interface, master_task_uuid = self.master_task_uuid, coordinator = self)

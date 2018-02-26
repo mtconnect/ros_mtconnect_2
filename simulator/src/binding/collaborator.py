@@ -29,10 +29,20 @@ class collaborator(object):
                 
             def INACTIVE(self): 
                 self.interface.value = 'INACTIVE'
+                
+                self.parent.adapter.begin_gather()
+                self.binding_state1.set_value("INACTIVE")
+                self.parent.adapter.complete_gather()
+                
                 self.task_created()
 
             def PREPARING(self):
                 self.interface.value = 'PREPARING'
+                self.parent.binding_state = 'PREPARING'
+                
+                self.parent.adapter.begin_gather()
+                self.binding_state1.set_value("PREPARING")
+                self.parent.adapter.complete_gather()
                 
             def committed(self, value, code, text):
                 if self.collaborator_name in value['coordinator'][text]['SubTask']:
@@ -81,6 +91,10 @@ class collaborator(object):
                 self.interface.value = 'COMMITTED'
                 self.parent.binding_state = 'COMMITTED'
 
+                self.parent.adapter.begin_gather()
+                self.binding_state1.set_value("COMMITTED")
+                self.parent.adapter.complete_gather()
+
 
             def event(self, source, comp, name, value, code = None, text = None):
                 #sample: ('cnc', 'Coordinator', 'information_model',{..}, code = 'master_task_uuid', text = 'cnc1') 
@@ -110,6 +124,10 @@ class collaborator(object):
                 else:
                     if 'complete' in value.lower():
                         self.parent.binding_state = 'INACTIVE'
+                        
+                        self.parent.adapter.begin_gather()
+                        self.binding_state1.set_value("INACTIVE")
+                        self.parent.adapter.complete_gather()
                     self.parent.event(source, comp, name, value, code, text)
                                     
                     

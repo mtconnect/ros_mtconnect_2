@@ -4,18 +4,16 @@ from door import *
 from chuck import *
 from coordinator import *
 from collaborator import *
-
+from mtconnect_adapter import Adapter
+from long_pull import LongPull
+from data_item import Event, SimpleCondition, Sample, ThreeDSample
 
 from transitions.extensions import HierarchicalMachine as Machine
 from transitions.extensions.nesting import NestedState
 from threading import Timer, Thread
 import functools, time, re, copy
+from mtconnect_adapter import Adapter
 
-
-class adapter(object):
-
-    def __init__(self, value = None):
-        self.interface = value
 
 class interface(object):
 
@@ -31,12 +29,51 @@ class cnc(object):
 
             def __init__(self):
                 #initializing the interfaces
-                self.open_door = interface() 
-                self.close_door = interface()
-                self.open_chuck = interface()
-                self.close_chuck = interface()
-                self.material_load = interface()
-                self.material_unload = interface()
+                #self.open_door = interface() 
+                #self.close_door = interface()
+                #self.open_chuck = interface()
+                #self.close_chuck = interface()
+                #self.material_load = interface()
+                #self.material_unload = interface()
+                self.adapter = Adapter(('localhost',7777))
+
+                self.mode1 = Event('mode')
+                self.adapter.add_data_item(self.mode1)
+
+                self.e1 = Event('execution')
+                self.adapter.add_data_item(self.e1)
+
+                self.avail1 = Event('avail')
+                self.adapter.add_data_item(self.avail1)
+
+                self.binding_state1 = Event('bind')
+                self.adapter.add_data_item(self.binding_state1)
+
+                self.open_chuck = Event('open_chuck')
+                self.adapter.add_data_item(self.open_chuck)
+
+                self.close_chuck = Event('close_chuck')
+                self.adapter.add_data_item(self.close_chuck)
+
+                self.open_door = Event('open_door')
+                self.adapter.add_data_item(self.open_door)
+
+                self.close_door = Event('close_door')
+                self.adapter.add_data_item(self.close_door)
+
+                self.chuck_state = Event('chuck_state')
+                self.adapter.add_data_item(self.chuck_state)
+
+                self.door_state = Event('door_state')
+                self.adapter.add_data_item(self.door_state)
+
+                self.material_load = Event('material_load')
+                self.adapter.add_data_item(self.material_load)
+
+                self.material_unload = Event('material_unload')
+                self.adapter.add_data_item(self.material_unload)
+
+                self.adapter.start()
 
                 self.material_load_interface = MaterialLoad(self)
                 self.material_unload_interface = MaterialUnload(self)
@@ -44,15 +81,15 @@ class cnc(object):
                 self.close_chuck_interface = CloseChuck(self)
                 self.open_door_interface = OpenDoor(self)
                 self.close_door_interface = CloseDoor(self)
-                
-                self.door_state = "OPEN"
-                self.chuck_state = "OPEN"
+
                 self.has_material = False
                 self.fail_next = False
 
                 self.availability = "AVAILABLE"
                 self.execution = "READY"
                 self.controller_mode = "AUTOMATIC"
+
+                self.binding_state = "INACTIVE"
                 
                 self.robot_availability = "AVAILABLE" #intialized for testing
                 self.robot_execution = "ACTIVE"
@@ -66,8 +103,6 @@ class cnc(object):
 
                 self.link = "ENABLED"
 
-                self.adapter = adapter
-
                 self.load_time_limit(3)
                 self.unload_time_limit(3)
 
@@ -80,10 +115,32 @@ class cnc(object):
 
                 self.master_uuid = 1 #w.r.t PnP?
 
-                self.binding_state = "INACTIVE"
-
                 self.iscoordinator = False
                 self.iscollaborator = False
+
+                #adapter: adding dataitems to adapter: should be unique
+                
+
+                self.adapter.begin_gather()
+
+                self.door_state.set_value("OPEN")
+                self.chuck_state.set_value("OPEN")
+                self.avail1.set_value(self.availability)
+                self.e1.set_value(self.execution)
+                self.mode1.set_value(self.controller_mode)
+                self.binding_state1.set_value(self.binding_state)
+                self.open_chuck.set_value("NOT_READY")
+                self.close_chuck.set_value("NOT_READY")
+                self.open_door.set_value("NOT_READY")
+                self.close_door.set_value("NOT_READY")
+                self.material_load.set_value("NOT_READY")
+                self.material_unload.set_value("NOT_READY")
+
+                self.adapter.complete_gather()
+                
+                               
+
+                
 
             def CNC_NOT_READY(self):
                 self.open_chuck_interface.superstate.DEACTIVATE()
@@ -150,9 +207,18 @@ class cnc(object):
                     self.cnc_fault()
 
                 else:
+                    self.adapter.begin_gather()
+                    self.e1.set_value("ACTIVE")
+                    self.adapter.complete_gather()
+
                     self.execution = "ACTIVE"
                     def func(self = self):
                         self.execution = "READY"
+                        
+                        self.adapter.begin_gather()
+                        self.e1.set_value("READY")
+                        self.adapter.complete_gather()
+
                         master_task_uuid = copy.deepcopy(self.master_uuid)
                         self.cnc_execution_ready()
                         self.iscoordinator = True
@@ -325,12 +391,20 @@ class cnc(object):
                     if name == "ControllerMode":
                         if source.lower() == 'cnc':
                             self.controller_mode = value.upper()
+                            self.adapter.begin_gather()
+                            self.mode1.set_value(value.upper())
+                            self.adapter.complete_gather()
+                            
                         elif source.lower() == 'robot':
                             self.robot_controller_mode = value.upper()
                         eval('self.'+source.lower()+'_controller_mode_'+value.lower()+'()')
 
                     elif name == "Execution":
                         if source.lower() == 'cnc':
+                            self.adapter.begin_gather()
+                            self.e1.set_value(value.upper())
+                            self.adapter.complete_gather()
+                    
                             self.execution = value.upper()
                         elif source.lower() == 'robot':
                             self.robot_execution = value.upper()
@@ -344,6 +418,11 @@ class cnc(object):
                     elif name == "Availability":
                         if source.lower() == 'cnc':
                             self.availability = value.upper()
+
+                            self.adapter.begin_gather()
+                            self.avail1.set_value(value.upper())
+                            self.adapter.complete_gather()
+                    
                         elif source.lower() == 'robot':
                             self.robot_availability = value.upper()
                         eval('self.'+source.lower()+'_availability_'+value.lower()+'()')
@@ -366,9 +445,6 @@ class cnc(object):
 
         self.superstate = statemachineModel()
 
-    def draw(self):
-        print "Creating cnc.png diagram"
-        self.statemachine.get_graph().draw('cnc.png', prog='dot')
 
     def create_statemachine(self):
         NestedState.separator = ':'

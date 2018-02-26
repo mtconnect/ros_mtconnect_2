@@ -1,4 +1,4 @@
-from transitions.extensions import HierarchicalGraphMachine as Machine
+from transitions.extensions import HierarchicalMachine as Machine
 from transitions.extensions.nesting import NestedState
 from threading import Timer, Thread
 import functools, time
