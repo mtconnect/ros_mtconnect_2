@@ -12,7 +12,8 @@ from transitions.extensions import HierarchicalMachine as Machine
 from transitions.extensions.nesting import NestedState
 from threading import Timer, Thread
 import functools, time, re, copy
-from mtconnect_adapter import Adapter
+import requests
+import xml.etree.ElementTree as ET
 
 
 class interface(object):
@@ -28,14 +29,8 @@ class cnc(object):
         class statemachineModel(object):
 
             def __init__(self):
-                #initializing the interfaces
-                #self.open_door = interface() 
-                #self.close_door = interface()
-                #self.open_chuck = interface()
-                #self.close_chuck = interface()
-                #self.material_load = interface()
-                #self.material_unload = interface()
-                self.adapter = Adapter(('localhost',7777))
+                
+                self.adapter = Adapter(('localhost',7780))
 
                 self.mode1 = Event('mode')
                 self.adapter.add_data_item(self.mode1)
@@ -103,8 +98,8 @@ class cnc(object):
 
                 self.link = "ENABLED"
 
-                self.load_time_limit(3)
-                self.unload_time_limit(3)
+                self.load_time_limit(10)
+                self.unload_time_limit(10)
 
                 self.load_failed_time_limit(2)
                 self.unload_failed_time_limit(2)
@@ -138,8 +133,18 @@ class cnc(object):
 
                 self.adapter.complete_gather()
                 
-                               
+                self.device_pull =[]
+                
+                thread= Thread(target = self.start_pull,args=("http://localhost:5006/sample?interval=1000&count=1000",))
+                thread.start()
+                
 
+            def start_pull(self,addr):
+                
+                response = requests.get(addr, stream=True)
+                lp = LongPull(response)
+                lp.long_pull(self.from_long_pull)
+                
                 
 
             def CNC_NOT_READY(self):
@@ -442,6 +447,24 @@ class cnc(object):
                     elif self.door_state == "CLOSED":
                         self.close_door_interface.statemachine.set_state('base:not_ready')
 
+            def from_long_pull(self, chunk):
+                root=ET.fromstring(chunk)
+                xmlns =root.tag.split('}')[0]+'}'
+                s=root.findall('.//'+xmlns+'Streams')[0]
+
+                for x in s:
+                    source = x.attrib['name']
+
+                    for y in x:
+                        component = y.attrib['component']
+
+                        events = y.find('.//'+xmlns+'Events')
+                        for event in events:
+                            try:
+                                self.event(source.lower(), component, event.tag.split('}')[-1], event.text)
+                            except:
+                                "Invalid attribute"
+
 
         self.superstate = statemachineModel()
 
@@ -522,4 +545,5 @@ class cnc(object):
         self.statemachine.on_exit('base:operational:unloading', 'EXIT_UNLOADING')
 
         
-        
+if __name__ == '__main__':
+    cnc1 = cnc(interface)
