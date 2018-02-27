@@ -15,6 +15,7 @@
 from SocketServer import ThreadingMixIn, TCPServer, BaseRequestHandler
 import threading
 import socket
+import uuid
 from datetime import datetime
 import re
 
@@ -179,3 +180,14 @@ class Adapter(ThreadingMixIn, TCPServer):
         self.complete()
         self.send_changed(self._clients.keys())
         self.sweep()
+    
+    def addAsset(self, assetType, assetId, xml):
+        bound = "--multiline--%s" % str(uuid.uuid4())
+        text = "|@ASSET@|%s|%s|%s\n%s\n%s\n" % (assetId, assetType, bound, xml, bound)
+        self.send(self.format_time(), text, self._clients.keys())
+        
+    def removeAsset(self, assetId):
+        bound = "--multiline--%s" % str(uuid.uuid4())
+        text = "|@REMOVE_ASSET@|%s" % assetId
+        self.send(self.format_time(), text, self._clients.keys())
+
