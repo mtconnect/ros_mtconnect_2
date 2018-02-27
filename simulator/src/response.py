@@ -1,4 +1,4 @@
-from transitions.extensions import HierarchicalGraphMachine as Machine
+from transitions.extensions import HierarchicalMachine as Machine
 from transitions.extensions.nesting import NestedState
 from threading import Timer, Thread
 import functools, time
@@ -27,10 +27,12 @@ class Response(object):
 
         class statemachineModel(object):
 
-            def __init__(self, interface = interface, parent = parent, dest_state = dest_state, simulate = simulate, rel = rel):
+            def __init__(self, interface = interface, parent = parent, prefix = prefix, dest_state = dest_state, simulate = simulate, rel = rel):
 
                 self.interface = interface
+                self.parent = parent
                 self.dest_state = dest_state
+                self.prefix = prefix
                 self.response_state = str()
                 self.simulate = simulate
                 self.fail_reset_delay = 1.0
@@ -118,14 +120,13 @@ class Response(object):
 
             @check_state_calls  
             def COMPLETE(self):
-                self.interface.value = "COMPLETE"
+                
                 if self.simulate:
                     self.response_state = self.dest_state
-                try:
-                    self.parent.interface_type(value = 'Response')
-                    self.parent.COMPLETED()
-                except:
-                    "Local Spec Testing"
+               
+                self.parent.interface_type(value = 'Response'+self.prefix.lower()+self.dest_state.lower())
+                self.parent.COMPLETED()
+                self.interface.value = "COMPLETE"
 
             def void(self):
                 pass
