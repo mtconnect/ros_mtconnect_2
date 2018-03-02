@@ -2,25 +2,22 @@ from __future__ import absolute_import, division, print_function, unicode_litera
 __metaclass__ = type
 
 import rospy
-import mtconnect_msgs.msg
+import actionlib
+from mtconnect_bridge.msg import DeviceWorkAction, DeviceWorkGoal
 
 from simulator.src import request, response
 
-class Request:
-    def __init__(self):
-        self.request = request.Request('parent', 'adapter', request.interface(), True)
-
-        #Initialize the state machine
-        self.request.create_statemachine()
-        self.request.superstate.start()
-
-class Response:
-    def __init__(self):
-        self.material_load_response = response.Response('parent', 'adapter', response.interface(), 'door', 'OPEN', 'UNLATCHED', True, simulate= True)
+ACTIONS = [
+    'move',
+    'grab',
+    'release',
+]
 
 class Bridge:
     def __init__(self):
-        pass
+        self.action_clients = {}
+        for action in ACTIONS:
+            self.action_clients[action] = actionlib.SimpleActionClient(action, DeviceWorkAction)
 
     def spin(self):
         pass
