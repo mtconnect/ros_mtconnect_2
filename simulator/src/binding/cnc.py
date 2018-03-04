@@ -41,8 +41,8 @@ class cnc(object):
                 self.avail1 = Event('avail')
                 self.adapter.add_data_item(self.avail1)
 
-                self.binding_state1 = Event('bind')
-                self.adapter.add_data_item(self.binding_state1)
+                self.binding_state_material = Event('binding_state_material')
+                self.adapter.add_data_item(self.binding_state_material)
 
                 self.open_chuck = Event('open_chuck')
                 self.adapter.add_data_item(self.open_chuck)
@@ -80,12 +80,6 @@ class cnc(object):
                 self.has_material = False
                 self.fail_next = False
 
-                self.availability = "AVAILABLE"
-                self.execution = "READY"
-                self.controller_mode = "AUTOMATIC"
-
-                self.binding_state = "INACTIVE"
-                
                 self.robot_availability = "AVAILABLE" #intialized for testing
                 self.robot_execution = "READY"
                 self.robot_controller_mode = "AUTOMATIC"
@@ -120,10 +114,10 @@ class cnc(object):
 
                 self.door_state.set_value("OPEN")
                 self.chuck_state.set_value("OPEN")
-                self.avail1.set_value(self.availability)
-                self.e1.set_value(self.execution)
-                self.mode1.set_value(self.controller_mode)
-                self.binding_state1.set_value(self.binding_state)
+                self.avail1.set_value("AVAILABLE")
+                self.e1.set_value("READY")
+                self.mode1.set_value("AUTOMATIC")
+                self.binding_state_material.set_value("INACTIVE")
                 self.open_chuck.set_value("NOT_READY")
                 self.close_chuck.set_value("NOT_READY")
                 self.open_door.set_value("NOT_READY")
@@ -158,7 +152,7 @@ class cnc(object):
             #change ACTIVATE?
             def ACTIVATE(self):
                 print 'in activate'
-                if self.controller_mode == "AUTOMATIC" and self.availability == "AVAILABLE":
+                if self.mode1.value() == "AUTOMATIC" and self.avail1.value() == "AVAILABLE":
                     print 'making operational'
                     self.make_operational()
 
@@ -184,7 +178,7 @@ class cnc(object):
                     self.iscollaborator = False
                     master_task_uuid = copy.deepcopy(self.master_uuid)
                     
-                    self.coordinator = coordinator(parent = self, master_task_uuid = master_task_uuid, interface = interface , coordinator_name = self.master_tasks[master_task_uuid]['coordinator'].keys()[0])
+                    self.coordinator = coordinator(parent = self, master_task_uuid = master_task_uuid, interface = self.binding_state_material , coordinator_name = self.master_tasks[master_task_uuid]['coordinator'].keys()[0])
                     self.coordinator.create_statemachine()
                     self.coordinator.superstate.task_name = "MaterialUnload"
                     
@@ -194,7 +188,7 @@ class cnc(object):
                     print 'in loading'
                     self.iscoordinator = False
                     self.iscollaborator = True
-                    self.collaborator = collaborator(parent = self, interface = interface, collaborator_name = 'cnc1')
+                    self.collaborator = collaborator(parent = self, interface = self.binding_state_material, collaborator_name = 'cnc1')
                     self.collaborator.create_statemachine()
                     self.collaborator.superstate.task_name = "MaterialLoad"
                     self.collaborator.superstate.unavailable()
@@ -227,9 +221,7 @@ class cnc(object):
                     self.e1.set_value("ACTIVE")
                     self.adapter.complete_gather()
 
-                    self.execution = "ACTIVE"
                     def func(self = self):
-                        self.execution = "READY"
                         
                         self.adapter.begin_gather()
                         self.e1.set_value("READY")
@@ -239,7 +231,7 @@ class cnc(object):
                         self.cnc_execution_ready()
                         self.iscoordinator = True
                         self.iscollaborator = False
-                        self.coordinator = coordinator(parent = self, master_task_uuid = master_task_uuid, interface = interface , coordinator_name = self.master_tasks[master_task_uuid]['coordinator'].keys()[0])
+                        self.coordinator = coordinator(parent = self, master_task_uuid = master_task_uuid, interface = self.binding_state_material , coordinator_name = self.master_tasks[master_task_uuid]['coordinator'].keys()[0])
                         self.coordinator.create_statemachine()
                         self.coordinator.superstate.task_name = "MaterialUnload"
                         
@@ -299,7 +291,7 @@ class cnc(object):
                     if self.has_material == False:
                         self.iscoordinator = False
                         self.iscollaborator = True
-                        self.collaborator = collaborator(parent = self, interface = interface, collaborator_name = 'cnc1')
+                        self.collaborator = collaborator(parent = self, interface = self.binding_state_material, collaborator_name = 'cnc1')
                         self.collaborator.create_statemachine()
                         self.collaborator.superstate.task_name = "MaterialLoad"
                         self.collaborator.superstate.unavailable()
@@ -325,7 +317,7 @@ class cnc(object):
                     master_task_uuid = copy.deepcopy(self.master_uuid)
                     self.iscoordinator = True
                     self.iscollaborator = False
-                    self.coordinator = coordinator(parent = self, master_task_uuid = master_task_uuid, interface = interface , coordinator_name = self.master_tasks[master_task_uuid]['coordinator'].keys()[0])
+                    self.coordinator = coordinator(parent = self, master_task_uuid = master_task_uuid, interface = self.binding_state_material , coordinator_name = self.master_tasks[master_task_uuid]['coordinator'].keys()[0])
                     self.coordinator.create_statemachine()
                     self.coordinator.superstate.task_name = "MaterialUnload"
                     
@@ -334,7 +326,7 @@ class cnc(object):
                     self.loading()
                     self.iscoordinator = False
                     self.iscollaborator = True
-                    self.collaborator = collaborator(parent = self, interface = interface, collaborator_name = 'cnc1')
+                    self.collaborator = collaborator(parent = self, interface = self.binding_state_material, collaborator_name = 'cnc1')
                     self.collaborator.create_statemachine()
                     self.collaborator.superstate.task_name = "MaterialLoad"
                     self.collaborator.superstate.unavailable()
@@ -364,13 +356,13 @@ class cnc(object):
                 if action == "fail":
                     action = "failure"
 
-                if comp == "Task_Collaborator":
+                if comp == "Collaborator" and action!='unavailable':
                     self.coordinator.superstate.event(source, comp, name, value, code, text)
 
-                elif comp == "Coordinator":
+                elif comp == "Coordinator" and action!='unavailable':
                     self.collaborator.superstate.event(source, comp, name, value, code, text)
 
-                elif 'SubTask' in name:
+                elif 'SubTask' in name and action!='unavailable':
                     if self.iscoordinator == True:
                         self.coordinator.superstate.event(source, comp, name, value, code, text)
 
@@ -412,7 +404,6 @@ class cnc(object):
                     
                     if name == "ControllerMode":
                         if source.lower() == 'cnc':
-                            self.controller_mode = value.upper()
                             self.adapter.begin_gather()
                             self.mode1.set_value(value.upper())
                             self.adapter.complete_gather()
@@ -432,7 +423,6 @@ class cnc(object):
                             self.e1.set_value(value.upper())
                             self.adapter.complete_gather()
                     
-                            self.execution = value.upper()
                         elif source.lower() == 'robot':
                             self.robot_execution = value.upper()
                         if action!='unavailable':
@@ -451,8 +441,6 @@ class cnc(object):
 
                     elif name == "Availability":
                         if source.lower() == 'cnc':
-                            self.availability = value.upper()
-
                             self.adapter.begin_gather()
                             self.avail1.set_value(value.upper())
                             self.adapter.complete_gather()

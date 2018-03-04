@@ -28,20 +28,16 @@ class collaborator(object):
                 self.currentSubTask = str()
                 
             def INACTIVE(self): 
-                self.interface.value = 'INACTIVE'
                 
                 self.parent.adapter.begin_gather()
-                self.binding_state1.set_value("INACTIVE")
+                self.interface.set_value("INACTIVE")
                 self.parent.adapter.complete_gather()
                 
                 self.task_created()
 
             def PREPARING(self):
-                self.interface.value = 'PREPARING'
-                self.parent.binding_state = 'PREPARING'
-                
                 self.parent.adapter.begin_gather()
-                self.binding_state1.set_value("PREPARING")
+                self.interface.set_value("PREPARING")
                 self.parent.adapter.complete_gather()
                 
             def committed(self, value, code, text):
@@ -88,23 +84,20 @@ class collaborator(object):
                 
                                 
             def COMMITTED(self):
-                self.interface.value = 'COMMITTED'
-                self.parent.binding_state = 'COMMITTED'
-
                 self.parent.adapter.begin_gather()
-                self.binding_state1.set_value("COMMITTED")
+                self.interface.set_value("COMMITTED")
                 self.parent.adapter.complete_gather()
 
 
             def event(self, source, comp, name, value, code = None, text = None):
                 #sample: ('cnc', 'Coordinator', 'information_model',{..}, code = 'master_task_uuid', text = 'cnc1') 
-                if comp == 'Coordinator' and name == 'binding_state' and value.lower() == 'preparing':
+                if comp == 'Coordinator' and 'binding_state' in name and value.lower() == 'preparing':
                     self.parent.master_tasks[code[0]] = code[1]
 
                 #elif comp == 'Coordinator' and value.lower() == 'start':
                 #        self.committed(code[1], code[0], text)
                     
-                elif comp == 'Coordinator' and name == 'binding_state':
+                elif comp == 'Coordinator' and 'binding_state' in name:
                     if value.lower() == 'committing':
                         self.commit()
 
@@ -123,10 +116,9 @@ class collaborator(object):
                     self.subTask[self.currentSubTask].superstate.event(source, comp, name, value, code, text)
                 else:
                     if 'complete' in value.lower():
-                        self.parent.binding_state = 'INACTIVE'
                         
                         self.parent.adapter.begin_gather()
-                        self.binding_state1.set_value("INACTIVE")
+                        self.interface.set_value("INACTIVE")
                         self.parent.adapter.complete_gather()
                     self.parent.event(source, comp, name, value, code, text)
                                     

@@ -24,7 +24,7 @@ class subTask(object):
                 self.commit_time_limit = 2.0
 
             def INACTIVE(self):
-                self.interface.value = 'INACTIVE'
+                #self.interface.value = 'INACTIVE'
                 self.activated()
                 self.quorum()
 
@@ -33,7 +33,7 @@ class subTask(object):
                 self.all_commit()
 
             def COMMITTED(self):
-                self.interface.value = 'COMMITTED'
+                "self.interface.value = 'COMMITTED'"
                 #self.check_for_subTasks()
 
             def event(self, source, comp, name, value, code = None , text = None):
@@ -57,11 +57,11 @@ class subTask(object):
                 
 
             def COMPLETE(self):
-                self.interface.value = 'COMPLETE'
+                #self.interface.value = 'COMPLETE'
                 self.default()
 
             def FAIL(self):
-                self.interface.value = 'FAIL'               
+                #self.interface.value = 'FAIL'               
                 self.default()
 
             def void(self):

@@ -28,10 +28,8 @@ class coordinator(object):
                 self.id = coordinator_name #which one?
 
             def INACTIVE(self):
-                self.interface.value = 'INACTIVE'
-                self.parent.binding_state = 'INACTIVE'
                 self.parent.adapter.begin_gather()
-                self.binding_state1.set_value("INACTIVE")
+                self.interface.set_value("INACTIVE")
                 self.parent.adapter.complete_gather()
                 
                 if self.parent.master_tasks[self.master_task_uuid]['coordinator'][self.coordinator_name]['Task']:
@@ -43,14 +41,16 @@ class coordinator(object):
                     self.bind_to_task()
 
             def COMMITTED(self):
-                self.interface.value = 'COMMITTED'
+                self.parent.adapter.begin_gather()
+                self.interface.set_value("COMMITTED")
+                self.parent.adapter.complete_gather()
 
                 
             def event(self, source, comp, name, value, code = None, text = None):
                 #samplevent('robot_r1','collaborator','subtask_address',["open_door",'COMMITTED'],execution_lines, 'execute')
                 
-                if comp == 'Task_Collaborator':
-                    if name == 'binding_state':
+                if comp == 'Collaborator':
+                    if 'binding_state' in name:
                         self.parent.master_tasks[code]['collaborators'][text]['state'][2] = value
                         if value.lower() == 'preparing':
                             self.task.superstate.prepare()
