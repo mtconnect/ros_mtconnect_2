@@ -5,7 +5,7 @@ import rospy
 import actionlib
 from mtconnect_bridge.msg import DeviceWorkAction, DeviceWorkGoal
 
-from simulator.src import request, response
+from simulator.src import robot
 
 ACTIONS = [
     'move',
@@ -19,5 +19,9 @@ class Bridge:
         for action in ACTIONS:
             self.action_clients[action] = actionlib.SimpleActionClient(action, DeviceWorkAction)
 
-    def spin(self):
-        pass
+    def do_work(self, action_type, work_info):
+        action_goal = DeviceWorkGoal()
+        action_goal.type = action_type
+        action_goal.data = work_info
+        self.action_clients[action_type].send_goal(action_goal)
+        self.action_clients[action_type].wait_for_result(rospy.Duration.from_sec(10.0))
