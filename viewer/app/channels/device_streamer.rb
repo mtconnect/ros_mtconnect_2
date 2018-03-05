@@ -21,13 +21,27 @@ class DeviceStreamer
     [http, path]
   end
 
+  def stream_changes(xml)
+    @device.parse_streams(xml) do |event|
+      puts "Sending event: #{@device.name}_#{event.id} #{event.value}"
+      ActionCable.server.broadcast('mt_connect_updates_channel',
+                                   id: "#{@device.name}_#{event.id}",
+                                   value: event.value)
+    end      
+  end
+
   def initialize_stream(client, path)
     response = client.get("#{path}current")
     if Net::HTTPOK === response
-      doc = REXML::Document.new(response.body)
+      xml = response.body
+      doc = REXML::Document.new(xml)
       header = doc.elements['//Header']
       p header
-      header.attributes['nextSequence']
+      nxt = header.attributes['nextSequence']
+      
+      stream_changes(xml)
+
+      nxt
     else
       logger.error "Agent returned status: #{response}"
       nil
@@ -40,15 +54,11 @@ class DeviceStreamer
     
     path << "sample?from=#{nxt}&interval=100&count=1000"
     logger.info "Requesting: #{path} for #{@device.name} at #{nxt}"
-    
+
+    p path
     puller = LongPull.new(client)
     puller.long_pull(path) do |xml|
-      @device.parse_streams(xml) do |event|
-        puts "Sending event: #{@device.name}_#{event.id} #{event.value}"
-        ActionCable.server.broadcast('mt_connect_updates_channel',
-                                     id: "#{@device.name}_#{event.id}",
-                                     value: event.value)
-      end
+      stream_changes(xml)
     end
   end
 
