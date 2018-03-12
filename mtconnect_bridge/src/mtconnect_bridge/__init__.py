@@ -4,6 +4,7 @@ from __future__ import print_function
 import sys
 import os
 
+#HACK to access simulator code
 sys.path.append(os.path.join(os.getenv('HOME'), 'Workspaces/ceccrebot/src/ros_mtconnect_2'))
 
 from bridge import Bridge

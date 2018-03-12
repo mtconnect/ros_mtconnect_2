@@ -25,3 +25,6 @@ class Bridge:
         action_goal.data = work_info
         self.action_clients[action_type].send_goal(action_goal)
         self.action_clients[action_type].wait_for_result(rospy.Duration.from_sec(10.0))
+
+    def spin(self):
+        rospy.spin()
