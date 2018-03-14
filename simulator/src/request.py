@@ -21,10 +21,16 @@ class Request(object):
         
             def __init__(self,interface = interface, parent = parent):
                 self.interface = interface
-                self.processing_time_limit = 2
-                self.fail_time_limit = 2
+                self.processing_time_limit = 0.0
+                self.fail_time_limit = 0.0
                 self.failing = False
                 self.parent = parent
+
+            def set_processing_time_limit(self, limit):
+                self.processing_time_limit = float(limit)
+
+            def set_fail_time_limit(self, limit):
+                self.fail_time_limit = float(limit)
 
             def check_state_calls(func):
                 @functools.wraps(func)
@@ -197,6 +203,14 @@ class Request(object):
             @check_state_calls
             def DEFAULT(self):
                 self.default()
+
+            def event(self, ev):
+                """Process events.
+
+                :type ev: .event.Event
+                """
+                if ev.value.lower() == 'ready':
+                    self.ready()
 
                 
         self.superstate = statemachineModel(interface)
