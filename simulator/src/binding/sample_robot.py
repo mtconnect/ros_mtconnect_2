@@ -47,15 +47,15 @@ if __name__ == "__main__":
     adapter.complete_gather()
 
     if True:
-        time.sleep(20)
+        time.sleep(10)
         adapter.begin_gather()
         material_load.set_value("READY")
         adapter.complete_gather()
 
+        time.sleep(0.5)
+
         adapter.begin_gather()
-        mode.set_value('AUTOMATIC')
-        avail.set_value('AVAILABLE')
-        e1.set_value('AUTOMATIC')
+        e1.set_value('ACTIVE')
         adapter.complete_gather()
        
         adapter.begin_gather()

@@ -41,8 +41,8 @@ class cnc(object):
                 self.avail1 = Event('avail')
                 self.adapter.add_data_item(self.avail1)
 
-                self.binding_state1 = Event('bind')
-                self.adapter.add_data_item(self.binding_state1)
+                self.binding_state_material = Event('binding_state_material')
+                self.adapter.add_data_item(self.binding_state_material)
 
                 self.open_chuck = Event('open_chuck')
                 self.adapter.add_data_item(self.open_chuck)
@@ -80,14 +80,8 @@ class cnc(object):
                 self.has_material = False
                 self.fail_next = False
 
-                self.availability = "AVAILABLE"
-                self.execution = "READY"
-                self.controller_mode = "AUTOMATIC"
-
-                self.binding_state = "INACTIVE"
-                
                 self.robot_availability = "AVAILABLE" #intialized for testing
-                self.robot_execution = "ACTIVE"
+                self.robot_execution = "READY"
                 self.robot_controller_mode = "AUTOMATIC"
                 
                 self.cycle_time = 2.0
@@ -120,10 +114,10 @@ class cnc(object):
 
                 self.door_state.set_value("OPEN")
                 self.chuck_state.set_value("OPEN")
-                self.avail1.set_value(self.availability)
-                self.e1.set_value(self.execution)
-                self.mode1.set_value(self.controller_mode)
-                self.binding_state1.set_value(self.binding_state)
+                self.avail1.set_value("AVAILABLE")
+                self.e1.set_value("READY")
+                self.mode1.set_value("AUTOMATIC")
+                self.binding_state_material.set_value("INACTIVE")
                 self.open_chuck.set_value("NOT_READY")
                 self.close_chuck.set_value("NOT_READY")
                 self.open_door.set_value("NOT_READY")
@@ -135,7 +129,7 @@ class cnc(object):
                 
                 self.device_pull =[]
                 
-                thread= Thread(target = self.start_pull,args=("http://localhost:5006/sample?interval=1000&count=1000",))
+                thread= Thread(target = self.start_pull,args=("http://localhost:5006/sample?interval=10&count=1000",))
                 thread.start()
                 
 
@@ -157,13 +151,17 @@ class cnc(object):
 
             #change ACTIVATE?
             def ACTIVATE(self):
-                if self.controller_mode == "AUTOMATIC" and self.availability == "AVAILABLE":
+                print 'in activate'
+                if self.mode1.value() == "AUTOMATIC" and self.avail1.value() == "AVAILABLE":
+                    print 'making operational'
                     self.make_operational()
 
                 elif self.system_normal:
+                    print 'not ready'
                     self.still_not_ready()
 
                 else:
+                    print 'faulted'
                     self.faulted()
 
             def OPERATIONAL(self):
@@ -171,28 +169,35 @@ class cnc(object):
                 self.close_chuck_interface.superstate.ACTIVATE()
                 self.open_door_interface.superstate.ACTIVATE()
                 self.close_door_interface.superstate.ACTIVATE()
+                print 'in operational'
 
                 if self.has_material and self.link == "ENABLED" and self.robot_controller_mode =="AUTOMATIC" and self.robot_execution == "ACTIVE" and self.robot_availability == "AVAILABLE":
                     self.unloading()
+                    print 'in unloading'
                     self.iscoordinator = True
                     self.iscollaborator = False
                     master_task_uuid = copy.deepcopy(self.master_uuid)
                     
-                    self.coordinator = coordinator(parent = self, master_task_uuid = master_task_uuid, interface = interface , coordinator_name = self.master_tasks[master_task_uuid]['coordinator'].keys()[0])
+                    self.coordinator = coordinator(parent = self, master_task_uuid = master_task_uuid, interface = self.binding_state_material , coordinator_name = self.master_tasks[master_task_uuid]['coordinator'].keys()[0])
                     self.coordinator.create_statemachine()
                     self.coordinator.superstate.task_name = "MaterialUnload"
                     
                     self.coordinator.superstate.unavailable()
-                else:
+                elif self.has_material == False and self.link == "ENABLED" and self.robot_controller_mode =="AUTOMATIC" and self.robot_execution == "ACTIVE" and self.robot_availability == "AVAILABLE":
                     self.loading()
+                    print 'in loading'
                     self.iscoordinator = False
                     self.iscollaborator = True
-                    self.collaborator = collaborator(parent = self, interface = interface, collaborator_name = 'cnc1')
+                    self.collaborator = collaborator(parent = self, interface = self.binding_state_material, collaborator_name = 'cnc1')
                     self.collaborator.create_statemachine()
                     self.collaborator.superstate.task_name = "MaterialLoad"
                     self.collaborator.superstate.unavailable()
 
+                else:
+                    self.start()
+
             def IDLE(self):
+                print 'in idle'
                 if self.has_material:
                     self.material_load_interface.superstate.DEACTIVATE()
                     self.material_unload_interface.superstate.IDLE()
@@ -216,9 +221,7 @@ class cnc(object):
                     self.e1.set_value("ACTIVE")
                     self.adapter.complete_gather()
 
-                    self.execution = "ACTIVE"
                     def func(self = self):
-                        self.execution = "READY"
                         
                         self.adapter.begin_gather()
                         self.e1.set_value("READY")
@@ -228,7 +231,7 @@ class cnc(object):
                         self.cnc_execution_ready()
                         self.iscoordinator = True
                         self.iscollaborator = False
-                        self.coordinator = coordinator(parent = self, master_task_uuid = master_task_uuid, interface = interface , coordinator_name = self.master_tasks[master_task_uuid]['coordinator'].keys()[0])
+                        self.coordinator = coordinator(parent = self, master_task_uuid = master_task_uuid, interface = self.binding_state_material , coordinator_name = self.master_tasks[master_task_uuid]['coordinator'].keys()[0])
                         self.coordinator.create_statemachine()
                         self.coordinator.superstate.task_name = "MaterialUnload"
                         
@@ -288,7 +291,7 @@ class cnc(object):
                     if self.has_material == False:
                         self.iscoordinator = False
                         self.iscollaborator = True
-                        self.collaborator = collaborator(parent = self, interface = interface, collaborator_name = 'cnc1')
+                        self.collaborator = collaborator(parent = self, interface = self.binding_state_material, collaborator_name = 'cnc1')
                         self.collaborator.create_statemachine()
                         self.collaborator.superstate.task_name = "MaterialLoad"
                         self.collaborator.superstate.unavailable()
@@ -314,7 +317,7 @@ class cnc(object):
                     master_task_uuid = copy.deepcopy(self.master_uuid)
                     self.iscoordinator = True
                     self.iscollaborator = False
-                    self.coordinator = coordinator(parent = self, master_task_uuid = master_task_uuid, interface = interface , coordinator_name = self.master_tasks[master_task_uuid]['coordinator'].keys()[0])
+                    self.coordinator = coordinator(parent = self, master_task_uuid = master_task_uuid, interface = self.binding_state_material , coordinator_name = self.master_tasks[master_task_uuid]['coordinator'].keys()[0])
                     self.coordinator.create_statemachine()
                     self.coordinator.superstate.task_name = "MaterialUnload"
                     
@@ -323,7 +326,7 @@ class cnc(object):
                     self.loading()
                     self.iscoordinator = False
                     self.iscollaborator = True
-                    self.collaborator = collaborator(parent = self, interface = interface, collaborator_name = 'cnc1')
+                    self.collaborator = collaborator(parent = self, interface = self.binding_state_material, collaborator_name = 'cnc1')
                     self.collaborator.create_statemachine()
                     self.collaborator.superstate.task_name = "MaterialLoad"
                     self.collaborator.superstate.unavailable()
@@ -345,7 +348,7 @@ class cnc(object):
 
 
             def event(self, source, comp, name, value, code = None, text = None):
-                print "CNC received " + comp + " " + name + " " + value + " from " + source
+                print "CNC received " + comp + " " + name + " " + value + " from " + source + "\n"
                 self.events.append([source, comp, name, value, code, text])
 
                 action= value.lower()
@@ -353,56 +356,66 @@ class cnc(object):
                 if action == "fail":
                     action = "failure"
 
-                if comp == "Task_Collaborator":
+                if comp == "Collaborator" and action!='unavailable':
                     self.coordinator.superstate.event(source, comp, name, value, code, text)
 
-                elif comp == "Coordinator":
+                elif comp == "Coordinator" and action!='unavailable':
                     self.collaborator.superstate.event(source, comp, name, value, code, text)
 
-                elif 'SubTask' in name:
+                elif 'SubTask' in name and action!='unavailable':
                     if self.iscoordinator == True:
                         self.coordinator.superstate.event(source, comp, name, value, code, text)
 
                     elif self.iscollaborator == True:
                         self.collaborator.superstate.event(source, comp, name, value, code, text)
                     
-                elif name == "Open":
+                elif name == "Open" and action!='unavailable':
                     if comp == "DoorInterface":
                         eval('self.open_door_interface.superstate.'+action+'()')
                         
                     elif comp == "ChuckInterface":
                         eval('self.open_chuck_interface.superstate.'+action+'()')
 
-                elif name == "Close":
+                elif name == "Close" and action!='unavailable':
                     if comp == "DoorInterface":
                         eval('self.close_door_interface.superstate.'+action+'()')
 
                     elif comp == "ChuckInterface":
                         eval('self.close_chuck_interface.superstate.'+action+'()')
 
-                elif name == "MaterialLoad":
-                    if value.lower() == 'ready' and self.state == 'base:operational:idle':
-                        eval('self.robot_material_load_ready()')
-                    else:
+                elif name == "MaterialLoad" and action!='unavailable':
+                    print 'executing'+action+'at'+self.material_load_interface.superstate.state
+                    try:
+                        if action=='ready' and self.state =='base:operational:idle':
+                            eval('self.robot_material_load_ready()')
                         eval('self.material_load_interface.superstate.'+action+'()')
+                    except:
+                        "Incorrect event"
 
-                elif name == "MaterialUnload":
-                    if value.lower() == 'ready' and self.state == 'base:operational:idle':
-                        eval('self.robot_material_unload_ready()')
-                    eval('self.material_unload_interface.superstate.'+action+'()')
+                elif name == "MaterialUnload" and action!='unavailable':
+                    try:
+                        if action =='ready' and self.state =='base:operational:idle':
+                            eval('self.robot_material_unload_ready()')
+                        eval('self.material_unload_interface.superstate.'+action+'()')
+                    except:
+                        "incorrect event"
 
                 elif comp == "Controller":
                     
                     if name == "ControllerMode":
                         if source.lower() == 'cnc':
-                            self.controller_mode = value.upper()
                             self.adapter.begin_gather()
                             self.mode1.set_value(value.upper())
                             self.adapter.complete_gather()
                             
                         elif source.lower() == 'robot':
                             self.robot_controller_mode = value.upper()
-                        eval('self.'+source.lower()+'_controller_mode_'+value.lower()+'()')
+
+                        if action!='unavailable':
+                            try:
+                                eval('self.'+source.lower()+'_controller_mode_'+value.lower()+'()')
+                            except:
+                                "Not a valid trigger"
 
                     elif name == "Execution":
                         if source.lower() == 'cnc':
@@ -410,29 +423,38 @@ class cnc(object):
                             self.e1.set_value(value.upper())
                             self.adapter.complete_gather()
                     
-                            self.execution = value.upper()
                         elif source.lower() == 'robot':
                             self.robot_execution = value.upper()
-                        eval('self.'+source.lower()+'_execution_'+value.lower()+'()')
+                        if action!='unavailable':
+                            try:
+                                eval('self.'+source.lower()+'_execution_'+value.lower()+'()')
+                            except:
+                                "Not a valid trigger"
 
                 elif comp == "Device":
 
-                    if name == "SYSTEM":
-                        eval('self.'+source.lower()+'_system_'+value.lower()+'()')
+                    if name == "SYSTEM" and action!='unavailable':
+                        try:
+                            eval('self.'+source.lower()+'_system_'+value.lower()+'()')
+                        except:
+                            "Not a valid trigger"
 
                     elif name == "Availability":
                         if source.lower() == 'cnc':
-                            self.availability = value.upper()
-
                             self.adapter.begin_gather()
                             self.avail1.set_value(value.upper())
                             self.adapter.complete_gather()
                     
                         elif source.lower() == 'robot':
                             self.robot_availability = value.upper()
-                        eval('self.'+source.lower()+'_availability_'+value.lower()+'()')
 
-                elif source == "cnc" and name == "ChuckState":
+                        if action!='unavailable':
+                            try:
+                                eval('self.'+source.lower()+'_availability_'+value.lower()+'()')
+                            except:
+                                "Not a valid trigger"
+
+                elif source == "cnc" and name == "ChuckState" and action!='unavailable':
                     self.chuck_state = value.upper()
                     if self.chuck_state == "OPEN":
                         self.open_chuck_interface.statemachine.set_state('base:active')
@@ -440,7 +462,7 @@ class cnc(object):
                         self.close_chuck_interface.statemachine.set_state('base:not_ready')
                     
 
-                elif source == "cnc" and name == "DoorState":
+                elif source == "cnc" and name == "DoorState" and action!='unavailable':
                     self.door_state = value.upper()
                     if self.door_state == "OPEN":
                         self.open_door_interface.statemachine.set_state('base:active')
@@ -461,7 +483,9 @@ class cnc(object):
                         events = y.find('.//'+xmlns+'Events')
                         for event in events:
                             try:
-                                self.event(source.lower(), component, event.tag.split('}')[-1], event.text)
+                                #self.event(source.lower(), component, event.tag.split('}')[-1], event.text)
+                                thread1= Thread(target = self.event,args=(source.lower(), component, event.tag.split('}')[-1], event.text))
+                                thread1.start()
                             except:
                                 "Invalid attribute"
 
@@ -547,3 +571,7 @@ class cnc(object):
         
 if __name__ == '__main__':
     cnc1 = cnc(interface)
+    cnc1.create_statemachine()
+    cnc1.superstate.has_material = False
+    cnc1.superstate.load_time_limit(10)
+    cnc1.superstate.unload_time_limit(10)

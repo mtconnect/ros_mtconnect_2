@@ -1,0 +1,52 @@
+// Place all the styles related to the page controller here.
+// They will automatically be included in application.css.
+// You can use Sass (SCSS) here: http://sass-lang.com/
+
+body {
+    font: 15px verdana;
+}
+
+h1 {
+    margin: 10px;
+    font-size: 150%;
+}
+
+h2 {
+    margin: 10px;
+    font-size: 120%;
+}
+
+.device {
+    float: left;
+    margin: 5px;
+    padding: 5px;
+    border: 1px solid black;
+}
+
+
+table {
+    margin-bottom: 12px;
+    width: 100%;
+    border-collapse: collapse;
+}
+
+th {
+    background:#DFDFDF;
+    font-size: 15px; font-weight: bold;
+    text-align: left;
+    color:#303030;
+    padding: 4px;
+    -webkit-border-radius: 3px;
+}
+
+td {
+    font:11px verdana; font-weight: bold;
+    padding: 2px 4px 2px 4px;
+    border: 1px solid #A0A0A0;
+}
+
+
+table {
+    border: 1px solid black;    
+}
+

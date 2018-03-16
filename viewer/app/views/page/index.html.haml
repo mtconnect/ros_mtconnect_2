@@ -1,0 +1,19 @@
+%h1 Devices
+
+- @devices.each do |display_name, name, device|
+  .device
+    %h2= display_name
+    - device.each do |component_type, components|
+      - components.each do |component|
+        - if component_type == 'Rotary' or component_type == 'Linear'
+          %h3= "#{component_type} #{component.name}"
+        - else
+          %h3= "#{component_type}"
+        %table
+          - component.values.each do |v|
+            %tr
+              %td= v.item
+              %td{id: "#{name}_#{v.id}"}= v.value
+
+
+
