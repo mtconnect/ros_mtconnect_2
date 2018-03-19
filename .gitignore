@@ -1,3 +1,13 @@
 *~
 *.pyc
 *.exe
+.ruby-version
+.bundle
+.DS_Store
+
+viewer/vendor/ruby
+viewer/log/*.log
+viewer/tmp/cache
+viewer/tmp/pids
+viewer/tmp/sockets
+viewer/agent
