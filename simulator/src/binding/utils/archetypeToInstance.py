@@ -139,7 +139,7 @@ class archetypeToInstance(object):
 if __name__ == "__main__":
     a2i = archetypeToInstance("MoveMaterial_1")
     a2i.toInstance()
-    print a2i.jsonInstance()
+    a2i.jsonInstance()
     a2i.traverse(a2i.root)
     
     
