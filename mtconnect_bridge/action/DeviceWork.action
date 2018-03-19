@@ -1,0 +1,10 @@
+#This action is nothing more than a generic container for the MTConnect-ROS bridge to send commands
+#on to the other components of the ROS system. These other components are responsible for knowing
+#the meaning of the contents.
+string type
+string data
+---
+int32 code
+string result
+---
+string feedback

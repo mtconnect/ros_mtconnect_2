@@ -15,7 +15,7 @@ with description('moveMaterial'):
         self.buffer = Buffer(interface)
         self.cmm = cmm(interface)
         self.outputConveyor = outputConveyor(interface)
-                        
+
     with it('should have all the state machines'):
         expect(self.inputConveyor).to(be_a(inputConveyor))
         expect(self.cnc).to(be_a(cnc))
@@ -28,7 +28,34 @@ with description('moveMaterial'):
 
         with before.each:
             self.master_uuid = 1
-            self.information_model = {'coordinator':{'inputConveyor1':{'state':['inputConveyor', 'inputConveyor1', None], 'Task': ['move_material', None], 'SubTask': {'r1':[], 'inputConveyor1':['MaterialUnload', None, 'r1','source'],'cnc1': ['MaterialLoad', None, 'r1','destination']}}}, 'collaborators': { 'r1':{'state':['robot','r1', None], 'SubTask': { 'MaterialLoad':[['ChuckInterface','Close', None,1, None], ['DoorInterface', 'Close', None,2, None]]}}, 'cnc1':{'state':['cnc','cnc1', None], 'SubTask':{}}}}
+            self.information_model = {
+                'coordinator': {
+                    'inputConveyor1': {
+                        'state': ['inputConveyor', 'inputConveyor1', None],
+                        'Task': ['move_material', None],
+                        'SubTask': {
+                            'r1':[],
+                            'inputConveyor1':['MaterialUnload', None, 'r1','source'],
+                            'cnc1': ['MaterialLoad', None, 'r1','destination']
+                        }
+                    }
+                },
+                'collaborators': {
+                    'r1': {
+                        'state':['robot','r1', None],
+                        'SubTask': {
+                            'MaterialLoad':[
+                                ['ChuckInterface','Close', None,1, None],
+                                ['DoorInterface', 'Close', None,2, None]
+                            ]
+                        }
+                    },
+                    'cnc1': {
+                        'state': ['cnc','cnc1', None],
+                        'SubTask':{}
+                    }
+                }
+            }
 
             #initializing input conveyor statemachine: source
             self.inputConveyor.create_statemachine()
@@ -37,7 +64,7 @@ with description('moveMaterial'):
             self.inputConveyor.superstate.master_tasks[self.master_uuid] = self.information_model
             self.inputConveyor.superstate.unload_time_limit(10)
             self.inputConveyor.superstate.event('robot', 'MaterialHandlerInterface', 'MaterialUnload', 'READY')
-            
+
             #for cascade failure
             self.inputConveyor.superstate.event('robot', 'MaterialHandlerInterface', 'MaterialLoad', 'READY')
 
@@ -74,11 +101,11 @@ with description('moveMaterial'):
             #inputConveyor creates load task since it doesnt have material
             expect(self.cnc.superstate.collaborator.superstate.interface.value).to(equal('PREPARING'))
 
-            
+
             #input Conveyor:coordinator informs everyone about itself and the cnc:collaborator receives the task information
             self.cnc.superstate.event('inputConveyor', 'Coordinator', 'binding_state', 'PREPARING', code = [self.master_uuid, self.information_model], text = 'inputConveyor1')
             #self.robot.superstate.event('inputConveyor', 'Coordinator', 'binding_state', 'PREPARING', code = [self.master_uuid, self.information_model], text = 'inputConveyor1')
-            
+
             #all the collaborators report back their interest and state
             self.inputConveyor.superstate.event('robot', 'Task_Collaborator', 'binding_state', 'PREPARING', code = self.master_uuid, text = 'r1')
             self.inputConveyor.superstate.event('cnc', 'Task_Collaborator', 'binding_state', 'PREPARING', code = self.master_uuid, text = 'cnc1')
@@ -94,22 +121,22 @@ with description('moveMaterial'):
             self.inputConveyor.superstate.event('robot', 'Task_Collaborator', 'binding_state', 'COMMITTED', code = self.master_uuid, text = 'r1')
             self.inputConveyor.superstate.event('cnc', 'Task_Collaborator', 'binding_state', 'COMMITTED', code = self.master_uuid, text = 'cnc1')
             time.sleep(0.1)
-            
+
             expect(self.inputConveyor.superstate.binding_state).to(equal('COMMITTED'))
 
             #coordinator reports that its committed too and the task:subtask execution begin.
             self.cnc.superstate.event('inputConveyor', 'Coordinator', 'binding_state' , 'COMMITTED',code = self.master_uuid, text = 'inputConveyor1')
 
-            
+
 
             #Task starts
             #subtask_unload starts
 
             self.inputConveyor.superstate.event('robot', 'MaterialHandlerInterface', 'SubTask_MaterialUnload', 'ACTIVE', code = self.master_uuid, text = 'r1')
             time.sleep(1.1)
- 
+
             self.inputConveyor.superstate.event('robot', 'MaterialHandlerInterface', 'SubTask_MaterialUnload', 'COMPLETE', code = self.master_uuid, text = 'r1')
- 
+
             #subtask_unload completed
             time.sleep(0.2)
             expect(self.inputConveyor.superstate.state).to(equal('base:operational:idle'))
@@ -136,23 +163,23 @@ with description('moveMaterial'):
 
             time.sleep(0.2)
             #subtask_door_close starts
-            
+
             self.cnc.superstate.event('robot', 'DoorInterface', 'SubTask_Close', 'ACTIVE', code = self.master_uuid, text = 'r1')
-            
+
             time.sleep(1.1)
-            
+
             self.cnc.superstate.event('robot', 'DoorInterface', 'SubTask_Close', 'READY', code = self.master_uuid, text = 'r1')
             self.cnc.superstate.event('robot', 'DoorInterface', 'SubTask_Close', 'COMPLETED', code = self.master_uuid, text = 'r1')
-            
+
             #subtask_door_close completed
-                        
+
             self.cnc.superstate.event('robot', 'MaterialHandlerInterface', 'SubTask_MaterialLoad', 'COMPLETE', code = self.master_uuid, text = 'r1')
             time.sleep(0.3)
-             
+
             expect(self.cnc.superstate.close_door_interface.superstate.response_state).to(equal('CLOSED'))
 
             expect(self.cnc.superstate.close_chuck_interface.superstate.response_state).to(equal('CLOSED'))
-            
+
             time.sleep(0.2)
             #subtask_load completed
 
@@ -160,7 +187,7 @@ with description('moveMaterial'):
 
             #the robot reports that it has completed tasks : not yet implemented!
             #self.inputConveyor.superstate.event('robot', 'Task_Collaborator', 'state', 'COMPLETE', code = self.master_uuid, text = 'r1')
-            
+
 
             #Task completed
             time.sleep(0.2)
@@ -173,10 +200,10 @@ with description('moveMaterial'):
 
 
             time.sleep(0.2)
-                        
+
             expect(self.inputConveyor.superstate.binding_state).to(equal('INACTIVE'))
-    
-    
+
+
     with context('when from cnc to cmm'):
 
         with before.each:
@@ -210,7 +237,7 @@ with description('moveMaterial'):
 
             expect(self.cnc.superstate.binding_state).to(equal('INACTIVE'))
             expect(self.cmm.superstate.binding_state).to(equal('INACTIVE'))
-            
+
             self.cnc.superstate.event('cnc', 'Controller', 'ControllerMode', 'AUTOMATIC')
             self.cmm.superstate.event('cmm', 'Controller', 'ControllerMode', 'AUTOMATIC')
             time.sleep(0.2)
@@ -230,7 +257,7 @@ with description('moveMaterial'):
             self.cnc.superstate.event('robot', 'Task_Collaborator', 'binding_state', 'COMMITTED', code = self.master_uuid, text = 'r1')
             self.cnc.superstate.event('cmm', 'Task_Collaborator', 'binding_state', 'COMMITTED', code = self.master_uuid, text = 'cmm1')
             time.sleep(0.1)
-            
+
             expect(self.cnc.superstate.binding_state).to(equal('COMMITTED'))
 
             self.cmm.superstate.event('cnc', 'Coordinator', 'binding_state' , 'COMMITTED',code = self.master_uuid, text = 'cnc1')
@@ -238,15 +265,15 @@ with description('moveMaterial'):
 
 
 
-            
+
 
 
 
 
             self.cnc.superstate.event('robot', 'MaterialHandlerInterface', 'SubTask_MaterialUnload', 'ACTIVE', code = self.master_uuid, text = 'r1')
-            
+
             self.cnc.superstate.event('robot', 'DoorInterface', 'SubTask_Open', 'ACTIVE', code = self.master_uuid, text = 'r1')
-            
+
             time.sleep(1.1)
             self.cnc.superstate.event('robot', 'DoorInterface', 'SubTask_Open', 'READY', code = self.master_uuid, text = 'r1')
             self.cnc.superstate.event('robot', 'DoorInterface', 'SubTask_Open', 'COMPLETED', code = self.master_uuid, text = 'r1')
@@ -262,22 +289,22 @@ with description('moveMaterial'):
             expect(self.cnc.superstate.open_door_interface.superstate.response_state).to(equal('OPEN'))
 
             expect(self.cnc.superstate.open_chuck_interface.superstate.response_state).to(equal('OPEN'))
-            
+
             self.cnc.superstate.event('robot', 'MaterialHandlerInterface', 'SubTask_MaterialUnload', 'COMPLETE', code = self.master_uuid, text = 'r1')
-            
+
             time.sleep(0.2)
-            
+
             self.cmm.superstate.event('robot', 'MaterialHandlerInterface', 'SubTask_MaterialLoad', 'ACTIVE', code = self.master_uuid, text = 'r1')
 
             time.sleep(1)
-            
+
             self.cmm.superstate.event('robot', 'MaterialHandlerInterface', 'SubTask_MaterialLoad', 'COMPLETE', code = self.master_uuid, text = 'r1')
-            
+
             self.cmm.superstate.event('robot', 'MaterialHandlerInterface', 'SubTask_MaterialLoad', 'READY', code = self.master_uuid, text = 'r1')
             time.sleep(0.2)
 
             self.cnc.superstate.event('cmm', 'Task_Collaborator', 'state', 'COMPLETE', code = self.master_uuid, text = 'cmm1')
-            
+
 
             time.sleep(0.2)
 
@@ -287,19 +314,19 @@ with description('moveMaterial'):
 
             expect(self.cmm.superstate.material_load_interface.interface.value).to(equal('NOT_READY'))
 
-            
 
-            
-                        
+
+
+
             time.sleep(0.2)
-            
+
             expect(self.cnc.superstate.state).to(equal('base:operational:loading'))
 
             expect(self.cnc.superstate.material_load_interface.interface.value).to(equal('ACTIVE'))
             expect(self.cnc.superstate.material_unload_interface.interface.value).to(equal('NOT_READY'))
-            
 
-            
+
+
             expect(self.cnc.superstate.binding_state).to(equal('INACTIVE'))
 
 
@@ -334,7 +361,7 @@ with description('moveMaterial'):
 
             expect(self.cnc.superstate.binding_state).to(equal('INACTIVE'))
             expect(self.buffer.superstate.binding_state).to(equal('INACTIVE'))
-            
+
             self.cnc.superstate.event('cnc', 'Controller', 'ControllerMode', 'AUTOMATIC')
             self.buffer.superstate.event('Buffer', 'Controller', 'ControllerMode', 'AUTOMATIC')
             time.sleep(0.1)
@@ -354,7 +381,7 @@ with description('moveMaterial'):
             self.cnc.superstate.event('robot', 'Task_Collaborator', 'binding_state', 'COMMITTED', code = self.master_uuid, text = 'r1')
             self.cnc.superstate.event('Buffer', 'Task_Collaborator', 'binding_state', 'COMMITTED', code = self.master_uuid, text = 'Buffer1')
             time.sleep(0.1)
-            
+
             expect(self.cnc.superstate.binding_state).to(equal('COMMITTED'))
 
             self.buffer.superstate.event('cnc', 'Coordinator', 'binding_state' , 'COMMITTED',code = self.master_uuid, text = 'cnc1')
@@ -362,15 +389,15 @@ with description('moveMaterial'):
 
 
 
-            
+
 
 
 
 
             self.cnc.superstate.event('robot', 'MaterialHandlerInterface', 'SubTask_MaterialUnload', 'ACTIVE', code = self.master_uuid, text = 'r1')
-            
+
             self.cnc.superstate.event('robot', 'DoorInterface', 'SubTask_Open', 'ACTIVE', code = self.master_uuid, text = 'r1')
-            
+
             time.sleep(1.1)
             self.cnc.superstate.event('robot', 'DoorInterface', 'SubTask_Open', 'READY', code = self.master_uuid, text = 'r1')
             self.cnc.superstate.event('robot', 'DoorInterface', 'SubTask_Open', 'COMPLETED', code = self.master_uuid, text = 'r1')
@@ -386,27 +413,27 @@ with description('moveMaterial'):
             expect(self.cnc.superstate.open_door_interface.superstate.response_state).to(equal('OPEN'))
 
             expect(self.cnc.superstate.open_chuck_interface.superstate.response_state).to(equal('OPEN'))
-            
+
             self.cnc.superstate.event('robot', 'MaterialHandlerInterface', 'SubTask_MaterialUnload', 'COMPLETE', code = self.master_uuid, text = 'r1')
-            
+
             time.sleep(0.2)
 
-            
-                        
+
+
 
 
             time.sleep(0.2)
             self.buffer.superstate.event('robot', 'MaterialHandlerInterface', 'SubTask_MaterialLoad', 'ACTIVE', code = self.master_uuid, text = 'r1')
 
             time.sleep(1)
-            
+
             self.buffer.superstate.event('robot', 'MaterialHandlerInterface', 'SubTask_MaterialLoad', 'COMPLETE', code = self.master_uuid, text = 'r1')
-            
+
             time.sleep(0.2)
 
 
             self.cnc.superstate.event('Buffer', 'Task_Collaborator', 'state', 'COMPLETE', code = self.master_uuid, text = 'Buffer1')
-            
+
 
             time.sleep(0.2)
 
@@ -418,19 +445,19 @@ with description('moveMaterial'):
 
             expect(self.buffer.superstate.material_load_interface.interface.value).to(equal('NOT_READY'))
 
-            
 
-            
-                        
+
+
+
             time.sleep(0.2)
-            
+
             expect(self.cnc.superstate.state).to(equal('base:operational:loading'))
 
             expect(self.cnc.superstate.material_load_interface.interface.value).to(equal('ACTIVE'))
             expect(self.cnc.superstate.material_unload_interface.interface.value).to(equal('NOT_READY'))
-            
 
-            
+
+
             expect(self.cnc.superstate.binding_state).to(equal('INACTIVE'))
 
 
@@ -467,7 +494,7 @@ with description('moveMaterial'):
 
             expect(self.cmm.superstate.binding_state).to(equal('INACTIVE'))
             expect(self.outputConveyor.superstate.binding_state).to(equal('INACTIVE'))
-            
+
             self.cmm.superstate.event('cmm', 'Controller', 'ControllerMode', 'AUTOMATIC')
             self.outputConveyor.superstate.event('outputConveyor', 'Controller', 'ControllerMode', 'AUTOMATIC')
             time.sleep(0.1)
@@ -487,7 +514,7 @@ with description('moveMaterial'):
             self.cmm.superstate.event('robot', 'Task_Collaborator', 'binding_state', 'COMMITTED', code = self.master_uuid, text = 'r1')
             self.cmm.superstate.event('outputConveyor', 'Task_Collaborator', 'binding_state', 'COMMITTED', code = self.master_uuid, text = 'outputConveyor1')
             time.sleep(0.1)
-            
+
             expect(self.cmm.superstate.binding_state).to(equal('COMMITTED'))
 
             self.outputConveyor.superstate.event('cmm', 'Coordinator', 'binding_state' , 'COMMITTED',code = self.master_uuid, text = 'cmm1')
@@ -495,29 +522,29 @@ with description('moveMaterial'):
 
 
 
-            
+
 
 
             expect(self.cmm.superstate.state).to(equal('base:operational:unloading'))
             self.cmm.superstate.event('robot', 'MaterialHandlerInterface', 'SubTask_MaterialUnload', 'ACTIVE', code = self.master_uuid, text = 'r1')
-            
+
             time.sleep(1.1)
 
             self.cmm.superstate.event('robot', 'MaterialHandlerInterface', 'SubTask_MaterialUnload', 'COMPLETE', code = self.master_uuid, text = 'r1')
-            
+
             time.sleep(0.2)
             expect(self.outputConveyor.superstate.state).to(equal('base:operational:loading'))
-            
+
             self.outputConveyor.superstate.event('robot', 'MaterialHandlerInterface', 'SubTask_MaterialLoad', 'ACTIVE', code = self.master_uuid, text = 'r1')
 
             time.sleep(1)
-            
+
             self.outputConveyor.superstate.event('robot', 'MaterialHandlerInterface', 'SubTask_MaterialLoad', 'COMPLETE', code = self.master_uuid, text = 'r1')
-            
+
             time.sleep(0.2)
 
             self.cmm.superstate.event('outputConveyor', 'Task_Collaborator', 'state', 'COMPLETE', code = self.master_uuid, text = 'outputConveyor1')
-            
+
 
             time.sleep(0.2)
 
@@ -525,22 +552,22 @@ with description('moveMaterial'):
 
             expect(self.outputConveyor.superstate.binding_state).to(equal('INACTIVE'))
 
-            
-                        
+
+
             time.sleep(0.2)
-            
+
             expect(self.cmm.superstate.state).to(equal('base:operational:loading'))
 
             expect(self.cmm.superstate.material_load_interface.interface.value).to(equal('ACTIVE'))
             expect(self.cmm.superstate.material_unload_interface.interface.value).to(equal('NOT_READY'))
-            
 
-            
+
+
             expect(self.cmm.superstate.binding_state).to(equal('INACTIVE'))
 
 
-    
 
 
 
-            
+
+
