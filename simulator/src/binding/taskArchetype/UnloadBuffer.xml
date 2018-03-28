@@ -4,12 +4,12 @@
 	<Assets>
 		<TaskArchetype assetId="UnloadBuffer" timestamp="2018-02-02T16:16:16" deviceUuid="ERP">
 			<Priority>1</Priority>
-			<TaskType>UNLOAD_MATERIAL</TaskType>
-			<Coordinator collaboratorId="buffer">
+			<TaskType>MATERIAL_UNLOAD</TaskType>
+			<Coordinator collaboratorId="b1">
 				<CollaboratorType>BUFFER</CollaboratorType>
 			</Coordinator>
 			<Collaborators>
-				<Collaborator collaboratorId="robot">
+				<Collaborator collaboratorId="r1">
 					<CollaboratorType>ROBOT</CollaboratorType>
 				</Collaborator>
 			</Collaborators>

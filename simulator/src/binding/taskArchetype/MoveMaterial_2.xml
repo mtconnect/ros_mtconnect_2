@@ -5,14 +5,14 @@
 		<TaskArchetype assetId="MoveMaterial2" timestamp="2018-02-02T16:16:16" deviceUuid="ERP">
 			<Priority>1</Priority>
 			<TaskType>MOVE_MATERIAL</TaskType>
-			<Coordinator collaboratorId="cnc">
+			<Coordinator collaboratorId="cnc1">
 				<CollaboratorType>CNC</CollaboratorType>
 			</Coordinator>
 			<Collaborators>
-				<Collaborator collaboratorId="robot">
+				<Collaborator collaboratorId="r1">
 					<CollaboratorType>ROBOT</CollaboratorType>
 				</Collaborator>
-				<Collaborator collaboratorId="buffer">
+				<Collaborator collaboratorId="b1">
 					<CollaboratorType>BUFFER</CollaboratorType>
 				</Collaborator>
 			</Collaborators>
