@@ -1,21 +1,25 @@
+import os,sys
 #sys.path.insert(0,os.getcwd()+'\\utils') #child path
-#sys.path.insert(0, os.path.dirname(os.getcwd())) #parent
+sys.path.insert(0, os.path.dirname(os.getcwd())) #parent
 import xml.etree.ElementTree as ET
 import uuid, re
-import datetime
+import datetime, copy
 
 class archetypeToInstance(object):
 
-    def __init__(self, task):
+    def __init__(self, task, uuid, deviceUuid, parentRef = "None"):
 
-        self.taskIns = "Task"
+        self.parentRef = parentRef
         self.taskArch = task
         self.jsonModel = {}
         self.root = self.readArchetype(self.taskArch)
+        self.uuid = uuid
+        self.deviceUuid = deviceUuid
+        self.taskIns = ET.tostring(self.toInstance(deviceUuid = self.deviceUuid))
 
     def readArchetype(self, taskArch):
 
-        fileOpen = open('../taskArchetype/'+taskArch+'.xml', 'r')
+        fileOpen = open('taskArchetype/'+taskArch+'.xml', 'r')
         fileRead = fileOpen.read()
         root = ET.fromstring(fileRead)
 
@@ -27,13 +31,19 @@ class archetypeToInstance(object):
         
         return '_'.join(taskFormat).upper()
 
-    def toInstance(self, parentRef = "None", deviceUuid = "None"):
+    def formatTaskType(self, taskType):
+        taskType = taskType.lower().split('_')
+        for i,x in enumerate(taskType):
+            taskType[i] = x.capitalize()
+        return ''.join(taskType)
+
+    def toInstance(self, deviceUuid = "None"):
         if type(self.root) == ET.Element:
             
             taskIns = ET.Element("Task")
-            taskIns.attrib["assetId"] = str(uuid.uuid4())
+            taskIns.attrib["assetId"] = str(self.uuid)
             taskIns.attrib["timestamp"] = str(datetime.datetime.now().isoformat()+'Z')
-            taskIns.attrib["deviceUuid"] = deviceUuid
+            taskIns.attrib["deviceUuid"] = str(self.deviceUuid)
 
             assetArchRef = ET.SubElement(taskIns, "AssetArchetypeRef")
             assetArchRef.attrib["assetId"] = str(self.taskArch)
@@ -41,6 +51,11 @@ class archetypeToInstance(object):
             priority = ET.SubElement(taskIns, "Priority")
             priority.text = str(1) #to be updated later
 
+            """
+            if self.parentRef!="None":
+                parentRef = ET.SubElement(taskIns, "ParentRef")
+                parentRef.text = self.parentRef
+            """
             taskType = ET.SubElement(taskIns, "TaskType")
             taskType.text = self.formatTaskArch(self.taskArch).upper()
 
@@ -48,13 +63,13 @@ class archetypeToInstance(object):
             state.text = str("INACTIVE")
 
             coordinator = ET.SubElement(taskIns, "Coordinator")
-            coordinator.attrib["collaboratorId"] = "Nothing"
+            coordinator.attrib["collaboratorId"] = self.deviceUuid
             coordinator.text = self.root.findall('.//'+self.root.tag.split('}')[0]+'}Coordinator')[0][0].text
 
             for i,x in enumerate(self.root.findall('.//'+self.root.tag.split('}')[0]+'}Collaborators')[0]):
                 collaborator = ET.SubElement(taskIns, "Collaborator")
-                collaborator.attrib["collaboratorId"] = str(i+1) #update this later
-                collaborator.text = self.root.findall('.//'+self.root.tag.split('}')[0]+'}Collaborator')[0][0].text
+                collaborator.attrib["collaboratorId"] = str(x.attrib['collaboratorId']) #update this later
+                collaborator.text = str(x[0].text)
             
 
             self.taskIns = taskIns
@@ -65,6 +80,10 @@ class archetypeToInstance(object):
     def addElement(self, string):
         if type(self.taskIns) == ET.Element:
             self.taskIns.append(ET.fromstring(string))
+        elif type(self.taskIns) == str:
+            newTaskins = ET.fromstring(copy.deepcopy(self.taskIns))
+            newTaskins.append(ET.fromstring(string))
+            return ET.tostring(newTaskins)
 
 
     def traverse(self, root, jsonSubTaskModel = {}):
@@ -77,8 +96,9 @@ class archetypeToInstance(object):
                 collaborators = []
                 for y in childRoot.findall('.//'+childRoot.tag.split('}')[0]+'}Collaborator'):
                     collaborators.append(y.attrib['collaboratorId'])
-                    
-                jsonSubTaskModel[root.findall('.//'+root.tag.split('}')[0]+'}TaskArchetype')[0].attrib['assetId']][childRoot.findall('.//'+root.tag.split('}')[0]+'}TaskArchetype')[0].attrib['assetId']] = {'order':x.attrib['order'], 'coordinator':childRoot.findall('.//'+root.tag.split('}')[0]+'}Coordinator')[0].attrib['collaboratorId'], 'collaborators':collaborators}
+                taskType = self.formatTaskType(childRoot.findall('.//'+root.tag.split('}')[0]+'}TaskType')[0].text)
+
+                jsonSubTaskModel[root.findall('.//'+root.tag.split('}')[0]+'}TaskArchetype')[0].attrib['assetId']][childRoot.findall('.//'+root.tag.split('}')[0]+'}TaskArchetype')[0].attrib['assetId']] = {'order':x.attrib['order'], 'coordinator':childRoot.findall('.//'+root.tag.split('}')[0]+'}Coordinator')[0].attrib['collaboratorId'], 'collaborators':collaborators, 'TaskType':taskType}
          
                 self.traverse(childRoot,jsonSubTaskModel[root.findall('.//'+root.tag.split('}')[0]+'}TaskArchetype')[0].attrib['assetId']][childRoot.findall('.//'+root.tag.split('}')[0]+'}TaskArchetype')[0].attrib['assetId']])
 
@@ -112,12 +132,14 @@ class archetypeToInstance(object):
                                                 
                     CoordinatorSubTask[y.attrib['collaboratorId']] = []
 
-        
+
         for key, val in subTaskModel.values()[0].iteritems():
             if len(val['collaborators']) == 1:
                 collaborators = val['collaborators'][0]
+
+            taskType = val['TaskType']
                 
-            CoordinatorSubTask[val['coordinator']] = [key, None, collaborators,"src/dest"]
+            CoordinatorSubTask[val['coordinator']] = [key, None, collaborators,taskType]
             if key in val:
                 for keys, vals in val[key].iteritems():
                     if not jsonModel['collaborators'][vals['coordinator']]['SubTask']:
@@ -133,12 +155,28 @@ class archetypeToInstance(object):
         self.jsonModel = jsonModel
 
         return jsonModel
+
+
+def update(taskIns, dataitem, value):
+    if type(taskIns) == ET.Element:
+        if taskIns.findall('.//'+dataitem)[0].text != value:
+            taskIns.attrib['timestamp'] = datetime.datetime.now().isoformat() + 'Z'
+            taskIns.findall('.//'+dataitem)[0].text = value
+        return taskIns
+    else:
+        taskIns = ET.fromstring(taskIns)
+        if taskIns.findall('.//'+dataitem)[0].text != value:
+            taskIns.attrib['timestamp'] = datetime.datetime.now().isoformat() + 'Z'
+            taskIns.findall('.//'+dataitem)[0].text = value
+        return ET.tostring(taskIns)
+            
+            
+        
     
             
 
 if __name__ == "__main__":
-    a2i = archetypeToInstance("MoveMaterial_1")
-    a2i.toInstance()
+    a2i = archetypeToInstance("MoveMaterial_1","uuid","deviceUuid")
     a2i.jsonInstance()
     a2i.traverse(a2i.root)
     
