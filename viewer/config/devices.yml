@@ -1,0 +1,13 @@
+devices:
+  - name: Robot
+    url: http://localhost:5000/robot
+#  - name: Input Conveyor
+#    url: http://localhost:5000/conv1
+  - name: Machine Tool
+    url: http://localhost:5000/cnc
+#  - name: CMM Queue
+#    url: http://localhost:5000/queue
+#  - name: CMM
+#    url: http://localhost:5000/cmm
+#  - name: Output Conveyor
+#    url: http://localhost:5000/conv2

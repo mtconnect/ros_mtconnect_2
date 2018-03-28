@@ -1,0 +1,7 @@
+{
+  "name": "task_viewer",
+  "private": true,
+  "dependencies": {
+    "jquery": "^3.3.1"
+  }
+}

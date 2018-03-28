@@ -5,11 +5,11 @@
 		<TaskArchetype assetId="CloseDoor" timestamp="2018-02-02T16:16:16" deviceUuid="ERP">
 			<Priority>1</Priority>
 			<TaskType>CLOSE_DOOR</TaskType>
-			<Coordinator collaboratorId="robot">
+			<Coordinator collaboratorId="r1">
 				<CollaboratorType>ROBOT</CollaboratorType>
 			</Coordinator>
 			<Collaborators>
-				<Collaborator collaboratorId="cnc">
+				<Collaborator collaboratorId="cnc1">
 					<CollaboratorType>CNC</CollaboratorType>
 				</Collaborator>
 			</Collaborators>

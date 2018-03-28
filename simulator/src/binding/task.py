@@ -1,8 +1,16 @@
+import os, sys
+sys.path.insert(0,os.getcwd()+'\\utils')
+
+from archetypeToInstance import archetypeToInstance
+
+from archetypeToInstance import update as assetUpdate
+
 from transitions.extensions import HierarchicalMachine as Machine
 from transitions.extensions.nesting import NestedState
 from threading import Timer, Thread
 import functools, time, copy
 import subTask
+import xml.etree.ElementTree as ET
 
 #will be included under assets!?
 
@@ -21,19 +29,31 @@ class task(object):
 
                 self.interface = interface
                 self.parent = parent
-                self.commit_time_limit = 2.0
+                self.commit_time_limit = 1000.0
                 self.master_task_uuid = master_task_uuid
                 self.coordinator = coordinator
                 self.subTask = {}
                 self.currentSubTask = str()
+                self.taskIns = "xml/text"
 
             def INACTIVE(self):
+                print "@@@@HERE",self.parent.coordinator_task, self.master_task_uuid, self.parent.deviceUuid
+                arch2ins = archetypeToInstance(self.parent.coordinator_task, self.master_task_uuid, self.parent.deviceUuid)
+                self.parent.master_tasks[self.master_task_uuid] = arch2ins.jsonInstance()
+                self.taskIns = arch2ins.taskIns
+                print "TASK CREATED"
+                self.parent.adapter.addAsset('Task', self.master_task_uuid, arch2ins.taskIns)
+                print "ASSET ADDED"
                 self.activated()
 
             def PREPARING(self):
                 self.parent.adapter.begin_gather()
                 self.interface.set_value("PREPARING")
                 self.parent.adapter.complete_gather()
+
+                self.taskIns = assetUpdate(self.taskIns, "State", "PREPARING")
+                self.parent.adapter.addAsset('Task', self.master_task_uuid, self.taskIns)
+                
 
             def prepare(self):
                 quorum = True
@@ -60,6 +80,9 @@ class task(object):
                 self.parent.adapter.begin_gather()
                 self.interface.set_value("COMMITTING")
                 self.parent.adapter.complete_gather()
+
+                self.taskIns = assetUpdate(self.taskIns, "State", "COMMITTING")
+                self.parent.adapter.addAsset('Task', self.master_task_uuid, self.taskIns)
                 
                 def commit_timer():
                     timer = Timer(self.commit_time_limit,self.void)
@@ -78,6 +101,7 @@ class task(object):
                             break
 
                     if collaborators_commit == True:
+                        self.parent.master_tasks[self.parent.master_uuid]['coordinator'][self.parent.deviceUuid]['Task'][1] = 'COMMITTED'
                         self.all_commit()
                     else:
                         self.no_commit()
@@ -90,11 +114,14 @@ class task(object):
                 self.parent.adapter.begin_gather()
                 self.interface.set_value("COMMITTED")
                 self.parent.adapter.complete_gather()
+
+                self.taskIns = assetUpdate(self.taskIns, "State", "COMMITTED")
+                self.parent.adapter.addAsset('Task', self.master_task_uuid, self.taskIns)
             
                 
                 for key, value in self.parent.master_tasks[self.master_task_uuid]['coordinator'][self.coordinator.coordinator_name]['SubTask'].iteritems():
                     if key == self.coordinator.coordinator_name:
-                        self.subTask[value[0]] = subTask.subTask(parent = self.parent , interface = interface, master_task_uuid = self.master_task_uuid, collaborators = value[2])
+                        self.subTask[value[0]] = subTask.subTask(parent = self.parent , interface = interface, master_task_uuid = self.master_task_uuid, collaborators = value[2], taskName = self.coordinator.task_name)
                         self.subTask[value[0]].create_statemachine()
                         self.subTask[value[0]].superstate.create()
                         self.currentSubTask = copy.deepcopy(value[0])
@@ -104,10 +131,10 @@ class task(object):
                             if self.coordinator.task_name in val['SubTask']:
                                 for i,x in enumerate(val['SubTask'][self.coordinator.task_name]):
                                     
-                                    self.subTask[x[0]] = subTask.subTask(parent = self.parent , interface = interface, master_task_uuid = self.master_task_uuid, collaborators = x[4])
-                                    self.subTask[x[0]].create_statemachine()
-                                    self.subTask[x[0]].superstate.create()
-                                    self.currentSubTask = copy.deepcopy(x[0])
+                                    self.subTask[x[1]] = subTask.subTask(parent = self.parent , interface = interface, master_task_uuid = self.subTask[value[0]].superstate.task_uuid, collaborators = x[4],taskName = x[1])
+                                    self.subTask[x[1]].create_statemachine()
+                                    self.subTask[x[1]].superstate.create()
+                                    self.currentSubTask = copy.deepcopy(x[1])
 
                                     while self.subTask[self.currentSubTask].superstate.state != 'removed':
                                         pass
@@ -131,22 +158,32 @@ class task(object):
                                 break
                     if success == True:
                         self.success()
+                        
 
             def COMPLETE(self):
-                time.sleep(0.2)
+                time.sleep(0.5)
                 
                 self.parent.adapter.begin_gather()
                 self.interface.set_value("INACTIVE")
                 self.parent.adapter.complete_gather()
 
+                self.taskIns = assetUpdate(self.taskIns, "State", "INACTIVE")
+                self.parent.adapter.addAsset('Task', self.master_task_uuid, self.taskIns)
+                time.sleep(0.1)
+                self.parent.adapter.removeAsset(self.master_task_uuid)
+
                 self.default()
 
             def FAIL(self):
-                time.sleep(0.2)
+                time.sleep(0.5)
 
                 self.parent.adapter.begin_gather()
                 self.interface.set_value("INACTIVE")
                 self.parent.adapter.complete_gather()
+
+                self.taskIns = assetUpdate(self.taskIns, "State", "INACTIVE")
+                self.parent.adapter.addAsset('Task', self.master_task_uuid, self.taskIns)
+                self.parent.adapter.removeAsset(self.master_task_uuid)
                 
                 self.default()
 
