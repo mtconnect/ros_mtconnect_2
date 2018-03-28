@@ -1,7 +1,14 @@
+import os, sys
+sys.path.insert(0,os.getcwd()+'\\utils')
+from archetypeToInstance import archetypeToInstance
+import xml.etree.ElementTree as ET
+
+from archetypeToInstance import update as assetUpdate
+
 from transitions.extensions import HierarchicalMachine as Machine
 from transitions.extensions.nesting import NestedState
 from threading import Timer, Thread
-import functools, time, copy
+import functools, time, copy, uuid
 
 import subTask
 
@@ -32,7 +39,12 @@ class collaborator(object):
                 self.parent.adapter.begin_gather()
                 self.interface.set_value("INACTIVE")
                 self.parent.adapter.complete_gather()
-                
+                """
+                self.task_uuid = self.parent.deviceUuid '_' + str(uuid.uuid4())
+                arch2ins = archetypeToInstance(self.task_name, self.task_uuid, self.parent.deviceUuid)
+                self.taskIns = arch2ins.taskIns
+                self.parent.adapter.addAsset('Task', self.task_uuid, arch2ins.taskIns)
+                """
                 self.task_created()
 
             def PREPARING(self):
@@ -42,7 +54,7 @@ class collaborator(object):
                 
             def committed(self, value, code, text):
                 if self.collaborator_name in value['coordinator'][text]['SubTask']:
-                    self.subTask[value['coordinator'][text]['SubTask'][self.collaborator_name][0]] = subTask.subTask(parent = self , interface = interface, master_task_uuid = code, collaborators = value['coordinator'][text]['SubTask'][self.collaborator_name][2])
+                    self.subTask[value['coordinator'][text]['SubTask'][self.collaborator_name][0]] = subTask.subTask(parent = self.parent , interface = interface, master_task_uuid = self.parent.master_uuid, collaborators = value['coordinator'][text]['SubTask'][self.collaborator_name][2], taskName =value['coordinator'][text]['SubTask'][self.collaborator_name][0])
                     self.subTask[value['coordinator'][text]['SubTask'][self.collaborator_name][0]].create_statemachine()
                     self.subTask[value['coordinator'][text]['SubTask'][self.collaborator_name][0]].superstate.create()
                     self.currentSubTask = copy.deepcopy(value['coordinator'][text]['SubTask'][self.collaborator_name][0])
@@ -52,10 +64,10 @@ class collaborator(object):
                         if self.task_name in val['SubTask'].keys():
                             for i,x in enumerate(val['SubTask'][self.task_name]):
                                 
-                                self.subTask[x[0]] = subTask.subTask(parent = self , interface = interface, master_task_uuid = code, collaborators = x[4])
-                                self.subTask[x[0]].create_statemachine()
-                                self.subTask[x[0]].superstate.create()
-                                self.currentSubTask = copy.deepcopy(x[0])
+                                self.subTask[x[1]] = subTask.subTask(parent = self.parent , interface = interface, master_task_uuid = self.subTask[value['coordinator'][text]['SubTask'][self.collaborator_name][0]].superstate.task_uuid, collaborators = x[4], taskName = x[1])
+                                self.subTask[x[1]].create_statemachine()
+                                self.subTask[x[1]].superstate.create()
+                                self.currentSubTask = copy.deepcopy(x[1])
 
                                 while self.subTask[self.currentSubTask].superstate.state != 'removed':
                                     pass
@@ -67,26 +79,46 @@ class collaborator(object):
                     while self.subTask[self.currentSubTask].superstate.state != 'removed':
                         pass
                     self.parent.master_tasks[code]['coordinator'][text]['SubTask'][self.collaborator_name][1] = 'COMPLETE'
-                    
-                    
-                else:
-                    for key, val in self.parent.master_tasks[code]['collaborators'].iteritems():
-                        if self.task_name in val['SubTask'].keys():
-                            for i,x in enumerate(val['SubTask'][self.task_name]):
-                                self.subTask[x[0]] = subTask.subTask(parent = self , interface = interface, master_task_uuid = code, collaborators = x[4])
-                                self.subTask[x[0]].create_statemachine()
-                                self.subTask[x[0]].superstate.create()
-                                self.currentSubTask = copy.deepcopy(x[0])
-                                while self.subTask[self.currentSubTask].superstate.state != 'removed':
-                                    pass
-                                self.parent.master_tasks[code]['collaborators'][key]['SubTask'][self.task_name][i][2] = 'COMPLETE'
 
-                
+                    self.completed()
+                    
+                    
+                               
                                 
             def COMMITTED(self):
                 self.parent.adapter.begin_gather()
                 self.interface.set_value("COMMITTED")
                 self.parent.adapter.complete_gather()
+
+                t0= Thread(target = self.commited_init)
+                t0.start()
+
+            def commited_init(self):
+                collabUuid = False
+                for key,val in self.parent.master_tasks[self.parent.master_uuid]['coordinator'][self.parent.master_tasks[self.parent.master_uuid]['coordinator'].keys()[0]]['SubTask'].iteritems():
+                    if val:
+                        if self.parent.deviceUuid in val[2]:
+                            collabUuid = True
+                            self.subTask[val[0]] = subTask.subTask(parent = self , interface = interface, master_task_uuid = self.parent.master_uuid, collaborators = None, taskName = val[0])
+                            self.subTask[val[0]].create_statemachine()
+                            self.subTask[val[0]].superstate.create()
+                            self.currentSubTask = copy.deepcopy(val[0])
+                            for i,x in enumerate(self.parent.master_tasks[self.parent.master_uuid]['collaborators'][self.parent.deviceUuid]['SubTask'][val[0]]):
+                                self.subTask[x[1]] = subTask.subTask(parent = self , interface = interface, master_task_uuid = self.subTask[val[0]].superstate.task_uuid, collaborators = None, taskName = x[1])
+                                self.subTask[x[1]].create_statemachine()
+                                self.subTask[x[1]].superstate.create()
+                                self.currentSubTask = copy.deepcopy(x[1])
+                                while self.subTask[self.currentSubTask].superstate.state != 'removed':
+                                    pass
+                                self.parent.master_tasks[self.parent.master_uuid]['collaborators'][self.parent.deviceUuid]['SubTask'][val[0]][i][2] = 'COMPLETE'
+                                
+                            self.currentSubTask = copy.deepcopy(val[0])
+                            while self.subTask[self.currentSubTask].superstate.state != 'removed':
+                                pass
+                            self.parent.master_tasks[self.parent.master_uuid]['coordinator'][self.parent.master_tasks[self.parent.master_uuid]['coordinator'].keys()[0]]['SubTask'][self.deviceUuid][1] = 'COMPLETE'
+
+                if collabUuid == True:
+                    self.completed()
 
 
             def event(self, source, comp, name, value, code = None, text = None):
