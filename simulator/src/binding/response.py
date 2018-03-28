@@ -36,11 +36,11 @@ class Response(object):
                 self.prefix = prefix
                 self.response_state = response_state
                 self.simulate = simulate
-                self.fail_reset_delay = 1.0
+                self.fail_reset_delay = 1
                 self.fail_next = False
                 if rel: self.related = rel
                 else: self.related = False
-                self.simulated_duration = 1.0
+                self.simulated_duration = 1.5
                 #add on later
 
             def check_state_calls(func):
@@ -124,6 +124,7 @@ class Response(object):
                 self.adapter.begin_gather()
                 self.interface.set_value("FAIL")
                 self.adapter.complete_gather()
+                print "FAILED!!!!!!!!!!!!!!!!!!!!!"
                 try:
                     self.parent.FAILED()
                 except:

@@ -8,11 +8,12 @@ class LongPullException(Exception):
     pass
 
 class LongPull:
-    def __init__(self, response):
+    def __init__(self, response, addr = None):
         self._response = response
         self._buffer = ''
+        self._addr = addr
 
-    def long_pull(self, callback, user_data = None):
+    def long_pull(self, callback, user_data = None, addr = None):
         content_type = self._response.headers.get('Content-Type')
         match = re.search('boundary=([0-9A-Fa-f]+)', content_type)
         if not match:
@@ -49,7 +50,7 @@ class LongPull:
                     document.reset()
                     document.string = rest[length:]
 
-                    callback(body)
+                    callback(body, self._addr)
 
                     length = len(boundary)
                     header = True
@@ -58,7 +59,7 @@ if __name__ == "__main__":
     response = requests.get("http://127.0.0.1:5005/sample?interval=1000&count=1000", stream=True)
 
     lp = LongPull(response)
-    def callback(chunk):
+    def callback(chunk, addr):
         print chunk
 
     lp.long_pull(callback)

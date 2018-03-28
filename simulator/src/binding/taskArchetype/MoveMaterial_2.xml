@@ -2,23 +2,23 @@
 <MTConnectAssets xmlns="urn:mtconnect.org:MTConnectAssets:1.5" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="urn:mtconnect.org:MTConnectAssets:1.5 ../../MTConnectAssets_1.5.xsd" xmlns:xlink="http://www.w3.org/1999/xlink">
 	<Header version="1.5" creationTime="2018-02-02T16:16:16" instanceId="1" sender="localhost" assetBufferSize="1024" assetCount="10"/>
 	<Assets>
-		<TaskArchetype assetId="MoveMaterial4" timestamp="2018-02-02T16:16:16" deviceUuid="ERP">
+		<TaskArchetype assetId="MoveMaterial2" timestamp="2018-02-02T16:16:16" deviceUuid="ERP">
 			<Priority>1</Priority>
 			<TaskType>MOVE_MATERIAL</TaskType>
-			<Coordinator collaboratorId="cmm">
-				<CollaboratorType>CMM</CollaboratorType>
+			<Coordinator collaboratorId="cnc1">
+				<CollaboratorType>CNC</CollaboratorType>
 			</Coordinator>
 			<Collaborators>
-				<Collaborator collaboratorId="robot">
+				<Collaborator collaboratorId="r1">
 					<CollaboratorType>ROBOT</CollaboratorType>
 				</Collaborator>
-				<Collaborator collaboratorId="conv">
-					<CollaboratorType>CONVEYOR</CollaboratorType>
+				<Collaborator collaboratorId="b1">
+					<CollaboratorType>BUFFER</CollaboratorType>
 				</Collaborator>
 			</Collaborators>
 			<SubTaskRefs>
-				<SubTaskRef order="1">UnloadCmm</SubTaskRef>
-				<SubTaskRef order="2">LoadConv</SubTaskRef>
+				<SubTaskRef order="1">UnloadCnc</SubTaskRef>
+				<SubTaskRef order="2">LoadBuffer</SubTaskRef>
 			</SubTaskRefs>
 		</TaskArchetype>
 	</Assets>
