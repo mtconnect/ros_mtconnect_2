@@ -3,7 +3,7 @@ from data_item import Event, SimpleCondition, Sample
 from mtconnect_adapter import Adapter
 
 if __name__ == "__main__":
-    adapter = Adapter(('localhost', 7778))
+    adapter = Adapter(('localhost', 7881))
     avail = Event('avail')
     adapter.add_data_item(avail)
     e1 = Event('exec')
@@ -21,6 +21,9 @@ if __name__ == "__main__":
     close_chuck = Event('close_chuck')
     adapter.add_data_item(close_chuck)
 
+    binding_state_material = Event('binding_state_material')
+    adapter.add_data_item(binding_state_material)
+
     open_door = Event('open_door')
     adapter.add_data_item(open_door)
 
@@ -36,61 +39,125 @@ if __name__ == "__main__":
     adapter.start()
     
     adapter.begin_gather()
-    
-    
+       
+    binding_state_material.set_value("INACTIVE")
     open_chuck.set_value("READY")
     close_chuck.set_value("READY")
     open_door.set_value("READY")
     close_door.set_value("READY")
     material_unload.set_value("READY")
+    material_load.set_value("READY")
+    avail.set_value("AVAILABLE")
     
     adapter.complete_gather()
 
     if True:
+        
         time.sleep(10)
-        adapter.begin_gather()
-        material_load.set_value("READY")
-        adapter.complete_gather()
 
         time.sleep(0.5)
+        adapter.begin_gather()
+        mode.set_value("AUTOMATIC")
+        adapter.complete_gather()
+        time.sleep(0.2)
 
         adapter.begin_gather()
         e1.set_value('ACTIVE')
         adapter.complete_gather()
+
+        time.sleep(0.1)
+
+        adapter.begin_gather()
+        binding_state_material.set_value("PREPARING")
+        adapter.complete_gather()
+
+        time.sleep(0.2)
+
+        adapter.begin_gather()
+        binding_state_material.set_value("COMMITTED")
+        adapter.complete_gather()
+
+        time.sleep(0.2)
+        
+        
        
+        adapter.begin_gather()
+        
+        material_unload.set_value("ACTIVE")
+
+        adapter.complete_gather()
+        
+        time.sleep(1.1)
+
+        adapter.begin_gather()
+        
+        material_unload.set_value("COMPLETE")
+
+        adapter.complete_gather()
+        #completed material unload from conv
+
+        time.sleep(0.2)
         adapter.begin_gather()
         
         material_load.set_value("ACTIVE")
 
         adapter.complete_gather()
-        
-        time.sleep(1)
+        time.sleep(0.2)
+        adapter.begin_gather()
+        open_door.set_value("ACTIVE")
 
+        adapter.complete_gather()
+
+        time.sleep(1.1)
+        adapter.begin_gather()
+        open_door.set_value("READY")
+
+        adapter.complete_gather()
+        time.sleep(0.1)
+
+        adapter.begin_gather()
+        open_chuck.set_value("ACTIVE")
+
+        adapter.complete_gather()
+
+        time.sleep(1.1)
+
+        adapter.begin_gather()
+        open_chuck.set_value("READY")
+
+        adapter.complete_gather()
+        time.sleep(1.1)
+        
         adapter.begin_gather()
         close_chuck.set_value("ACTIVE")
 
         adapter.complete_gather()
         
-        time.sleep(0.7)
+        time.sleep(1.1)
         
         adapter.begin_gather()
-        close_chuck.set_value("COMPLETE")
+        close_chuck.set_value("READY")
         adapter.complete_gather()
+        time.sleep(0.1)
 
         adapter.begin_gather()
         close_door.set_value("ACTIVE")
 
         adapter.complete_gather()
         
-        time.sleep(0.7)
+        time.sleep(1.1)
         adapter.begin_gather()
-        close_door.set_value("COMPLETE")
+        close_door.set_value("READY")
         adapter.complete_gather()
-        
+
+        time.sleep(0.1)        
         adapter.begin_gather()
         material_load.set_value("COMPLETE")
         
         adapter.complete_gather()
+
+
+        
 
         
 

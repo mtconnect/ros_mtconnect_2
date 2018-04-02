@@ -4,12 +4,12 @@
 	<Assets>
 		<TaskArchetype assetId="LoadConv" timestamp="2018-02-02T16:16:16" deviceUuid="ERP">
 			<Priority>1</Priority>
-			<TaskType>LOAD_MATERIAL</TaskType>
-			<Coordinator collaboratorId="conv">
+			<TaskType>MATERIAL_LOAD</TaskType>
+			<Coordinator collaboratorId="conv2">
 				<CollaboratorType>CONVEYOR</CollaboratorType>
 			</Coordinator>
 			<Collaborators>
-				<Collaborator collaboratorId="robot">
+				<Collaborator collaboratorId="r1">
 					<CollaboratorType>ROBOT</CollaboratorType>
 				</Collaborator>
 			</Collaborators>

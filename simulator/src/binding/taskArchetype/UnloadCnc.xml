@@ -4,20 +4,18 @@
 	<Assets>
 		<TaskArchetype assetId="UnloadCnc" timestamp="2018-02-02T16:16:16" deviceUuid="ERP">
 			<Priority>1</Priority>
-			<TaskType>UNLOAD_MATERIAL</TaskType>
-			<Coordinator collaboratorId="cnc">
+			<TaskType>MATERIAL_UNLOAD</TaskType>
+			<Coordinator collaboratorId="cnc1">
 				<CollaboratorType>CNC</CollaboratorType>
 			</Coordinator>
 			<Collaborators>
-				<Collaborator collaboratorId="robot">
+				<Collaborator collaboratorId="r1">
 					<CollaboratorType>ROBOT</CollaboratorType>
 				</Collaborator>
 			</Collaborators>
 			<SubTaskRefs>
 				<SubTaskRef order="1">OpenDoor</SubTaskRef>
 				<SubTaskRef order="2">OpenChuck</SubTaskRef>
-				<SubTaskRef order="3">CloseChuck</SubTaskRef>
-				<SubTaskRef order="4">CloseDoor</SubTaskRef>
 			</SubTaskRefs>
 		</TaskArchetype>
 	</Assets>
