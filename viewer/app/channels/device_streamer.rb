@@ -24,8 +24,12 @@ class DeviceStreamer
   def stream_changes(xml)
     @device.parse_streams(xml) do |event|
       puts "Sending event: #{@device.name}_#{event.id} #{event.value}"
-      ActionCable.server.broadcast('mt_connect_updates_channel',
+      ActionCable.server.broadcast('mtc_events_channel',
                                    id: "#{@device.name}_#{event.id}",
+                                   name: @device.name,
+                                   component: event.component,
+                                   raw_id: event.id,
+                                   item: event.item,
                                    value: event.value)
     end      
   end
@@ -36,9 +40,7 @@ class DeviceStreamer
       xml = response.body
       doc = REXML::Document.new(xml)
       header = doc.elements['//Header']
-      p header
-      nxt = header.attributes['nextSequence']
-      
+      nxt = header.attributes['nextSequence']      
       stream_changes(xml)
 
       nxt
@@ -55,7 +57,6 @@ class DeviceStreamer
     path << "sample?from=#{nxt}&interval=100&count=1000"
     logger.info "Requesting: #{path} for #{@device.name} at #{nxt}"
 
-    p path
     puller = LongPull.new(client)
     puller.long_pull(path) do |xml|
       stream_changes(xml)
