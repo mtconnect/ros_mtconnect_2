@@ -1,14 +1,20 @@
 
 update_element = (data) ->
-  `if (document.getElementById(data['id'])) {
-    $("#" + data['id']).html(data['value']);
-  } else {
-    if (data['component'] === 'Asset') {
-      $("#" + data['name'] + '_assets').append('<h3>' + data['item'] +
-        ' ' + data['raw_id'] + '</h3><pre id="' + data['id'] +
-        '">' + data['value'] + '</pre>');
-    }
-  }`
+  `let e =  document.getElementById(data['id']);
+   if (e) {
+     if (data['component'] === 'AssetRemoved') {
+       let p = e.parentNode;
+       p.parentNode.removeChild(p);
+     } else {
+       $("#" + data['id']).html(data['value']);
+     }
+   } else {
+     if (data['component'] === 'Asset') {
+       $("#" + data['name'] + '_assets').append('<div><h3>' + data['item'] +
+         ' ' + data['raw_id'] + '</h3><pre id="' + data['id'] +
+         '">' + data['value'] + '</pre></div>');
+     }
+   }`
   return ''      
 
 App.mtc_events = App.cable.subscriptions.create "MtcEventsChannel",

@@ -23,7 +23,7 @@ class DeviceStreamer
 
   def stream_changes(xml)
     @device.parse_streams(xml) do |event|
-      puts "Sending event: #{@device.name}_#{event.id} #{event.value}"
+      puts "Sending event: #{@device.name}_#{event.id} #{event.component} #{event.value}"
       ActionCable.server.broadcast('mtc_events_channel',
                                    id: "#{@device.name}_#{event.id}",
                                    name: @device.name,

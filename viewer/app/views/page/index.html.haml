@@ -24,7 +24,8 @@
     %h3= 'Assets'
     %div{id: "#{device.name}_assets"}
       - device.get_assets.each do |asset|
-        %h3= "#{asset.name}: #{asset.attributes['assetId']}"
-        - format_asset(device, asset)
+        %div
+          %h3= "#{asset.name}: #{asset.attributes['assetId']}"
+          - format_asset(device, asset)
 
 

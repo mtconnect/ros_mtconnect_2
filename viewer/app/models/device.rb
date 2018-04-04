@@ -120,6 +120,11 @@ class Device
                                           format_asset(asset))
               yield asset_event
             end
+          elsif value.name == 'AssetRemoved' and block_given?
+              asset_event = DataValue.new('AssetRemoved', @name, '',
+                                          value.text, '', '',
+                                          '')
+              yield asset_event            
           end
           comp.values << event
         end
