@@ -3,13 +3,6 @@
 - @devices.each do |device|
   .device
     %h2= device.display_name
-    .entry
-      =label_tag "#{device.name}_controller_mode", "Controller Mode: "
-      =select_tag "#{device.name}_controller_mode", options_for_select(['MANUAL', 'MANUAL_DATA_ENTRY', 'AUTOMATIC']),
-          onchange: "$.post('/page/update_mode', {'_method':'put', 'changes': {'#{device.name}_mode':this.value}});"
-      %br
-      =label_tag "#{device.name}_execution", "Execution: "
-      =select_tag "#{device.name}_execution", options_for_select(['READY', 'ACTIVE'])
     - device.get_data.each do |component_type, components|
       - components.each do |component|
         - if component_type == 'Rotary' or component_type == 'Linear'

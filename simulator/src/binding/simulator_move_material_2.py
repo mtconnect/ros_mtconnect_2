@@ -40,7 +40,8 @@ def bot():
     adapter.start()
     
     adapter.begin_gather()
-       
+
+    avail.set_value("AVAILABLE")
     binding_state_material.set_value("INACTIVE")
     material_load.set_value('READY')
     material_unload.set_value('READY')

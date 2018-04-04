@@ -135,10 +135,10 @@ class cnc(object):
                 
                 self.device_pull =[]
                 
-                thread= Thread(target = self.start_pull,args=("http://localhost:5006","/sample?interval=100&count=1000",self.from_long_pull))
+                thread= Thread(target = self.start_pull,args=("http://localhost:5000","/robot/sample?interval=100&count=1000",self.from_long_pull))
                 thread.start()
 
-                thread2= Thread(target = self.start_pull,args=("http://localhost:5007","/sample?interval=100&count=1000",self.from_long_pull))
+                thread2= Thread(target = self.start_pull,args=("http://localhost:5000","/conv/sample?interval=100&count=1000",self.from_long_pull))
                 thread2.start()
 
             def start_pull(self,addr,request, func, stream = True):
