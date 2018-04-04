@@ -19,6 +19,8 @@ import functools, time, re
 import requests, urllib2, collections
 import xml.etree.ElementTree as ET
 
+RobotEvent = collections.namedtuple('RobotEvent', ['source', 'component', 'name', 'value', 'code', 'text'])
+
 class Robot:
     class StateModel:
         """The model for MTConnect behavior in the robot."""
@@ -75,8 +77,6 @@ class Robot:
 
             self.events = []
 
-            self.Event = collections.namedtuple('Event', ['source', 'component', 'name', 'value', 'code', 'text'])
-            
             self.master_tasks ={}
 
             self.deviceUuid = "r1"
@@ -87,7 +87,7 @@ class Robot:
             self.iscollaborator = False
 
             self.adapter.begin_gather()
-            
+
             self.avail1.set_value("AVAILABLE")
             self.e1.set_value("READY")
             self.mode1.set_value("AUTOMATIC")
@@ -100,9 +100,9 @@ class Robot:
             self.material_unload.set_value("NOT_READY")
 
             self.adapter.complete_gather()
-                
+
             self.device_pull =[]
-                
+
             thread= Thread(target = self.start_pull,args=("http://localhost:5005","/sample?interval=100&count=1000",self.from_long_pull))
             thread.start()
 
@@ -110,7 +110,7 @@ class Robot:
             thread2.start()
 
         def start_pull(self,addr,request, func, stream = True):
-                
+
             response = requests.get(addr+request, stream=stream)
             lp = LongPull(response, addr)
             lp.long_pull(func)
@@ -150,20 +150,12 @@ class Robot:
         def UNLOADING_COMPLETE(self):
             self.material_unload_interface.superstate.DEACTIVATE()
 
-        def CNC_NOT_READY(self):
-            self.open_chuck_interface.superstate.DEACTIVATE()
-            self.close_chuck_interface.superstate.DEACTIVATE()
-            self.open_door_interface.superstate.DEACTIVATE()
-            self.close_door_interface.superstate.DEACTIVATE()
-            self.material_load_interface.superstate.DEACTIVATE()
-            self.material_unload_interface.superstate.DEACTIVATE()
-
-        def CNC_LOAD_READY(self):
+        def LOAD_READY(self):
             """Function triggered when the CNC is ready to be loaded"""
             #TODO: verify that it's ok to start loading
             self.loading()
 
-        def CNC_UNLOAD_READY(self):
+        def UNLOAD_READY(self):
             """Function triggered when the CNC is ready to be unloaded"""
             #TODO: verify that it's ok to start unloading
             self.unloading()
@@ -173,8 +165,8 @@ class Robot:
 
             :type ev: .event.Event
             """
-            ev = self.Event(source, comp, name, value, code, text)
-            
+            ev = RobotEvent(source, comp, name, value, code, text)
+
             print('Robot received: ', ev)
             self.events.append(ev)
 
@@ -185,23 +177,52 @@ class Robot:
                 self.collaborator.superstate.event(source, comp, name, value, code, text)
 
             elif 'SubTask' in name and action!='unavailable':
+                
                 if self.iscoordinator == True:
                     self.coordinator.superstate.event(source, comp, name, value, code, text)
 
                 elif self.iscollaborator == True:
-                    self.collaborator.superstate.event(source, comp, name, value, code, text)
+		    if 'BindingState' in name:
+                        self.collaborator.superstate.event(source, comp, 'SubTask_MaterialUnload', 'ACTIVE', code, text)
+		    elif text == self.deviceUuid:
+			check = False
+			for x in self.master_tasks[self.master_uuid]['collaborators'][self.deviceUuid]['SubTask'][name.split('_')[-1]]:
+			    if x[2] != None:
+				check = True
+			    else:
+				break
+			if check:
+			    for k,v in self.master_tasks[self.master_uuid]['coordinator'][self.master_tasks[self.master_uuid]['coordinator'].keys()[0]]['SubTask'].iteritems():
+  		            	if v and v[0] == name.split('_')[-1]:
+				    self.master_tasks[self.master_uuid]['coordinator'][self.master_tasks[self.master_uuid]['coordinator'].keys()[0]]['SubTask'][k][1] = 'COMPLETE'
+
+
+		    elif 'Door' in name or 'Chuck' in name:
+			check = False
+			for k,v in self.master_tasks[self.master_uuid]['coordinator'][self.master_tasks[self.master_uuid]['coordinator'].keys()[0]]['SubTask'].iteritems():
+			    if v:
+				if v[0] == name.split('_')[-1] and v[1] != None:
+				    check == True
+			    else:
+				break
+			if check:
+			    self.collaborator.superstate.event(source, comp, name, value, code, text)
+			    time.sleep(0.1)
+  		            self.collaborator.superstate.event('robot', comp, name, value, self.master_uuid, self.deviceUuid) #(robot, some_interface, SubTask_MaterialLoad/Unload, 'COMPLETE', self.master_uuid, self.deviceUuid)
+                    else:
+			self.collaborator.superstate.event(source, comp, name, value, code, text)
+
+            #elif ev.source == 'cnc': #other general CNC events
+                #self.cnc_event(ev)
 
             elif ev.name.startswith('Material'):
                 self.material_event(ev)
 
-            elif ev.component.startswith('Controller'):
-                self.controller_event(ev)
+            #elif ev.component.startswith('Controller'):
+                #self.controller_event(ev)
 
-            elif ev.component.startswith('Device'):
-                self.device_event(ev)
-
-            elif ev.source == 'cnc': #other general CNC events
-                self.cnc_event(ev)
+            #elif ev.component.startswith('Device'):
+                #self.device_event(ev)
 
             else:
                 raise(Exception('Unknown event: ' + str(ev)))
@@ -209,13 +230,13 @@ class Robot:
 
         def material_event(self, ev):
             if ev.name == "MaterialLoad":
-                if ev.value.lower() == 'ready' and self.state == 'base:operational:idle':
-                    self.cnc_material_load_ready()
+                if ev.value.lower() == 'active' and self.state == 'base:operational:idle':
+                    self.material_load_ready()
                 else:
                     self.material_load_interface.superstate.event(ev)
             elif ev.name == "MaterialUnload":
-                if ev.value.lower() == 'ready' and self.state == 'base:operational:idle':
-                    self.cnc_material_unload_ready()
+                if ev.value.lower() == 'active' and self.state == 'base:operational:idle':
+                    self.material_unload_ready()
                 else:
                     self.material_unload_interface.superstate.event(ev)
             else:
@@ -289,36 +310,36 @@ class Robot:
                             #THIS CLAUSE? DO WE NEED IT?
                             if 'Availability' in event.tag or 'Execution' in event.tag or 'ControllerMode' in event.tag:
                                 print "1_avail"
-                                
+
                                 thread1= Thread(target = self.event,args=(source.lower(), component, event.tag.split('}')[-1], event.text))
                                 thread1.start()
-                                    
+
                             else: #if 'Asset' in event.tag:
                                 if ('AssetChanged' in event.tag or 'BindingState' in event.tag or self.binding_state_material.value() == "COMMITTED") and event.text.lower() != 'unavailable':
-                                    
+
                                     print event.tag
                                     if 'AssetChanged' in event.tag:
                                         thread= Thread(target = self.start_pull_asset,args=(addr,"/asset/",event.text, [event,source,component,x.attrib['uuid']]))
                                         thread.start()
-                                        
+
                                     elif 'BindingState' in event.tag:
                                         print "2_bind"
                                         thread= Thread(target = self.start_pull_asset,args=(addr,"/asset/",self.master_uuid, [event,source,component,x.attrib['uuid']]))
                                         thread.start()
-                                        
+
                                     elif self.binding_state_material.value() == "COMMITTED":
                                         thread= Thread(target = self.start_pull_asset,args=(addr,"/asset/",self.master_uuid, [event,source,component,x.attrib['uuid']]))
                                         thread.start()
-                                        
+
                                 elif 'AssetRemoved' in event.tag and self.binding_state_material.value() == "INACTIVE" and event.text.lower() != 'unavailable':
-                                    
+
                                     print 'REMOVED'+event.tag+'\n'
                                     try:
                                         self.adapter.removeAsset(event.text)
                                     except:
                                         "THIS CLAUSE IS FOR MAKING SURE THE ASSET IS REMOVED WHEN COMPLETED."
                                 else:
-                                    
+
                                     print 'BAD'+event.tag+'\n'
                             """
                             else: #do we need it here?
@@ -386,10 +407,10 @@ class Robot:
                                 self.event(source.lower(), component, 'SubTask_'+event.tag.split('}')[-1], event.text, self.master_uuid, collabUuid)
                         except:
                             "Inavlid Trigger"
-                        
-                
-    
-            #if cnc is a coordinator                
+
+
+
+            #if cnc is a coordinator
             if self.iscoordinator:
                 print "3_bind"
                 event = stream_root[0]
@@ -404,7 +425,7 @@ class Robot:
                 elif 'BindingState' in event.tag and event.text == "INACTIVE" and self.binding_state_material.value() == "COMMITTED":
                     self.master_tasks[self.master_uuid]['coordinator'][self.deviceUuid]['SubTask'][collabUuid][1] = 'COMPLETE'
                     self.coordinator.superstate.task.superstate.commit()
-                        
+
                 elif self.binding_state_material.value() == "COMMITTED" and self.master_tasks[self.master_uuid]['coordinator'][self.deviceUuid]['Task'][1] == "COMMITTED":
                     self.event(source.lower(), component, 'SubTask_'+event.tag.split('}')[-1], event.text, self.master_uuid, collabUuid)
 
@@ -451,15 +472,6 @@ class Robot:
             ['activate', 'base:disabled:not_ready', 'base:activated'],
             ['make_operational', 'base:activated', 'base:operational'],
 
-            #['cnc_execution_interrupted', 'base', 'base:activated'],
-            ['cnc_execution_stopped', 'base', 'base:activated'],
-            ['cnc_execution_active', 'base', 'base:activated'],
-            ['cnc_execution_ready', 'base', 'base:activated'],
-            #['robot_controller_mode_manual_data_input', 'base', 'base:activated'],
-            ['cnc_controller_mode_manual', 'base', 'base:activated'],
-            ['cnc_controller_mode_automatic', 'base', 'base:activated'],
-            ['cnc_availability_available', 'base', 'base:activated'],
-            ['cnc_availability_unavailable', 'base', 'base:activated'],
             #['robot_system_warning', 'base', 'base:activated'],
             #['robot_system_normal', 'base', 'base:activated'],
             #['reset_cnc', 'base', 'base:activated'],
@@ -467,10 +479,6 @@ class Robot:
             #['disable', 'base', 'base:activated'],
             #['cnc_controller_mode_manual', 'base', 'base:activated'],
             #['cnc_controller_mode_manual_data_input', 'base', 'base:activated'],
-
-            ['cnc_controller_mode_automatic', 'base:disabled', 'base:activated'],
-            ['cnc_material_load_ready', 'base:disabled', 'base:activated'],
-            ['cnc_material_unload_ready', 'base:disabled', 'base:activated'],
 
             #['default', 'base:operational:cycle_start', 'base:operational:cycle_start'],
             #['complete', 'base:operational:loading', 'base:operational:cycle_start'],
@@ -498,28 +506,36 @@ class Robot:
             #['manipulation_done', 'base:operational:manipulating', 'base:operational:idle'],
 
             ['loading', 'base:operational', 'base:operational:loading'],
-            #['default', 'base:operational:loading', 'base:operational:loading'],
             ['loading_complete', 'base:operational:loading', 'base:operational:idle'],
-
             ['unloading', 'base:operational', 'base:operational:unloading'],
             ['unloading_complete', 'base:operational:unloading', 'base:operational:idle'],
-            #['default', 'base:operational:unloading', 'base:operational:unloading'],
-            #['cnc_execution_ready', 'base:operational:cycle_start', 'base:operational:unloading'],
 
             #['failed', 'base:operational:loading', 'base:operational:idle'],
             #['failed', 'base:operational:unloading', 'base:operational:idle'],
             #['start', 'base:operational', 'base:operational:idle'],
             {
-                'trigger': 'cnc_material_unload_ready',
+                'trigger': 'material_unload_ready',
                 'source': 'base:operational:idle',
-                'dest': 'base:operational',
-                'after': 'CNC_UNLOAD_READY'
+                'dest': 'base:operational:loading',
+                'after': 'UNLOAD_READY'
             },
             {
-                'trigger': 'cnc_material_load_ready',
+                'trigger': 'material_load_ready',
                 'source': 'base:operational:idle',
-                'dest': 'base:operational',
-                'after': 'CNC_LOAD_READY'
+                'dest': 'base:operational:unloading',
+                'after': 'LOAD_READY'
+            },
+            {
+                'trigger': 'loading_completed',
+                'source': 'base:operational:loading',
+                'dest': 'base:operational:idle',
+                'after': 'LOADING_COMPLETE'
+            },
+            {
+                'trigger': 'unloading_completed',
+                'source': 'base:operational:unloading',
+                'dest': 'base:operational:idle',
+                'after': 'UNLOADING_COMPLETE'
             },
             #['default', 'base:operational:idle', 'base:operational:idle'],
         ]
@@ -532,16 +548,13 @@ class Robot:
             ignore_invalid_triggers=True
         )
 
-        #statemachine.on_enter('base:disabled', 'CNC_NOT_READY')
-        #statemachine.on_enter('base:disabled:not_ready', 'CNC_NOT_READY')
-        #statemachine.on_enter('base:disabled:fault', 'CNC_NOT_READY')
         statemachine.on_enter('base:activated', 'ACTIVATE')
         statemachine.on_enter('base:operational', 'OPERATIONAL')
         #statemachine.on_enter('base:operational:idle','IDLE')
         #statemachine.on_enter('base:operational:cycle_start', 'CYCLING')
-        #statemachine.on_enter('base:operational:loading', 'LOADING')
-        #statemachine.on_exit('base:operational:loading', 'EXIT_LOADING')
-        #statemachine.on_enter('base:operational:unloading', 'UNLOADING')
-        #statemachine.on_exit('base:operational:unloading', 'EXIT_UNLOADING')
+        statemachine.on_enter('base:operational:loading', 'LOADING')
+        statemachine.on_exit('base:operational:loading', 'EXIT_LOADING')
+        statemachine.on_enter('base:operational:unloading', 'UNLOADING')
+        statemachine.on_exit('base:operational:unloading', 'EXIT_UNLOADING')
 
         return statemachine
