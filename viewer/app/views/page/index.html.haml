@@ -1,9 +1,16 @@
 %h1 Devices
 
-- @devices.each do |display_name, name, device|
+- @devices.each do |device|
   .device
-    %h2= display_name
-    - device.each do |component_type, components|
+    %h2= device.display_name
+    .entry
+      =label_tag "#{device.name}_controller_mode", "Controller Mode: "
+      =select_tag "#{device.name}_controller_mode", options_for_select(['MANUAL', 'MANUAL_DATA_ENTRY', 'AUTOMATIC']),
+          onchange: "$.post('/page/update_mode', {'_method':'put', 'changes': {'#{device.name}_mode':this.value}});"
+      %br
+      =label_tag "#{device.name}_execution", "Execution: "
+      =select_tag "#{device.name}_execution", options_for_select(['READY', 'ACTIVE'])
+    - device.get_data.each do |component_type, components|
       - components.each do |component|
         - if component_type == 'Rotary' or component_type == 'Linear'
           %h3= "#{component_type} #{component.name}"
@@ -13,7 +20,12 @@
           - component.values.each do |v|
             %tr
               %td= v.item
-              %td{id: "#{name}_#{v.id}"}= v.value
-
+              %td{id: "#{device.name}_#{v.id}"}= v.value
+    %h3= 'Assets'
+    %div{id: "#{device.name}_assets"}
+      - device.get_assets.each do |asset|
+        %div
+          %h3= "#{asset.name}: #{asset.attributes['assetId']}"
+          - format_asset(device, asset)
 
 
