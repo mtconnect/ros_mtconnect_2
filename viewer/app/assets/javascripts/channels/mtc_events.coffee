@@ -6,7 +6,7 @@ update_element = (data) ->
        let p = e.parentNode;
        p.parentNode.removeChild(p);
      } else {
-       $("#" + data['id']).html(data['value']);
+       e.innerText = data['value'];
      }
    } else {
      if (data['component'] === 'Asset') {
