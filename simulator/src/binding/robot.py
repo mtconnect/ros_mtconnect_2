@@ -26,7 +26,7 @@ class Robot:
         """The model for MTConnect behavior in the robot."""
         def __init__(self):
 
-            self.adapter = Adapter(('localhost',7884))
+            self.adapter = Adapter(('localhost',7885))
 
             self.mode1 = Event('mode')
             self.adapter.add_data_item(self.mode1)
@@ -65,10 +65,18 @@ class Robot:
 
             self.material_load_interface = MaterialLoadResponse(self)
             self.material_unload_interface = MaterialUnloadResponse(self)
+
             self.open_chuck_interface = OpenChuckRequest(self)
+            #self.open_chuck_interface.superstate.set_processing_time_limit(10)
+
             self.close_chuck_interface = CloseChuckRequest(self)
+            #self.close_chuck_interface.superstate.set_processing_time_limit(10)
+
             self.open_door_interface = OpenDoorRequest(self)
+            #self.open_door_interface.superstate.set_processing_time_limit(10)
+
             self.close_door_interface = CloseDoorRequest(self)
+            #self.close_door_interface.superstate.set_processing_time_limit(10)
 
             self.fail_next = False
 
@@ -124,20 +132,16 @@ class Robot:
 
 
         def ACTIVATE(self):
-            if (self.controller_mode == "AUTOMATIC" and
-                self.link == "ENABLED" and
-                self.cnc_controller_mode =="AUTOMATIC" and
-                self.cnc_execution == "ACTIVE" and
-                self.cnc_availability == "AVAILABLE"):
-                self.make_operational()
-            else:
-                self.faulted()
+            self.make_operational()
 
         def OPERATIONAL(self):
-            self.open_chuck_interface.superstate.ACTIVATE()
-            self.close_chuck_interface.superstate.ACTIVATE()
-            self.open_door_interface.superstate.ACTIVATE()
-            self.close_door_interface.superstate.ACTIVATE()
+            self.make_idle()
+
+        def IDLE(self):
+            self.collaborator = collaborator(parent = self, interface = self.binding_state_material,
+                    collaborator_name = 'r1')
+            self.collaborator.create_statemachine()
+            self.collaborator.superstate.unavailable()
 
         def LOADING(self):
             self.material_load_interface.superstate.ACTIVATE()
@@ -228,7 +232,7 @@ class Robot:
                 #self.device_event(ev)
 
             else:
-                raise(Exception('Unknown event: ' + str(ev)))
+                print('Unknown event: ' + str(ev))
 
 
         def material_event(self, ev):
@@ -474,11 +478,12 @@ class Robot:
             ['start', 'base', 'base:disabled:not_ready'],
             ['activate', 'base:disabled:not_ready', 'base:activated'],
             ['make_operational', 'base:activated', 'base:operational'],
+            ['make_idle', 'base:operational', 'base:operational:idle'],
 
             #['robot_system_warning', 'base', 'base:activated'],
             #['robot_system_normal', 'base', 'base:activated'],
             #['reset_cnc', 'base', 'base:activated'],
-            #['enable', 'base', 'base:activated'],
+            ['enable', 'base', 'base:activated'],
             #['disable', 'base', 'base:activated'],
             #['cnc_controller_mode_manual', 'base', 'base:activated'],
             #['cnc_controller_mode_manual_data_input', 'base', 'base:activated'],
@@ -553,7 +558,7 @@ class Robot:
 
         statemachine.on_enter('base:activated', 'ACTIVATE')
         statemachine.on_enter('base:operational', 'OPERATIONAL')
-        #statemachine.on_enter('base:operational:idle','IDLE')
+        statemachine.on_enter('base:operational:idle','IDLE')
         #statemachine.on_enter('base:operational:cycle_start', 'CYCLING')
         statemachine.on_enter('base:operational:loading', 'LOADING')
         statemachine.on_exit('base:operational:loading', 'EXIT_LOADING')
@@ -561,3 +566,9 @@ class Robot:
         statemachine.on_exit('base:operational:unloading', 'EXIT_UNLOADING')
 
         return statemachine
+
+if __name__ == '__main__':
+    robot1 = Robot()
+    robot1.create_statemachine()
+    time.sleep(10)
+    robot1.superstate.enable()
