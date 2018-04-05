@@ -21,7 +21,7 @@ class Request(object):
         
             def __init__(self,interface = interface, parent = parent):
                 self.interface = interface
-                self.processing_time_limit = 0.0
+                self.processing_time_limit = 10.0
                 self.fail_time_limit = 0.0
                 self.failing = False
                 self.parent = parent
