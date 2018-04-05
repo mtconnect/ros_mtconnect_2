@@ -102,16 +102,16 @@ class inputConveyor(object):
                 self.device_pull =[]
                 
                 try:
-                    thread= Thread(target = self.start_pull,args=("http://localhost:5006","/sample?interval=100&count=1000",self.from_long_pull))
+                    thread= Thread(target = self.start_pull,args=("http://localhost:5000","/robot/sample?interval=100&count=1000",self.from_long_pull))
                     thread.start()
                 except:
-                    print "No device at http://localhost:5006\n"
+                    print "No device at http://localhost:5000\n"
                     
                 try:
-                    thread2= Thread(target = self.start_pull,args=("http://localhost:5005","/sample?interval=100&count=1000",self.from_long_pull))
+                    thread2= Thread(target = self.start_pull,args=("http://localhost:5000","/cnc/sample?interval=100&count=1000",self.from_long_pull))
                     thread2.start()
                 except:
-                    print "No device at http://localhost:5005\n"
+                    print "No device at http://localhost:5000\n"
                 
                 
             def start_pull(self,addr,request, func, stream = True):
