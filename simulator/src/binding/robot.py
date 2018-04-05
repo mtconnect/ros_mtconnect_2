@@ -58,6 +58,9 @@ class Robot:
             self.material_unload = Event('material_unload')
             self.adapter.add_data_item(self.material_unload)
 
+            self.material_state = Event('material_state')
+            self.adapter.add_data_item(self.material_state)
+
             self.adapter.start()
 
             self.material_load_interface = MaterialLoadResponse(self)
@@ -103,10 +106,10 @@ class Robot:
 
             self.device_pull =[]
 
-            thread= Thread(target = self.start_pull,args=("http://localhost:5005","/sample?interval=100&count=1000",self.from_long_pull))
+            thread= Thread(target = self.start_pull,args=("http://localhost:5000","/cnc/sample?interval=100&count=1000",self.from_long_pull))
             thread.start()
 
-            thread2= Thread(target = self.start_pull,args=("http://localhost:5007","/sample?interval=100&count=1000",self.from_long_pull))
+            thread2= Thread(target = self.start_pull,args=("http://localhost:5000","/conv/sample?interval=100&count=1000",self.from_long_pull))
             thread2.start()
 
         def start_pull(self,addr,request, func, stream = True):
