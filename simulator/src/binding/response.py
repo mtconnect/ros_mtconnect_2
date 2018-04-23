@@ -27,7 +27,7 @@ class Response(object):
 
         class statemachineModel(object):
 
-            def __init__(self, adapter, interface, parent, prefix, dest_state, response_state, rel = True, simulate = True):
+            def __init__(self, adapter, interface, parent, prefix, dest_state, transition_state, response_state, rel = True, simulate = True):
 
                 self.interface = interface
                 self.adapter = adapter
@@ -35,6 +35,7 @@ class Response(object):
                 self.dest_state = dest_state
                 self.prefix = prefix
                 self.response_state = response_state
+                self.transition_state = transition_state
                 self.simulate = simulate
                 self.fail_reset_delay = 1
                 self.fail_next = False
@@ -87,7 +88,7 @@ class Response(object):
                     self.adapter.complete_gather()
                     if self.simulate:
                         self.adapter.begin_gather()
-                        self.response_state.set_value("UNLATCHED")
+                        self.response_state.set_value(self.transition_state)
                         self.adapter.complete_gather()
                     check_state_list=[
                     self.DEFAULT.has_been_called, self.FAILURE.has_been_called, self.READY.has_been_called, self.NOT_READY.has_been_called, self.COMPLETE.has_been_called
@@ -142,12 +143,13 @@ class Response(object):
                     self.adapter.begin_gather()
                     self.response_state.set_value(self.dest_state)
                     self.adapter.complete_gather()
-               
-                self.parent.interface_type(value = 'Response'+self.prefix.lower()+self.dest_state.lower())
-                self.parent.COMPLETED()
+                    
                 self.adapter.begin_gather()
                 self.interface.set_value("COMPLETE")
                 self.adapter.complete_gather()
+               
+                self.parent.interface_type(value = 'Response'+self.prefix.lower()+self.dest_state.lower())
+                self.parent.COMPLETED()
 
             def void(self):
                 pass
@@ -171,7 +173,7 @@ class Response(object):
                 self.default()
 
         
-        self.superstate = statemachineModel(adapter = adapter, interface = interface, parent = parent, prefix = prefix, dest_state = dest_state, response_state = response_state, rel = rel, simulate = simulate)
+        self.superstate = statemachineModel(adapter = adapter, interface = interface, parent = parent, prefix = prefix, dest_state = dest_state, transition_state = transition_state, response_state = response_state, rel = rel, simulate = simulate)
     
 
 
