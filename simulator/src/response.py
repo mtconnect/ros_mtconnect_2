@@ -12,7 +12,7 @@ class interface(object):
 
 class Response(object):
 
-    def __init__(self, parent, adapter, interface, prefix, dest_state, transition_state, rel, simulate = True):
+    def __init__(self, parent, adapter, interface, prefix, dest_state, transition_state, response_state, rel, simulate = True):
 
         self.parent = parent
         self.adapter = adapter
@@ -27,28 +27,22 @@ class Response(object):
 
         class statemachineModel(object):
 
-            def __init__(self, interface = interface, parent = parent, prefix = prefix, dest_state = dest_state, simulate = simulate, rel = rel):
+            def __init__(self, adapter, interface, parent, prefix, dest_state, transition_state, response_state, rel = True, simulate = True):
 
                 self.interface = interface
+                self.adapter = adapter
                 self.parent = parent
                 self.dest_state = dest_state
                 self.prefix = prefix
-                self.response_state = str()
+                self.response_state = response_state
+                self.transition_state = transition_state
                 self.simulate = simulate
-                self.fail_reset_delay = 1.0
+                self.fail_reset_delay = 1
                 self.fail_next = False
                 if rel: self.related = rel
                 else: self.related = False
-                self.simulated_duration = 1.0
-                self.processing_time_limit = 0.0
-                self.fail_time_limit = 0.0
+                self.simulated_duration = 1.5
                 #add on later
-
-            def set_processing_time_limit(self, limit):
-                self.processing_time_limit = float(limit)
-
-            def set_fail_time_limit(self, limit):
-                self.fail_time_limit = float(limit)
 
             def check_state_calls(func):
                 @functools.wraps(func)
@@ -63,26 +57,39 @@ class Response(object):
 
             @check_state_calls
             def NOT_READY(self):
-                self.interface.value = "NOT_READY"
+                self.adapter.begin_gather()
+                self.interface.set_value("NOT_READY")
+                self.adapter.complete_gather()
 
             @check_state_calls
             def READY(self):
-                self.interface.value = "READY"
+                self.adapter.begin_gather()
+                self.interface.set_value("READY")
+                self.adapter.complete_gather()
 
             @check_state_calls
             def ACTIVE(self):
                 if self.fail_next:
-                    self.interface.value = "ACTIVE"
+                    self.adapter.begin_gather()
+                    self.interface.set_value("ACTIVE")
+                    self.adapter.complete_gather()
                     self.fail_next = False
                     self.FAILURE()
 
-                elif self.response_state == self.dest_state:
-                    self.interface.value = "ACTIVE"
+                elif self.response_state.value() == self.dest_state:
+                    self.adapter.begin_gather()
+                    self.interface.set_value("ACTIVE")
+                    self.adapter.complete_gather()
                     self.COMPLETE()
                     
                 else:
-                    self.interface.value = "ACTIVE"
-                    if self.simulate: self.response_state = "UNLATCHED"
+                    self.adapter.begin_gather()
+                    self.interface.set_value("ACTIVE")
+                    self.adapter.complete_gather()
+                    if self.simulate:
+                        self.adapter.begin_gather()
+                        self.response_state.set_value(self.transition_state)
+                        self.adapter.complete_gather()
                     check_state_list=[
                     self.DEFAULT.has_been_called, self.FAILURE.has_been_called, self.READY.has_been_called, self.NOT_READY.has_been_called, self.COMPLETE.has_been_called
                     ]
@@ -115,7 +122,10 @@ class Response(object):
 
             @check_state_calls
             def FAILURE(self):
-                self.interface.value = "FAIL"
+                self.adapter.begin_gather()
+                self.interface.set_value("FAIL")
+                self.adapter.complete_gather()
+                print "FAILED!!!!!!!!!!!!!!!!!!!!!"
                 try:
                     self.parent.FAILED()
                 except:
@@ -130,11 +140,16 @@ class Response(object):
             def COMPLETE(self):
                 
                 if self.simulate:
-                    self.response_state = self.dest_state
+                    self.adapter.begin_gather()
+                    self.response_state.set_value(self.dest_state)
+                    self.adapter.complete_gather()
+                    
+                self.adapter.begin_gather()
+                self.interface.set_value("COMPLETE")
+                self.adapter.complete_gather()
                
                 self.parent.interface_type(value = 'Response'+self.prefix.lower()+self.dest_state.lower())
                 self.parent.COMPLETED()
-                self.interface.value = "COMPLETE"
 
             def void(self):
                 pass
@@ -157,20 +172,10 @@ class Response(object):
             def DEFAULT(self):
                 self.default()
 
-            def event(self, ev):
-                """Process events.
-                
-                :type ev: .event.Event
-                """
-                if ev.value.lower() == 'ready':
-                    self.ready()
-
         
-        self.superstate = statemachineModel(interface)
+        self.superstate = statemachineModel(adapter = adapter, interface = interface, parent = parent, prefix = prefix, dest_state = dest_state, transition_state = transition_state, response_state = response_state, rel = rel, simulate = simulate)
     
-    def draw(self):
-        print "Creating response.png diagram"
-        self.statemachine.get_graph().draw('response.png', prog='dot')
+
 
     def create_statemachine(self):
         NestedState.separator = ':'

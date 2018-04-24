@@ -1,5 +1,5 @@
 import os,sys
-#sys.path.insert(0,os.getcwd()+'\\utils') #child path
+sys.path.insert(0,os.getcwd()+'\\taskArchetype') #child path
 sys.path.insert(0, os.path.dirname(os.getcwd())) #parent
 import xml.etree.ElementTree as ET
 import uuid, re
@@ -18,10 +18,16 @@ class archetypeToInstance(object):
         self.taskIns = ET.tostring(self.toInstance(deviceUuid = self.deviceUuid))
 
     def readArchetype(self, taskArch):
+        try:
+            fileOpen = open(os.path.join('taskArchetype', taskArch +'.xml'))
+            fileRead = fileOpen.read()
+            root = ET.fromstring(fileRead)
+        except:
+            #for mamba
+            fileOpen = open('../src/taskArchetype/UnloadConv.xml')
+            fileRead = fileOpen.read()
+            root = ET.fromstring(fileRead)
 
-        fileOpen = open('taskArchetype/'+taskArch+'.xml', 'r')
-        fileRead = fileOpen.read()
-        root = ET.fromstring(fileRead)
 
         return root
 
