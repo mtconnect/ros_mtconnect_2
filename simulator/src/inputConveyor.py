@@ -33,7 +33,7 @@ class inputConveyor(object):
 
             def __init__(self):
                 
-                self.adapter = Adapter(('localhost',7790))
+                self.adapter = Adapter(('localhost',7727))
 
                 self.mode1 = Event('mode')
                 self.adapter.add_data_item(self.mode1)
@@ -387,7 +387,8 @@ class inputConveyor(object):
                                         
                                         print 'REMOVED'+event.tag+'\n'
                                         try:
-                                            self.adapter.removeAsset(event.text)
+                                            if self.deviceUuid in event.text:
+                                                self.adapter.removeAsset(event.text)
                                         except:
                                             "THIS CLAUSE IS FOR MAKING SURE THE ASSET IS REMOVED WHEN COMPLETED."
 
@@ -577,6 +578,6 @@ if __name__ == '__main__':
     conv1.superstate.has_material = True
     conv1.superstate.load_time_limit(100)
     conv1.superstate.unload_time_limit(100)
-    time.sleep(10)
+    time.sleep(7)
     conv1.superstate.enable()
     

@@ -8,7 +8,7 @@ from archetypeToInstance import update as assetUpdate
 from transitions.extensions import HierarchicalMachine as Machine
 from transitions.extensions.nesting import NestedState
 from threading import Timer, Thread
-import functools, time, copy, uuid
+import functools, time, copy, uuid, re
 
 import subTask
 
@@ -111,19 +111,24 @@ class collaborator(object):
                             self.subTask[val[0]].superstate.create()
                             self.currentSubTask = copy.deepcopy(val[0])
                             print self.currentSubTask+'in committed init'
+
                             if val[0] in self.parent.master_tasks[self.parent.master_uuid]['collaborators'][self.parent.deviceUuid]['SubTask']:
                                 for i,x in enumerate(self.parent.master_tasks[self.parent.master_uuid]['collaborators'][self.parent.deviceUuid]['SubTask'][val[0]]):
                                     self.subTask[x[1]] = subTask.subTask(parent = self.parent , interface = interface, master_task_uuid = self.subTask[val[0]].superstate.task_uuid, collaborators = None, taskName = x[1])
                                     self.subTask[x[1]].create_statemachine()
                                     self.subTask[x[1]].superstate.create()
                                     self.currentSubTask = copy.deepcopy(x[1])
+                                    self.parent.event(self.parent.deviceUuid, 'interface_intialization', 'SubTask_'+x[1],'IDLE')
                                     while self.subTask[self.currentSubTask].superstate.state != 'removed':
                                         pass
                                     self.parent.master_tasks[self.parent.master_uuid]['collaborators'][self.parent.deviceUuid]['SubTask'][val[0]][i][2] = 'COMPLETE'
-                                
+                                    time.sleep(0.2)
                             self.currentSubTask = copy.deepcopy(val[0])
                             while self.subTask[self.currentSubTask].superstate.state != 'removed':
                                 pass
+                            coord = self.parent.master_tasks[self.parent.master_uuid]['coordinator'].keys()[0]
+                            self.parent.master_tasks[self.parent.master_uuid]['coordinator'][coord]['SubTask'][key][1] = 'COMPLETE'
+                            
                 self.parent.master_tasks[self.parent.master_uuid]['collaborators'][self.parent.deviceUuid]['state'][2] = 'COMPLETE'
 
                 if collabUuid == True:
@@ -155,9 +160,19 @@ class collaborator(object):
                             self.committed(self.parent.master_tasks[code],code, self.parent.master_tasks[code]['coordinator'].keys()[0])
                         t0= Thread(target = subt)
                         t0.start()
-                        time.sleep(0.3)
-                    print self.subTask, self.currentSubTask
-                    self.subTask[self.currentSubTask].superstate.event(source, comp, name, value, code, text)
+                        time.sleep(0.1)
+                        self.parent.event(source, comp, name, value, code, text)
+                        print self.subTask, self.currentSubTask
+                    elif self.currentSubTask and self.currentSubTask in name:
+                        self.subTask[self.currentSubTask].superstate.event(source, comp, name, value, code, text)
+                    elif self.subTask:
+                        for k,v in self.parent.master_tasks[self.parent.master_uuid]['coordinator'][self.parent.master_tasks[self.parent.master_uuid]['coordinator'].keys()[0]]['SubTask'].iteritems():
+                            print k,v,name
+                            if v and name.split('_')[-1] in v[3]:
+                                print k,v
+                                self.subTask[v[0]].superstate.event(source, comp, name, value, code, text)
+                    else:
+                        print "NO CURRENT SUBTASK"
                 else:
                     print "in else"
                     if 'complete' in value.lower():

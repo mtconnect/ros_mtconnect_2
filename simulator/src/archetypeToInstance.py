@@ -12,10 +12,12 @@ class archetypeToInstance(object):
         self.parentRef = parentRef
         self.taskArch = task
         self.jsonModel = {}
+        self.taskCoordinator = None
         self.root = self.readArchetype(self.taskArch)
         self.uuid = uuid
         self.deviceUuid = deviceUuid
         self.taskIns = ET.tostring(self.toInstance(deviceUuid = self.deviceUuid))
+        
 
     def readArchetype(self, taskArch):
         try:
@@ -24,7 +26,7 @@ class archetypeToInstance(object):
             root = ET.fromstring(fileRead)
         except:
             #for mamba
-            fileOpen = open('../src/taskArchetype/UnloadConv.xml')
+            fileOpen = open('../src/taskArchetype/'+taskArch+'.xml')
             fileRead = fileOpen.read()
             root = ET.fromstring(fileRead)
 
@@ -69,7 +71,9 @@ class archetypeToInstance(object):
             state.text = str("INACTIVE")
 
             coordinator = ET.SubElement(taskIns, "Coordinator")
-            coordinator.attrib["collaboratorId"] = self.deviceUuid
+            coordinator.attrib["collaboratorId"] = self.root.findall('.//'+self.root.tag.split('}')[0]+'}Coordinator')[0].attrib['collaboratorId']
+            self.taskCoordinator = coordinator.attrib["collaboratorId"]
+            print coordinator.attrib["collaboratorId"]
             coordinator.text = self.root.findall('.//'+self.root.tag.split('}')[0]+'}Coordinator')[0][0].text
 
             for i,x in enumerate(self.root.findall('.//'+self.root.tag.split('}')[0]+'}Collaborators')[0]):
@@ -152,7 +156,8 @@ class archetypeToInstance(object):
                         jsonModel['collaborators'][vals['coordinator']]['SubTask'][key] = []
                     jsonModel['collaborators'][vals['coordinator']]['SubTask'][key].append(['Interface',keys, None, vals['order'], None])
 
-                jsonModel['collaborators'][vals['coordinator']]['SubTask'][key] = sorted(jsonModel['collaborators'][vals['coordinator']]['SubTask'][key], key=lambda x: x[3])
+                if vals:
+                    jsonModel['collaborators'][vals['coordinator']]['SubTask'][key] = sorted(jsonModel['collaborators'][vals['coordinator']]['SubTask'][key], key=lambda x: x[3])
                     
 
         jsonModel['coordinator']={coordinator:{'state':[coordinatorType,coordinator,None],'Task':[tasktype,None], 'SubTask':CoordinatorSubTask}}
@@ -182,7 +187,7 @@ def update(taskIns, dataitem, value):
             
 
 if __name__ == "__main__":
-    a2i = archetypeToInstance("MoveMaterial_1","uuid","deviceUuid")
+    a2i = archetypeToInstance("MoveMaterial_1","xyz","cnc1")
     a2i.jsonInstance()
     a2i.traverse(a2i.root)
     

@@ -5,7 +5,7 @@ from threading import Timer, Thread
 
 
 def bot():
-    adapter = Adapter(('localhost', 7880))
+    adapter = Adapter(('localhost', 7881))
     avail = Event('avail')
     adapter.add_data_item(avail)
     e1 = Event('exec')

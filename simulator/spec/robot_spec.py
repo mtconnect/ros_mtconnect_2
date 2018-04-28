@@ -76,7 +76,7 @@ with description('Robot'):
             #unload completes and state goes from active-complete-not_ready
             expect(self.robot.superstate.material_unload.value()).to(equal('NOT_READY'))
             
-            self.robot.superstate.event('cnc','MaterialHandlerInterface', 'SubTask_MaterialLoad', 'ACTIVE','1','cnc1')
+            #self.robot.superstate.event('cnc','MaterialHandlerInterface', 'SubTask_MaterialLoad', 'ACTIVE','1','cnc1')
 
             time.sleep(1)
             expect(self.robot.superstate.material_load.value()).to(equal('ACTIVE'))

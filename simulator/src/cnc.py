@@ -34,7 +34,7 @@ class cnc(object):
 
             def __init__(self):
                 
-                self.adapter = Adapter(('localhost',7884))
+                self.adapter = Adapter(('localhost',7827))
 
                 self.mode1 = Event('mode')
                 self.adapter.add_data_item(self.mode1)
@@ -281,11 +281,13 @@ class cnc(object):
             def LOADING(self):
                 if not self.has_material:
                     self.material_unload_interface.superstate.DEACTIVATE()
+                    self.material_load_interface.superstate.idle()
                     self.material_load_interface.superstate.ACTIVATE()
 
             def UNLOADING(self):
                 if self.has_material:
                     self.material_load_interface.superstate.DEACTIVATE()
+                    self.material_unload_interface.superstate.idle()
                     self.material_unload_interface.superstate.ACTIVATE()
 
             def EXIT_LOADING(self):
@@ -560,7 +562,8 @@ class cnc(object):
                                         
                                         print 'REMOVED'+event.tag+'\n'
                                         try:
-                                            self.adapter.removeAsset(event.text)
+                                            if self.deviceUuid in event.text:
+                                                self.adapter.removeAsset(event.text)
                                         except:
                                             "THIS CLAUSE IS FOR MAKING SURE THE ASSET IS REMOVED WHEN COMPLETED."
 
@@ -590,6 +593,7 @@ class cnc(object):
                     for x in root.findall('.//'+xmlns+'Collaborator'):
                         if x.attrib['collaboratorId'] == self.deviceUuid:
                             main_task_archetype = root.findall('.//'+xmlns+'AssetArchetypeRef')[0].attrib['assetId']
+                            print main_task_archetype
                             main_task_uuid = root.findall('.//'+xmlns+'Task')[0].attrib['assetId']
                             main_task_deviceUuid = root.findall('.//'+xmlns+'Task')[0].attrib['deviceUuid']
                             coordinator = root.findall('.//'+xmlns+'Coordinator')[0]

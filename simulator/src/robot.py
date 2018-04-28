@@ -26,7 +26,7 @@ class Robot:
         """The model for MTConnect behavior in the robot."""
         def __init__(self):
 
-            self.adapter = Adapter(('localhost',7881))
+            self.adapter = Adapter(('localhost',7927))
 
             self.mode1 = Event('mode')
             self.adapter.add_data_item(self.mode1)
@@ -118,11 +118,11 @@ class Robot:
 
             self.device_pull =[]
 
-            #thread= Thread(target = self.start_pull,args=("http://localhost:5000","/cnc/sample?interval=100&count=1000",self.from_long_pull))
-            #thread.start()
+            thread= Thread(target = self.start_pull,args=("http://localhost:5000","/cnc/sample?interval=100&count=1000",self.from_long_pull))
+            thread.start()
 
-            #thread2= Thread(target = self.start_pull,args=("http://localhost:5000","/conv/sample?interval=100&count=1000",self.from_long_pull))
-            #thread2.start()
+            thread2= Thread(target = self.start_pull,args=("http://localhost:5000","/conv/sample?interval=100&count=1000",self.from_long_pull))
+            thread2.start()
         def interface_type(self, value = None, subtype = None):
             self.interfaceType = value
 
@@ -159,6 +159,9 @@ class Robot:
             self.material_load_interface.superstate.ready()
             self.material_unload_interface.superstate.not_ready()
 
+            time.sleep(0.2)
+            self.material_load_interface.superstate.active()
+
         def UNLOADING(self):
             self.material_unload_interface.superstate.ready()
             self.material_load_interface.superstate.not_ready()
@@ -191,11 +194,14 @@ class Robot:
             elif "response" in self.interfaceType.lower() and "material" in self.interfaceType.lower():
                 if "unloaded" not in self.interfaceType.lower():
                     self.material_state.set_value("LOADED")
+                    self.event(self.deviceUuid, 'material_interface', 'SubTask_'+'MaterialUnload','COMPLETE')
                 elif "unloaded" in self.interfaceType.lower():
                     self.material_state.set_value("UNLOADED")
+                    self.event(self.deviceUuid, 'material_interface', 'SubTask_'+'MaterialLoad','COMPLETE')
                 print self.state
                 print self.material_load_interface.superstate.state, self.material_unload_interface.superstate.state
-                self.complete()
+                #self.event(self.deviceUuid, 'material_interface', 'SubTask_'+'Material','COMPLETE')
+                #self.complete()
                 print self.state
 
 
@@ -239,7 +245,7 @@ class Robot:
 
                     elif 'Door' in name or 'Chuck' in name:
                         #to be done in the lowlevel robot operation.
-                        if self.collaborator.superstate.currentSubTask:# and name.split('_')[-1] in self.collaborator.superstate.currentSubTask: check it later
+                        if self.collaborator.superstate.currentSubTask and action!='idle':# and name.split('_')[-1] in self.collaborator.superstate.currentSubTask: check it later
                             if 'Chuck' in name:
                                 if 'Open' in name:
                                     if 'not_ready' in self.open_chuck_interface.superstate.state:
@@ -307,13 +313,20 @@ class Robot:
                 if self.state == 'base:operational:idle':
                     self.material_load_ready()
                 print ev.value.lower()
-                eval('self.material_load_interface.superstate.'+ev.value.lower()+'()')
+                if ev.value.lower() == 'complete':
+                    self.complete()
+                else:
+                    eval('self.material_load_interface.superstate.'+ev.value.lower()+'()')
 
             elif ev.name == "MaterialUnload":
                 if self.state == 'base:operational:idle':
                     self.material_unload_ready()
                 print ev.value.lower()
-                eval('self.material_unload_interface.superstate.'+ev.value.lower()+'()')
+                if ev.value.lower() == 'complete':
+                    self.complete()
+                else:
+                    eval('self.material_unload_interface.superstate.'+ev.value.lower()+'()')
+
             else:
                 print "raise(Exception('Unknown Material event: ' + str(ev)))"
 
@@ -456,8 +469,8 @@ class Robot:
                                 self.event(coordinator.text, component, name, value, [self.master_uuid, self.master_tasks[main_task_uuid]],  coordinator.attrib['collaboratorId'])
                             elif value == "COMMITTING":
                                 self.event(coordinator.text, component, name, value, self.master_uuid,  coordinator.attrib['collaboratorId'])
-                            elif value == "COMMITTED":
-                                self.event(coordinator.text, 'BindingState', name, value, self.master_uuid,  coordinator.attrib['collaboratorId'])
+                            elif self.binding_state_material.value() == "COMMITTED" and value == "COMMITTED":
+                                self.event(coordinator.text, 'BindingState', 'SubTask_'+name, value, self.master_uuid,  coordinator.attrib['collaboratorId'])
                         """
                         elif self.binding_state_material.value() == "COMMITTED":
                             self.event(coordinator.text, component, name, value, self.master_uuid,  coordinator.attrib['collaboratorId'])
@@ -482,6 +495,23 @@ class Robot:
                                 self.event(source.lower(), component, 'SubTask_'+event.tag.split('}')[-1], event.text, self.master_uuid, collabUuid)
                         except:
                             "Inavlid Trigger"
+
+                elif self.master_tasks[self.master_uuid]['collaborators'][self.deviceUuid]['SubTask']: #single robot case
+                    if self.binding_state_material.value() == "COMMITTED" and event.text == "COMMITTED":
+                        if self.master_tasks[self.master_uuid]['coordinator'].keys()[0] == collabUuid:
+                            self.event(source.lower(), 'BindingState', 'SubTask_binding_state', event.text, self.master_uuid,  collabUuid)
+                        else:
+                            print "SOURCE"+collabUuid
+                    elif (collabUuid in self.master_tasks[self.master_uuid]['coordinator'][self.master_tasks[self.master_uuid]['coordinator'].keys()[0]]['SubTask'] or collabUuid in self.master_tasks[self.master_uuid]['coordinator'].keys()[0]) and 'bindingstate' not in event.tag:
+                        coord = self.master_tasks[self.master_uuid]['coordinator'].keys()[0]
+                        if self.master_tasks[self.master_uuid]['coordinator'][coord]['SubTask'][coord][1] != 'COMPLETE':
+                            self.event(source.lower(), component, 'SubTask_'+event.tag.split('}')[-1], event.text, self.master_uuid,  collabUuid)
+
+                        elif self.master_tasks[self.master_uuid]['coordinator'][coord]['SubTask'][coord][1] == 'COMPLETE' and coord!=collabUuid:
+                            self.event(source.lower(), component, 'SubTask_'+event.tag.split('}')[-1], event.text, self.master_uuid,  collabUuid)
+
+
+                    
 
 
 
@@ -602,6 +632,12 @@ class Robot:
 
 if __name__ == '__main__':
     robot1 = Robot()
+    time.sleep(13)
+    robot1.superstate.enable()
+
+
+    """
+    robot1 = Robot()
     print robot1.superstate.state
     time.sleep(10)
     print robot1.superstate.state
@@ -666,3 +702,4 @@ if __name__ == '__main__':
     print robot1.superstate.close_door_interface.superstate.state
 
     print robot1.superstate.state+'\n\n'
+    """
