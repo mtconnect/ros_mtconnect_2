@@ -128,12 +128,14 @@ class collaborator(object):
                                 pass
                             coord = self.parent.master_tasks[self.parent.master_uuid]['coordinator'].keys()[0]
                             self.parent.master_tasks[self.parent.master_uuid]['coordinator'][coord]['SubTask'][key][1] = 'COMPLETE'
-                            
-                self.parent.master_tasks[self.parent.master_uuid]['collaborators'][self.parent.deviceUuid]['state'][2] = 'COMPLETE'
 
                 if collabUuid == True:
                     print 'exited'
+                    self.parent.master_tasks[self.parent.master_uuid]['collaborators'][self.parent.deviceUuid]['state'][2] = 'COMPLETE'
                     self.completed()
+                    
+                else:
+                    self.committed(self.parent.master_tasks[self.parent.master_uuid],self.parent.master_uuid, self.parent.master_tasks[self.parent.master_uuid]['coordinator'].keys()[0])
 
 
             def event(self, source, comp, name, value, code = None, text = None):
@@ -155,14 +157,16 @@ class collaborator(object):
                 elif 'SubTask' in name:
                     print self.subTask
                     if not self.subTask:
-                        print "no subtask"
+                        print "no subtask!!!\n\n"
+                        """
                         def subt():
                             self.committed(self.parent.master_tasks[code],code, self.parent.master_tasks[code]['coordinator'].keys()[0])
                         t0= Thread(target = subt)
                         t0.start()
-                        time.sleep(0.1)
+                        #time.sleep(0.1)
                         self.parent.event(source, comp, name, value, code, text)
-                        print self.subTask, self.currentSubTask
+                        print self.subTask, self.currentSubTask, 'in collab_event'
+                        """
                     elif self.currentSubTask and self.currentSubTask in name:
                         self.subTask[self.currentSubTask].superstate.event(source, comp, name, value, code, text)
                     elif self.subTask:

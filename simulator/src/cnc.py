@@ -10,6 +10,7 @@ from mtconnect_adapter import Adapter
 from long_pull import LongPull
 from data_item import Event, SimpleCondition, Sample, ThreeDSample
 from archetypeToInstance import archetypeToInstance
+from from_long_pull import from_long_pull, from_long_pull_asset
 
 from transitions.extensions import HierarchicalMachine as Machine
 from transitions.extensions.nesting import NestedState
@@ -34,7 +35,7 @@ class cnc(object):
 
             def __init__(self):
                 
-                self.adapter = Adapter(('localhost',7827))
+                self.adapter = Adapter(('localhost',7841))
 
                 self.mode1 = Event('mode')
                 self.adapter.add_data_item(self.mode1)
@@ -135,23 +136,26 @@ class cnc(object):
                 
                 self.device_pull =[]
                 
-                thread= Thread(target = self.start_pull,args=("http://localhost:5000","/robot/sample?interval=100&count=1000",self.from_long_pull))
+                self.initiate_pull_thread()
+
+            def initiate_pull_thread(self):
+
+                thread= Thread(target = self.start_pull,args=("http://localhost:5000","/conv/sample?interval=100&count=1000",from_long_pull))
                 thread.start()
 
-                thread2= Thread(target = self.start_pull,args=("http://localhost:5000","/conv/sample?interval=100&count=1000",self.from_long_pull))
+                thread2= Thread(target = self.start_pull,args=("http://localhost:5000","/robot/sample?interval=100&count=1000",from_long_pull))
                 thread2.start()
 
             def start_pull(self,addr,request, func, stream = True):
-                
+
                 response = requests.get(addr+request, stream=stream)
-                lp = LongPull(response, addr)
+                lp = LongPull(response, addr, self)
                 lp.long_pull(func)
 
             def start_pull_asset(self, addr, request, assetId, stream_root):
                 response = urllib2.urlopen(addr+request).read()
-                self.from_long_pull_asset(response, stream_root)
+                from_long_pull_asset(self, response, stream_root)
                 
-
 
             def CNC_NOT_READY(self):
                 self.open_chuck_interface.superstate.DEACTIVATE()
@@ -193,6 +197,7 @@ class cnc(object):
                     master_task_uuid = copy.deepcopy(self.master_uuid)
                     self.coordinator_task = "MoveMaterial_2"
                     print "unloading 2"+master_task_uuid
+                    self.master_tasks = {}
 
                     self.coordinator = coordinator(parent = self, master_task_uuid = master_task_uuid, interface = self.binding_state_material , coordinator_name = self.deviceUuid)
                     self.coordinator.create_statemachine()
@@ -211,7 +216,7 @@ class cnc(object):
                     print 'in loading'
                     self.iscoordinator = False
                     self.iscollaborator = True
-                   
+                    self.master_tasks = {}
                     self.collaborator = collaborator(parent = self, interface = self.binding_state_material, collaborator_name = 'cnc1')
                     self.collaborator.create_statemachine()
                     self.collaborator.superstate.task_name = "LoadCnc"
@@ -237,8 +242,16 @@ class cnc(object):
                     self.fail_next = False
 
                 elif self.close_door_interface.superstate.response_state.value() != "CLOSED" or self.close_chuck_interface.superstate.response_state.value() != "CLOSED":
-                    self.system.append(['cnc', 'Device', 'SYSTEM', 'FAULT', 'Door or Chuck in invalid state', 'CYCLE'])
-                    self.cnc_fault()
+                    def sleep():
+                        time.sleep(10)
+                        if self.close_door_interface.superstate.response_state.value() != "CLOSED" or self.close_chuck_interface.superstate.response_state.value() != "CLOSED":
+                            self.system.append(['cnc', 'Device', 'SYSTEM', 'FAULT', 'Door or Chuck in invalid state', 'CYCLE'])
+                            self.cnc_fault()
+                        else:
+                            self.CYCLING()
+                    thread= Thread(target = sleep)
+                    thread.start() #wait till the door/chuck are closed.
+                    
 
                 else:
                     self.adapter.begin_gather()
@@ -255,12 +268,12 @@ class cnc(object):
                         self.cnc_execution_ready()
                         self.iscoordinator = True
                         self.iscollaborator = False
-
+            
                         self.master_uuid = self.deviceUuid+'_'+str(uuid.uuid4())
                         master_task_uuid = copy.deepcopy(self.master_uuid)
                         self.coordinator_task = "MoveMaterial_2"
                         print "unloading 2"+master_task_uuid
-
+                        self.master_tasks = {}
                         self.coordinator = coordinator(parent = self, master_task_uuid = master_task_uuid, interface = self.binding_state_material , coordinator_name = self.deviceUuid)
                         self.coordinator.create_statemachine()
                         #self.current_task = "UnloadCnc"
@@ -328,7 +341,7 @@ class cnc(object):
                     if self.has_material == False:
                         self.iscoordinator = False
                         self.iscollaborator = True
-                       
+                        self.master_tasks = {}
                         self.collaborator = collaborator(parent = self, interface = self.binding_state_material, collaborator_name = 'cnc1')
                         self.collaborator.create_statemachine()
                         self.collaborator.superstate.task_name = "LoadCnc"
@@ -354,7 +367,7 @@ class cnc(object):
                     self.unloading()
                     self.iscoordinator = True
                     self.iscollaborator = False
-
+                    self.master_tasks = {}
                     self.master_uuid = self.deviceUuid+'_'+str(uuid.uuid4())
                     master_task_uuid = copy.deepcopy(self.master_uuid)
                     self.coordinator_task = "MoveMaterial_2"
@@ -374,7 +387,7 @@ class cnc(object):
                     self.loading()
                     self.iscoordinator = False
                     self.iscollaborator = True
-                   
+                    self.master_tasks = {}
                     self.collaborator = collaborator(parent = self, interface = self.binding_state_material, collaborator_name = 'cnc1')
                     self.collaborator.create_statemachine()
                     self.collaborator.superstate.task_name = "LoadCnc"
@@ -521,144 +534,7 @@ class cnc(object):
                     elif self.door_state == "CLOSED":
                         self.close_door_interface.statemachine.set_state('base:not_ready')
 
-            def from_long_pull(self, chunk, addr = None):
-                root=ET.fromstring(chunk)
-                xmlns =root.tag.split('}')[0]+'}'
-                s=root.findall('.//'+xmlns+'Streams')[0]
-
-                for x in s:
-                    source = x.attrib['name']
-
-                    for y in x:
-                        component = y.attrib['component']
-
-                        events = y.find('.//'+xmlns+'Events')
-                        for event in events:
-                            try:
-                                #THIS CLAUSE? DO WE NEED IT?
-                                if 'Availability' in event.tag or 'Execution' in event.tag or 'ControllerMode' in event.tag:
-                                    print "1_avail"
-                                    thread1= Thread(target = self.event,args=(source.lower(), component, event.tag.split('}')[-1], event.text))
-                                    thread1.start()
-                                    
-                                else: #if 'Asset' in event.tag:
-                                    if ('AssetChanged' in event.tag or 'BindingState' in event.tag or self.binding_state_material.value() == "COMMITTED") and event.text.lower() != 'unavailable':
-                                        
-                                        print event.tag
-                                        if 'AssetChanged' in event.tag:
-                                            thread= Thread(target = self.start_pull_asset,args=(addr,"/asset/",event.text, [event,source,component,x.attrib['uuid']]))
-                                            thread.start()
-                                            
-                                        elif 'BindingState' in event.tag:
-                                            print "2_bind"
-                                            thread= Thread(target = self.start_pull_asset,args=(addr,"/asset/",self.master_uuid, [event,source,component,x.attrib['uuid']]))
-                                            thread.start()
-                                            
-                                        elif self.binding_state_material.value() == "COMMITTED":
-                                            thread= Thread(target = self.start_pull_asset,args=(addr,"/asset/",self.master_uuid, [event,source,component,x.attrib['uuid']]))
-                                            thread.start()
-                                            
-                                    elif 'AssetRemoved' in event.tag and self.binding_state_material.value() == "INACTIVE" and event.text.lower() != 'unavailable':
-                                        
-                                        print 'REMOVED'+event.tag+'\n'
-                                        try:
-                                            if self.deviceUuid in event.text:
-                                                self.adapter.removeAsset(event.text)
-                                        except:
-                                            "THIS CLAUSE IS FOR MAKING SURE THE ASSET IS REMOVED WHEN COMPLETED."
-
-                                    else:
-                                        
-                                        print 'BAD'+event.tag+'\n'
-                                """
-                                else: #do we need it here?
-                                    if self.binding_state_material.value() == "COMMITTED" or ('Availability' or 'Execution' or 'ControllerMode' in event.tag):
-                                        thread1= Thread(target = self.event,args=(source.lower(), component, event.tag.split('}')[-1], event.text))
-                                        thread1.start()
-                                """
-                            except:
-                                "Invalid attribute"
-
-            def from_long_pull_asset(self,chunk, stream_root = None):
-                root=ET.fromstring(chunk)
-                xmlns =root.tag.split('}')[0]+'}'
-                task = root.findall('.//'+xmlns+'Task')
-                parentRef = None
-                if task:
-                    task = root.findall('.//'+xmlns+'Task')[0]
-                    state = root.findall('.//'+xmlns+'State')[0].text
-                    parentRef = root.findall('.//'+xmlns+'ParentRef')
-                #if cnc a collaborator
-                if task and not parentRef:
-                    for x in root.findall('.//'+xmlns+'Collaborator'):
-                        if x.attrib['collaboratorId'] == self.deviceUuid:
-                            main_task_archetype = root.findall('.//'+xmlns+'AssetArchetypeRef')[0].attrib['assetId']
-                            print main_task_archetype
-                            main_task_uuid = root.findall('.//'+xmlns+'Task')[0].attrib['assetId']
-                            main_task_deviceUuid = root.findall('.//'+xmlns+'Task')[0].attrib['deviceUuid']
-                            coordinator = root.findall('.//'+xmlns+'Coordinator')[0]
-                            component = "Coordinator"
-                            name = "binding_state"
-                            value = state
-
-                            self.master_uuid = main_task_uuid
-
-                            if self.master_uuid not in self.master_tasks:
-                                self.master_tasks[main_task_uuid] = archetypeToInstance(main_task_archetype,"uuid", main_task_deviceUuid, main_task_uuid).jsonInstance()
-
-                            if self.binding_state_material.value() == "PREPARING":
-                                if value == "PREPARING":
-                                    self.event(coordinator.text, component, name, value, [self.master_uuid, self.master_tasks[main_task_uuid]],  coordinator.attrib['collaboratorId'])
-                                elif value == "COMMITTING":
-                                    self.event(coordinator.text, component, name, value, self.master_uuid,  coordinator.attrib['collaboratorId'])
-                                elif value == "COMMITTED":
-                                    self.event(coordinator.text, component, name, value, self.master_uuid,  coordinator.attrib['collaboratorId'])
-                            """
-                            elif self.binding_state_material.value() == "COMMITTED":
-                                self.event(coordinator.text, component, name, value, self.master_uuid,  coordinator.attrib['collaboratorId'])
-                            """
-                            break
-
-
-                if self.binding_state_material.value() == "COMMITTED" and self.iscollaborator:
-                    event = stream_root[0]
-                    source = stream_root[1]
-                    component = stream_root[2]
-                    collabUuid = stream_root[3]
-                    print "Collaborator event"
-                    if self.master_tasks[self.master_uuid]['coordinator'][self.master_tasks[self.master_uuid]['coordinator'].keys()[0]]['SubTask'][self.deviceUuid] and collabUuid in self.master_tasks[self.master_uuid]['coordinator'][self.master_tasks[self.master_uuid]['coordinator'].keys()[0]]['SubTask'][self.deviceUuid][2]:
-                        if event.tag.split('}')[-1] in self.master_tasks[self.master_uuid]['coordinator'][self.master_tasks[self.master_uuid]['coordinator'].keys()[0]]['SubTask'][self.deviceUuid][3]:
-                            print "First Filter"
-                            self.event(source.lower(), component, 'SubTask_'+event.tag.split('}')[-1], event.text, self.master_uuid, collabUuid)
-                        else:
-                            try:
-                                if event.tag.split('}')[-1] in str(self.master_tasks[self.master_uuid]['collaborators'][collabUuid]['SubTask'][self.collaborator.superstate.task_name]):
-                                    print "Second Filter"
-                                    self.event(source.lower(), component, 'SubTask_'+event.tag.split('}')[-1], event.text, self.master_uuid, collabUuid)
-                            except:
-                                "Inavlid Trigger"
-                        
-                
-    
-                #if cnc is a coordinator                
-                if self.iscoordinator:
-                    print "3_bind"
-                    event = stream_root[0]
-                    source = stream_root[1]
-                    component = stream_root[2]
-                    collabUuid = stream_root[3]
-                    print "Coord event"
-                    if 'BindingState' in event.tag and event.text != "INACTIVE":
-                        print "4_bind"
-                        self.event(source.lower(), "Task_Collaborator", "binding_state", event.text, self.master_uuid,  collabUuid)
-
-                    elif 'BindingState' in event.tag and event.text == "INACTIVE" and self.binding_state_material.value() == "COMMITTED":
-                        self.master_tasks[self.master_uuid]['coordinator'][self.deviceUuid]['SubTask'][collabUuid][1] = 'COMPLETE'
-                        self.coordinator.superstate.task.superstate.commit()
-                        
-                    elif self.binding_state_material.value() == "COMMITTED" and self.master_tasks[self.master_uuid]['coordinator'][self.deviceUuid]['Task'][1] == "COMMITTED":
-                        self.event(source.lower(), component, 'SubTask_'+event.tag.split('}')[-1], event.text, self.master_uuid, collabUuid)
-
+ 
 
         self.superstate = statemachineModel()
 

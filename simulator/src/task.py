@@ -35,10 +35,12 @@ class task(object):
                 self.subTask = {}
                 self.currentSubTask = str()
                 self.taskIns = "xml/text"
+                self.arch2ins = {}
 
             def INACTIVE(self):
                 print "@@@@HERE",self.parent.coordinator_task, self.master_task_uuid, self.parent.deviceUuid
                 arch2ins = archetypeToInstance(self.parent.coordinator_task, self.master_task_uuid, self.parent.deviceUuid)
+                self.arch2ins = arch2ins
                 self.parent.master_tasks[self.master_task_uuid] = arch2ins.jsonInstance()
                 self.taskIns = arch2ins.taskIns
                 print "TASK CREATED"

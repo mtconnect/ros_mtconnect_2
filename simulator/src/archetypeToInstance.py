@@ -123,7 +123,7 @@ class archetypeToInstance(object):
         jsonModel = {}
         jsonModel['coordinator']={}
         jsonModel['collaborators']={}
-        subTaskModel = self.traverse(self.root)
+        subTaskModel = self.traverse(self.root,{})
         CoordinatorSubTask = {}
         CollaboratorSubTask = {}
         
@@ -187,7 +187,8 @@ def update(taskIns, dataitem, value):
             
 
 if __name__ == "__main__":
-    a2i = archetypeToInstance("MoveMaterial_1","xyz","cnc1")
+    print archetypeToInstance("MoveMaterial_2","xyz","cnc1").jsonInstance()
+    a2i = archetypeToInstance("MoveMaterial_2","xyz","cnc1")
     a2i.jsonInstance()
     a2i.traverse(a2i.root)
     

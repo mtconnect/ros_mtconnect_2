@@ -28,7 +28,7 @@ class Robot:
         """The model for MTConnect behavior in the robot."""
         def __init__(self):
 
-            self.adapter = Adapter(('localhost',7931))
+            self.adapter = Adapter(('localhost',7941))
 
             self.mode1 = Event('mode')
             self.adapter.add_data_item(self.mode1)
@@ -120,7 +120,7 @@ class Robot:
 
             self.device_pull =[]
 
-            #self.initiate_pull_thread()
+            self.initiate_pull_thread()
 
         def initiate_pull_thread(self):
 
@@ -157,7 +157,7 @@ class Robot:
         def IDLE(self):
             self.material_unload_interface.superstate.not_ready()
             self.material_load_interface.superstate.not_ready()
-            
+            self.master_tasks = {}
             self.collaborator = collaborator(parent = self, interface = self.binding_state_material, collaborator_name = 'r1')
             self.collaborator.create_statemachine()
             self.collaborator.superstate.unavailable()

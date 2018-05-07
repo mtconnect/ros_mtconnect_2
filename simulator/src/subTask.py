@@ -64,19 +64,21 @@ class subTask(object):
                 if 'SubTask' in name:
                     if value.lower() == 'complete':
                         print "in COMPLETION"+self.taskName
+                        print self.state
                         self.success()
-                        time.sleep(0.1)
+                        #time.sleep(0.1)
                         self.parent.event(source, comp, name.split('_')[1], value, code , text)
   
                     elif 'fail' in value.lower():
                         print "IN FAILURE"
                         self.failure()
-                        time.sleep(0.1)
+                        #time.sleep(0.1)
                         self.parent.event(source, comp, name.split('_')[1], value, code , text)
 
                     elif self.state == 'base:committed' and value.lower() == 'not_ready': #door/chuck response states.. update later
+                        print "not_ready_success"
                         self.success()
-                        time.sleep(0.1)
+                        #time.sleep(0.1)
                         self.parent.event(source, comp, name.split('_')[1], value, code , text)
                         
                     elif self.state == 'base:committed' and (('chuck' in name.lower() or 'door' in name.lower()) and value.lower() == 'active'): #update later
@@ -86,6 +88,7 @@ class subTask(object):
                         #self.success()
 
                     else:
+                        print 'no filter in the event'
                         self.parent.event(source, comp, name.split('_')[1], value, code , text)
                 
                 
@@ -94,18 +97,18 @@ class subTask(object):
                 #self.interface.value = 'COMPLETE'
                 self.taskIns = assetUpdate(self.taskIns, "State", "INACTIVE")
                 if self.arch2ins.taskCoordinator == self.parent.deviceUuid: self.parent.adapter.addAsset('Task', self.task_uuid, self.taskIns)
-                time.sleep(0.1)
+                #time.sleep(0.1)
                 if self.arch2ins.taskCoordinator == self.parent.deviceUuid: self.parent.adapter.removeAsset(self.task_uuid)
-                time.sleep(0.1)
+                #time.sleep(0.1)
                 self.default()
 
             def FAIL(self):
                 #self.interface.value = 'FAIL'
                 self.taskIns = assetUpdate(self.taskIns, "State", "INACTIVE")
                 if self.arch2ins.taskCoordinator == self.parent.deviceUuid: self.parent.adapter.addAsset('Task', self.task_uuid, self.taskIns)
-                time.sleep(0.1)
+                #time.sleep(0.1)
                 if self.arch2ins.taskCoordinator == self.parent.deviceUuid: self.parent.adapter.removeAsset(self.task_uuid)
-                time.sleep(0.1)
+                #time.sleep(0.1)
                 self.default()
 
             def void(self):
