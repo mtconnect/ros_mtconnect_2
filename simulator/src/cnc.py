@@ -35,7 +35,7 @@ class cnc(object):
 
             def __init__(self):
                 
-                self.adapter = Adapter(('localhost',7841))
+                self.adapter = Adapter(('localhost',7848))
 
                 self.mode1 = Event('mode')
                 self.adapter.add_data_item(self.mode1)
@@ -97,8 +97,8 @@ class cnc(object):
 
                 self.link = "ENABLED"
 
-                self.load_time_limit(10)
-                self.unload_time_limit(10)
+                self.load_time_limit(20)
+                self.unload_time_limit(20)
 
                 self.load_failed_time_limit(2)
                 self.unload_failed_time_limit(2)
@@ -295,13 +295,13 @@ class cnc(object):
                 if not self.has_material:
                     self.material_unload_interface.superstate.DEACTIVATE()
                     self.material_load_interface.superstate.idle()
-                    self.material_load_interface.superstate.ACTIVATE()
+                    #self.material_load_interface.superstate.ACTIVATE()
 
             def UNLOADING(self):
                 if self.has_material:
                     self.material_load_interface.superstate.DEACTIVATE()
                     self.material_unload_interface.superstate.idle()
-                    self.material_unload_interface.superstate.ACTIVATE()
+                    #self.material_unload_interface.superstate.ACTIVATE()
 
             def EXIT_LOADING(self):
                 self.material_load_interface.superstate.DEACTIVATE()
@@ -610,8 +610,8 @@ if __name__ == '__main__':
     cnc1 = cnc(interface)
     cnc1.create_statemachine()
     cnc1.superstate.has_material = False
-    cnc1.superstate.load_time_limit(100)
-    cnc1.superstate.unload_time_limit(100)
+    cnc1.superstate.load_time_limit(200)
+    cnc1.superstate.unload_time_limit(200)
     time.sleep(10)
     cnc1.superstate.enable()
     

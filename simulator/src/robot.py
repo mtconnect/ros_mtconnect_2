@@ -28,7 +28,7 @@ class Robot:
         """The model for MTConnect behavior in the robot."""
         def __init__(self):
 
-            self.adapter = Adapter(('localhost',7941))
+            self.adapter = Adapter(('localhost',7948))
 
             self.mode1 = Event('mode')
             self.adapter.add_data_item(self.mode1)
@@ -82,8 +82,8 @@ class Robot:
 
             self.fail_next = False
 
-            self.material_load_interface.superstate.simulated_duration = 4.5
-            self.material_unload_interface.superstate.simulated_duration = 4.5
+            self.material_load_interface.superstate.simulated_duration = 20
+            self.material_unload_interface.superstate.simulated_duration = 20
 
             #State variables of the robot
             self.availability = "AVAILABLE"
@@ -163,15 +163,12 @@ class Robot:
             self.collaborator.superstate.unavailable()
 
         def LOADING(self):
-            self.material_load_interface.superstate.ready()
             self.material_unload_interface.superstate.not_ready()
-
-            time.sleep(0.2)
-            self.material_load_interface.superstate.active()
+            self.material_load_interface.superstate.ready()
 
         def UNLOADING(self):
-            self.material_unload_interface.superstate.ready()
             self.material_load_interface.superstate.not_ready()
+            self.material_unload_interface.superstate.ready()
 
         def LOADING_COMPLETE(self):
             self.CHECK_COMPLETION()
@@ -237,7 +234,13 @@ class Robot:
 
                 elif self.iscollaborator == True:
                     if 'BindingState' in comp and value.lower() == 'committed' and text == self.master_tasks[self.master_uuid]['coordinator'].keys()[0]:
-                        self.collaborator.superstate.event(source, 'MaterialHandlerInterface', 'SubTask_MaterialUnload', 'ACTIVE', code, text)
+                        #self.collaborator.superstate.event(source, 'MaterialHandlerInterface', 'SubTask_MaterialUnload', 'ACTIVE', code, text)
+                        if self.material_state.value() == "LOADED":
+                            print "material state is ",self.material_state.value()
+                            self.material_load_ready()
+                        else:
+                            print "material state IS ",self.material_state.value()
+                            self.material_unload_ready()
                     elif text == self.deviceUuid:
                         check = False
                         for x in self.master_tasks[self.master_uuid]['collaborators'][self.deviceUuid]['SubTask'][name.split('_')[-1]]:

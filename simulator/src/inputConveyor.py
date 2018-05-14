@@ -34,7 +34,7 @@ class inputConveyor(object):
 
             def __init__(self):
                 
-                self.adapter = Adapter(('localhost',7741))
+                self.adapter = Adapter(('localhost',7748))
 
                 self.mode1 = Event('mode')
                 self.adapter.add_data_item(self.mode1)
@@ -72,8 +72,8 @@ class inputConveyor(object):
 
                 self.link = "ENABLED"
 
-                self.load_time_limit(10)
-                self.unload_time_limit(10)
+                self.load_time_limit(15)
+                self.unload_time_limit(15)
 
                 self.load_failed_time_limit(2)
                 self.unload_failed_time_limit(2)
@@ -164,7 +164,7 @@ class inputConveyor(object):
 
                     self.coordinator.superstate.unavailable()
 
-                    print 'ff'+self.coordinator.superstate.state
+                    print 'OPERATIONAL'+self.coordinator.superstate.state
                 else:
                     print "Waiting for a part to arrive!"
 
@@ -172,22 +172,24 @@ class inputConveyor(object):
             def IDLE(self):
                 if self.has_material:
                     self.material_load_interface.superstate.DEACTIVATE()
-                    self.material_unload_interface.superstate.IDLE()
+                    #self.material_unload_interface.superstate.IDLE()
 
                 else:
                     print "Waiting for a part to arrive!"
                     self.material_unload_interface.superstate.DEACTIVATE()
-                    self.material_load_interface.superstate.IDLE()
+                    #self.material_load_interface.superstate.IDLE()
 
             def LOADING(self):
                 if not self.has_material:
-                    self.material_unload_interface.superstate.DEACTIVATE()
-                    self.material_load_interface.superstate.ACTIVATE()
+                    #self.material_unload_interface.superstate.DEACTIVATE()
+                    self.material_load_interface.superstate.IDLE()
+                    #self.material_load_interface.superstate.ACTIVATE()
 
             def UNLOADING(self):
                 if self.has_material:
-                    self.material_load_interface.superstate.DEACTIVATE()
-                    self.material_unload_interface.superstate.ACTIVATE()
+                    #self.material_load_interface.superstate.DEACTIVATE()
+                    self.material_unload_interface.superstate.IDLE()
+                    #self.material_unload_interface.superstate.ACTIVATE()
 
             def EXIT_LOADING(self):
                 self.material_load_interface.superstate.DEACTIVATE()
@@ -240,7 +242,7 @@ class inputConveyor(object):
 
                     self.coordinator.superstate.unavailable()
 
-                    print 'ff'+self.coordinator.superstate.state
+                    print 'EXITING_IDLE'+self.coordinator.superstate.state
                 
               
             def LOADED(self):
@@ -420,8 +422,8 @@ if __name__ == '__main__':
     conv1 = inputConveyor(interface)
     conv1.create_statemachine()
     conv1.superstate.has_material = True
-    conv1.superstate.load_time_limit(100)
-    conv1.superstate.unload_time_limit(100)
+    conv1.superstate.load_time_limit(200)
+    conv1.superstate.unload_time_limit(200)
     time.sleep(7)
     conv1.superstate.enable()
     

@@ -41,7 +41,7 @@ class Response(object):
                 self.fail_next = False
                 if rel: self.related = rel
                 else: self.related = False
-                self.simulated_duration = 1.5
+                self.simulated_duration = 1.0
                 #add on later
 
             def check_state_calls(func):

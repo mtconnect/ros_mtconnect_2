@@ -163,7 +163,7 @@ class task(object):
                         
 
             def COMPLETE(self):
-                time.sleep(0.5)
+                #time.sleep(0.1)
                 
                 self.parent.adapter.begin_gather()
                 self.interface.set_value("INACTIVE")
@@ -171,13 +171,13 @@ class task(object):
 
                 self.taskIns = assetUpdate(self.taskIns, "State", "INACTIVE")
                 self.parent.adapter.addAsset('Task', self.master_task_uuid, self.taskIns)
-                time.sleep(0.1)
+
                 self.parent.adapter.removeAsset(self.master_task_uuid)
 
                 self.default()
 
             def FAIL(self):
-                time.sleep(0.5)
+                #time.sleep(0.1)
 
                 self.parent.adapter.begin_gather()
                 self.interface.set_value("INACTIVE")

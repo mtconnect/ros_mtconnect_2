@@ -95,8 +95,9 @@ def from_long_pull_asset(self,chunk, stream_root = None):
                         self.event(coordinator.text, component, name, value, [self.master_uuid, self.master_tasks[main_task_uuid]],  coordinator.attrib['collaboratorId'])
                     elif value == "COMMITTING":
                         self.event(coordinator.text, component, name, value, self.master_uuid,  coordinator.attrib['collaboratorId'])
-                    elif value == "COMMITTED":
-                        self.event(coordinator.text, 'BindingState', 'SubTask_'+name, value, self.master_uuid,  coordinator.attrib['collaboratorId'])
+                    #elif value == "COMMITTED":
+                        #self.event(coordinator.text, 'BindingState', 'SubTask_'+name, value, self.master_uuid,  coordinator.attrib['collaboratorId'])
+                
                 """
                 elif self.binding_state_material.value() == "COMMITTED":
                     self.event(coordinator.text, component, name, value, self.master_uuid,  coordinator.attrib['collaboratorId'])
@@ -154,9 +155,13 @@ def from_long_pull_asset(self,chunk, stream_root = None):
             self.event(source.lower(), "Task_Collaborator", "binding_state", event.text, self.master_uuid,  collabUuid)
 
         elif 'BindingState' in event.tag and event.text == "INACTIVE" and self.binding_state_material.value() == "COMMITTED":
+            print "5 bind"
             if self.master_tasks[self.master_uuid]['coordinator'][self.deviceUuid]['SubTask'][collabUuid]:
                 self.master_tasks[self.master_uuid]['coordinator'][self.deviceUuid]['SubTask'][collabUuid][1] = 'COMPLETE'
                 self.coordinator.superstate.task.superstate.commit()
 
         elif self.binding_state_material.value() == "COMMITTED" and self.master_tasks[self.master_uuid]['coordinator'][self.deviceUuid]['Task'][1] == "COMMITTED":
             self.event(source.lower(), component, 'SubTask_'+event.tag.split('}')[-1], event.text, self.master_uuid, collabUuid)
+
+        else:
+            print "INVALID COORDINATOR EVENT"
