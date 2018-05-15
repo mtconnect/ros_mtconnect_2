@@ -8,12 +8,13 @@ class LongPullException(Exception):
     pass
 
 class LongPull:
-    def __init__(self, response, addr = None):
+    def __init__(self, response, addr = None, parent = None):
         self._response = response
         self._buffer = ''
         self._addr = addr
+        self._parent = parent
 
-    def long_pull(self, callback, user_data = None, addr = None):
+    def long_pull(self, callback, user_data = None, addr = None, parent = None):
         content_type = self._response.headers.get('Content-Type')
         match = re.search('boundary=([0-9A-Fa-f]+)', content_type)
         if not match:
@@ -50,7 +51,7 @@ class LongPull:
                     document.reset()
                     document.string = rest[length:]
 
-                    callback(body, self._addr)
+                    callback(self._parent, body, self._addr)
 
                     length = len(boundary)
                     header = True
