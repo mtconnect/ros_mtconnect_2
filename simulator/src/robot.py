@@ -120,7 +120,7 @@ class Robot:
 
             self.device_pull =[]
 
-            self.initiate_pull_thread()
+            #self.initiate_pull_thread()
 
         def initiate_pull_thread(self):
 
