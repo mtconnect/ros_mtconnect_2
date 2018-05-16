@@ -34,7 +34,7 @@ class inputConveyor(object):
 
             def __init__(self):
                 
-                self.adapter = Adapter(('localhost',7748))
+                self.adapter = Adapter(('localhost',7759))
 
                 self.mode1 = Event('mode')
                 self.adapter.add_data_item(self.mode1)
@@ -130,15 +130,15 @@ class inputConveyor(object):
 
             def ACTIVATE(self):
                 if self.mode1.value() == "AUTOMATIC" and self.avail1.value() == "AVAILABLE":
-                    print 'making operational'
+                    #print 'making operational'
                     self.make_operational()
 
                 elif self.system_normal:
-                    print 'not ready'
+                    #print 'not ready'
                     self.still_not_ready()
 
                 else:
-                    print 'faulted'
+                    #print 'faulted'
                     self.faulted()
 
 
@@ -146,28 +146,27 @@ class inputConveyor(object):
 
                 if self.has_material:
                     self.unloading()
-                    print 'in unloading'
+                    #print 'in unloading'
                     self.iscoordinator = True
                     self.iscollaborator = False
                 
                     self.master_uuid = self.deviceUuid+'_'+str(uuid.uuid4())
                     master_task_uuid = copy.deepcopy(self.master_uuid)
                     self.coordinator_task = "MoveMaterial_1"
-                    print "unloading 2"+master_task_uuid
+                    #print "unloading 2"+master_task_uuid
                     self.master_tasks = {}
                     self.coordinator = coordinator(parent = self, master_task_uuid = master_task_uuid, interface = self.binding_state_material , coordinator_name = self.deviceUuid)
                     self.coordinator.create_statemachine()
 
                     self.coordinator.superstate.task_name = "UnloadConv"
 
-                    print "unloading 3"
+                    #print "unloading 3"
 
                     self.coordinator.superstate.unavailable()
 
-                    print 'OPERATIONAL'+self.coordinator.superstate.state
+                    #print 'OPERATIONAL'+self.coordinator.superstate.state
                 else:
-                    print "Waiting for a part to arrive!"
-
+                    """#print 'Waiting for a part to arrive!'"""
 
             def IDLE(self):
                 if self.has_material:
@@ -175,7 +174,7 @@ class inputConveyor(object):
                     #self.material_unload_interface.superstate.IDLE()
 
                 else:
-                    print "Waiting for a part to arrive!"
+                    #print "Waiting for a part to arrive!"
                     self.material_unload_interface.superstate.DEACTIVATE()
                     #self.material_load_interface.superstate.IDLE()
 
@@ -223,14 +222,14 @@ class inputConveyor(object):
             def EXITING_IDLE(self):
                 if self.has_material:
                     self.unloading()
-                    print 'in unloading'
+                    #print 'in unloading'
                     self.iscoordinator = True
                     self.iscollaborator = False
                     self.master_tasks = {}
                     self.master_uuid = self.deviceUuid+'_'+str(uuid.uuid4())
                     master_task_uuid = copy.deepcopy(self.master_uuid)
                     self.coordinator_task = "MoveMaterial_1"
-                    print "unloading 2"+master_task_uuid
+                    #print "unloading 2"+master_task_uuid
 
                     self.coordinator = coordinator(parent = self, master_task_uuid = master_task_uuid, interface = self.binding_state_material , coordinator_name = self.deviceUuid)
                     self.coordinator.create_statemachine()
@@ -238,11 +237,11 @@ class inputConveyor(object):
 
                     self.coordinator.superstate.task_name = "UnloadConv"
 
-                    print "unloading 3"
+                    #print "unloading 3"
 
                     self.coordinator.superstate.unavailable()
 
-                    print 'EXITING_IDLE'+self.coordinator.superstate.state
+                    #print 'EXITING_IDLE'+self.coordinator.superstate.state
                 
               
             def LOADED(self):
@@ -260,7 +259,7 @@ class inputConveyor(object):
 
 
             def event(self, source, comp, name, value, code = None, text = None):
-                print "InputConveyor received " + comp + " " + name + " " + value + " from " + source + "\n"
+                #print "InputConveyor received " + comp + " " + name + " " + value + " from " + source + "\n"
                 self.events.append([source, comp, name, value, code, text])
 
                 action= value.lower()
@@ -290,7 +289,7 @@ class inputConveyor(object):
                 elif name == "MaterialUnload" and action!= 'unavailable':
                     if value.lower() == 'ready' and self.state == 'base:operational:idle':
                         eval('self.robot_material_unload_ready()')
-                    print self.material_unload_interface.superstate.state, ' under conv', action
+                    #print self.material_unload_interface.superstate.state, ' under conv', action
                     eval('self.material_unload_interface.superstate.'+action+'()')
 
                 elif comp == "Controller":
@@ -354,7 +353,7 @@ class inputConveyor(object):
         self.superstate = statemachineModel()
 
     def draw(self):
-        print "Creating inputConveyor.png diagram"
+        #print "Creating inputConveyor.png diagram"
         self.statemachine.get_graph().draw('inputConveyor.png', prog='dot')
 
     def create_statemachine(self):

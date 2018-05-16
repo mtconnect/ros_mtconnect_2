@@ -35,7 +35,7 @@ class cnc(object):
 
             def __init__(self):
                 
-                self.adapter = Adapter(('localhost',7848))
+                self.adapter = Adapter(('localhost',7859))
 
                 self.mode1 = Event('mode')
                 self.adapter.add_data_item(self.mode1)
@@ -167,17 +167,17 @@ class cnc(object):
 
             #change ACTIVATE?
             def ACTIVATE(self):
-                print 'in activate'
+                #print 'in activate'
                 if self.mode1.value() == "AUTOMATIC" and self.avail1.value() == "AVAILABLE":
-                    print 'making operational'
+                    #print 'making operational'
                     self.make_operational()
 
                 elif self.system_normal:
-                    print 'not ready'
+                    #print 'not ready'
                     self.still_not_ready()
 
                 else:
-                    print 'faulted'
+                    #print 'faulted'
                     self.faulted()
 
             def OPERATIONAL(self):
@@ -185,18 +185,18 @@ class cnc(object):
                 self.close_chuck_interface.superstate.ACTIVATE()
                 self.open_door_interface.superstate.ACTIVATE()
                 self.close_door_interface.superstate.ACTIVATE()
-                print 'in operational'
+                #print 'in operational'
                 #self.robot_controller_mode =="AUTOMATIC" and self.robot_execution == "ACTIVE" and self.robot_availability == "AVAILABLE"
                 if self.has_material and self.link == "ENABLED":
                     self.unloading()
-                    print 'in unloading'
+                    #print 'in unloading'
                     self.iscoordinator = True
                     self.iscollaborator = False
 
                     self.master_uuid = self.deviceUuid+'_'+str(uuid.uuid4())
                     master_task_uuid = copy.deepcopy(self.master_uuid)
                     self.coordinator_task = "MoveMaterial_2"
-                    print "unloading 2"+master_task_uuid
+                    #print "unloading 2"+master_task_uuid
                     self.master_tasks = {}
 
                     self.coordinator = coordinator(parent = self, master_task_uuid = master_task_uuid, interface = self.binding_state_material , coordinator_name = self.deviceUuid)
@@ -205,15 +205,15 @@ class cnc(object):
 
                     self.coordinator.superstate.task_name = "UnloadCnc"
 
-                    print "unloading 3"
+                    #print "unloading 3"
 
                     self.coordinator.superstate.unavailable()
 
-                    print 'ff'+self.coordinator.superstate.state
+                    #print 'ff'+self.coordinator.superstate.state
                     
                 elif self.has_material == False and self.link == "ENABLED":
                     self.loading()
-                    print 'in loading'
+                    #print 'in loading'
                     self.iscoordinator = False
                     self.iscollaborator = True
                     self.master_tasks = {}
@@ -226,7 +226,7 @@ class cnc(object):
                     self.start()
 
             def IDLE(self):
-                print 'in idle'
+                #print 'in idle'
                 if self.has_material:
                     self.material_load_interface.superstate.DEACTIVATE()
                     self.material_unload_interface.superstate.IDLE()
@@ -272,7 +272,7 @@ class cnc(object):
                         self.master_uuid = self.deviceUuid+'_'+str(uuid.uuid4())
                         master_task_uuid = copy.deepcopy(self.master_uuid)
                         self.coordinator_task = "MoveMaterial_2"
-                        print "unloading 2"+master_task_uuid
+                        #print "unloading 2"+master_task_uuid
                         self.master_tasks = {}
                         self.coordinator = coordinator(parent = self, master_task_uuid = master_task_uuid, interface = self.binding_state_material , coordinator_name = self.deviceUuid)
                         self.coordinator.create_statemachine()
@@ -280,7 +280,7 @@ class cnc(object):
 
                         self.coordinator.superstate.task_name = "UnloadCnc"
 
-                        print "unloading 3"
+                        #print "unloading 3"
 
                         self.coordinator.superstate.unavailable()
 
@@ -371,7 +371,7 @@ class cnc(object):
                     self.master_uuid = self.deviceUuid+'_'+str(uuid.uuid4())
                     master_task_uuid = copy.deepcopy(self.master_uuid)
                     self.coordinator_task = "MoveMaterial_2"
-                    print "unloading 2"+master_task_uuid
+                    #print "unloading 2"+master_task_uuid
 
                     self.coordinator = coordinator(parent = self, master_task_uuid = master_task_uuid, interface = self.binding_state_material , coordinator_name = self.deviceUuid)
                     self.coordinator.create_statemachine()
@@ -379,7 +379,7 @@ class cnc(object):
 
                     self.coordinator.superstate.task_name = "UnloadCnc"
 
-                    print "unloading 3"
+                    #print "unloading 3"
 
                     self.coordinator.superstate.unavailable()
 
@@ -410,7 +410,7 @@ class cnc(object):
 
 
             def event(self, source, comp, name, value, code = None, text = None):
-                print "CNC received " + comp + " " + name + " " + value + " from " + source + "\n"
+                #print "CNC received " + comp + " " + name + " " + value + " from " + source + "\n"
                 self.events.append([source, comp, name, value, code, text])
 
                 action= value.lower()
@@ -446,7 +446,7 @@ class cnc(object):
                         eval('self.close_chuck_interface.superstate.'+action+'()')
 
                 elif name == "MaterialLoad" and action!='unavailable':
-                    print 'executing'+action+'at'+self.material_load_interface.superstate.state
+                    #print 'executing'+action+'at'+self.material_load_interface.superstate.state
                     try:
                         if action=='ready' and self.state =='base:operational:idle':
                             eval('self.robot_material_load_ready()')

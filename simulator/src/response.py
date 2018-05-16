@@ -125,7 +125,7 @@ class Response(object):
                 self.adapter.begin_gather()
                 self.interface.set_value("FAIL")
                 self.adapter.complete_gather()
-                print "FAILED!!!!!!!!!!!!!!!!!!!!!"
+                #print "FAILED!!!!!!!!!!!!!!!!!!!!!"
                 try:
                     self.parent.FAILED()
                 except:

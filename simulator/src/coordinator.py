@@ -32,7 +32,7 @@ class coordinator(object):
                 self.parent.adapter.begin_gather()
                 self.interface.set_value("INACTIVE")
                 self.parent.adapter.complete_gather()
-                print "HEREEEEEEEEE"
+                #print "HEREEEEEEEEE"
                 
                 if self.initialize:
                     

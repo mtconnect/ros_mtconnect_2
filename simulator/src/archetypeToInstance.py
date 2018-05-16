@@ -73,7 +73,7 @@ class archetypeToInstance(object):
             coordinator = ET.SubElement(taskIns, "Coordinator")
             coordinator.attrib["collaboratorId"] = self.root.findall('.//'+self.root.tag.split('}')[0]+'}Coordinator')[0].attrib['collaboratorId']
             self.taskCoordinator = coordinator.attrib["collaboratorId"]
-            print coordinator.attrib["collaboratorId"]
+            #print coordinator.attrib["collaboratorId"]
             coordinator.text = self.root.findall('.//'+self.root.tag.split('}')[0]+'}Coordinator')[0][0].text
 
             for i,x in enumerate(self.root.findall('.//'+self.root.tag.split('}')[0]+'}Collaborators')[0]):
@@ -187,7 +187,7 @@ def update(taskIns, dataitem, value):
             
 
 if __name__ == "__main__":
-    print archetypeToInstance("MoveMaterial_2","xyz","cnc1").jsonInstance()
+    #print archetypeToInstance("MoveMaterial_2","xyz","cnc1").jsonInstance()
     a2i = archetypeToInstance("MoveMaterial_2","xyz","cnc1")
     a2i.jsonInstance()
     a2i.traverse(a2i.root)
