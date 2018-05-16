@@ -62,7 +62,7 @@ class coordinator(object):
                     def commit_task():
                         if value.lower() == 'fail' or value.lower() == 'complete':
                             for key,val in self.parent.master_tasks[code]['coordinator'][self.coordinator_name]['SubTask'].iteritems():
-                                if val and key == text and name.split('_')[-1] == val[3]:
+                                if val and (key == text or text in val[2]) and name.split('_')[-1] == val[3]:
                                     self.parent.master_tasks[code]['coordinator'][self.coordinator_name]['SubTask'][key][1] = value
                                     self.task.superstate.commit()
                                     

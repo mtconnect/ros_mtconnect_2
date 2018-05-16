@@ -45,10 +45,11 @@ class collaborator(object):
                 arch2ins = archetypeToInstance(self.task_name, self.task_uuid, self.parent.deviceUuid)
                 self.taskIns = arch2ins.taskIns
                 self.parent.adapter.addAsset('Task', self.task_uuid, arch2ins.taskIns)
-                """
+                
                 if not self.initialized:
                     self.task_created()
                     self.initialized = True
+                """
 
             def PREPARING(self):
                 #print 'enter prep'
@@ -144,6 +145,8 @@ class collaborator(object):
                 print "\nCollabkEvent Enter",source,comp,name,value,datetime.datetime.now().isoformat()
                 if comp == 'Coordinator' and 'binding_state' in name and value.lower() == 'preparing':
                     self.parent.master_tasks[code[0]] = code[1]
+                    self.task_created()
+                    
 
                 #elif comp == 'Coordinator' and value.lower() == 'start':
                 #        self.committed(code[1], code[0], text)

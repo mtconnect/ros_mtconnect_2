@@ -35,7 +35,7 @@ class cnc(object):
 
             def __init__(self):
                 
-                self.adapter = Adapter(('localhost',7859))
+                self.adapter = Adapter(('localhost',7867))
 
                 self.mode1 = Event('mode')
                 self.adapter.add_data_item(self.mode1)

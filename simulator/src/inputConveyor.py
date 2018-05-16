@@ -34,7 +34,7 @@ class inputConveyor(object):
 
             def __init__(self):
                 
-                self.adapter = Adapter(('localhost',7759))
+                self.adapter = Adapter(('localhost',7767))
 
                 self.mode1 = Event('mode')
                 self.adapter.add_data_item(self.mode1)
@@ -423,6 +423,6 @@ if __name__ == '__main__':
     conv1.superstate.has_material = True
     conv1.superstate.load_time_limit(200)
     conv1.superstate.unload_time_limit(200)
-    time.sleep(7)
+    time.sleep(17)
     conv1.superstate.enable()
     

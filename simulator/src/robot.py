@@ -28,7 +28,7 @@ class Robot:
         """The model for MTConnect behavior in the robot."""
         def __init__(self):
 
-            self.adapter = Adapter(('localhost',7959))
+            self.adapter = Adapter(('localhost',7967))
 
             self.mode1 = Event('mode')
             self.adapter.add_data_item(self.mode1)
