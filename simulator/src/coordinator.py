@@ -48,6 +48,30 @@ class coordinator(object):
                 #self.interface.set_value("COMMITTED")
                 #self.parent.adapter.complete_gather()
 
+            def event_validity_check(self, source, comp, name, value, code, text):
+
+                coordinator_task = None
+                
+                collab = self.parent.master_tasks[code]['coordinator'][self.coordinator_name]['SubTask'][self.coordinator_name][2]
+                taskType = self.parent.master_tasks[code]['coordinator'][self.coordinator_name]['SubTask'][self.coordinator_name][3]
+
+                if text in collab:
+                    try:
+                        for x in self.parent.master_tasks[code]['collaborators'][collab]['SubTask'][taskType]:
+                            try:
+                                if x[1] in name:
+                                    coordinator_task = True
+                                    break
+                                else:
+                                    coordinator_task = False
+                            except:
+                                coordinator_task = False
+                    except:
+                        coordinator_task = False
+
+                return coordinator_task
+                    
+
                 
             def event(self, source, comp, name, value, code = None, text = None):
                 #samplevent('robot_r1','collaborator','subtask_address',["open_door",'COMMITTED'],execution_lines, 'execute')
@@ -77,26 +101,12 @@ class coordinator(object):
                         
                     else: #done only for one collaborator at a time
                         
-                        collab = self.parent.master_tasks[code]['coordinator'][self.coordinator_name]['SubTask'][self.coordinator_name][2]
-                        taskType = self.parent.master_tasks[code]['coordinator'][self.coordinator_name]['SubTask'][self.coordinator_name][3]
-
-                        if text in collab:
-                            try:
-                                for x in self.parent.master_tasks[code]['collaborators'][collab]['SubTask'][taskType]:
-                                    try:
-                                        if x[1] in name:
-                                            coordinator_task = True
-                                            break
-                                        else:
-                                            coordinator_task = False
-                                    except:
-                                        coordinator_task = False
-                            except:
-                                coordinator_task = False
+                        coordinator_task = self.event_validity_check(source, comp, name, value, code, text)
                             
                     if coordinator_task:
                         self.task.superstate.event(source, comp, name, value, code, text)
                 else:
+                    #print "\nEVENT\n IN\n COORD\n ",source, comp, name, value, code, text
                     self.parent.event(source, comp, name, value, code, text)
              
         self.superstate = statemachineModel(parent = parent, interface = interface, master_task_uuid = master_task_uuid, coordinator_name =coordinator_name)

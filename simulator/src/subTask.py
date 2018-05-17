@@ -60,7 +60,7 @@ class subTask(object):
                 
 
             def event(self, source, comp, name, value, code = None , text = None):
-                print "\nSubtaskEvent Enter",source,comp,name,value,datetime.datetime.now().isoformat()
+                #print "\nSubtaskEvent Enter",source,comp,name,value,datetime.datetime.now().isoformat()
                 #print source,comp,name,value,code,text
                 if 'SubTask' in name:
                     if value.lower() == 'complete':
@@ -82,7 +82,7 @@ class subTask(object):
                     else:
                         #print 'no filter in the event'
                         self.parent.event(source, comp, name.split('_')[1], value, code , text)
-                print "\nSubtaskEvent Exit",source,comp,name,value,datetime.datetime.now().isoformat()
+                #print "\nSubtaskEvent Exit",source,comp,name,value,datetime.datetime.now().isoformat()
                 
                 
 

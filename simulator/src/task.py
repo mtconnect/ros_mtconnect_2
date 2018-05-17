@@ -38,14 +38,14 @@ class task(object):
                 self.arch2ins = {}
 
             def INACTIVE(self):
-                #print "@@@@HERE",self.parent.coordinator_task, self.master_task_uuid, self.parent.deviceUuid
+                
                 arch2ins = archetypeToInstance(self.parent.coordinator_task, self.master_task_uuid, self.parent.deviceUuid)
                 self.arch2ins = arch2ins
                 self.parent.master_tasks[self.master_task_uuid] = arch2ins.jsonInstance()
                 self.taskIns = arch2ins.taskIns
-                #print "TASK CREATED"
+                
                 self.parent.adapter.addAsset('Task', self.master_task_uuid, arch2ins.taskIns)
-                #print "ASSET ADDED"
+                
                 self.activated()
 
             def PREPARING(self):
@@ -59,7 +59,7 @@ class task(object):
 
             def prepare(self):
                 quorum = True
-                #remove while loops or add events to test
+                
                 if True:
                     for key, value in self.parent.master_tasks[self.master_task_uuid]['collaborators'].iteritems():
                             
@@ -71,11 +71,7 @@ class task(object):
                         
                     if quorum == True:
                         self.quorum()
-                                         
-                    #self.quorum()
-                    
-                #t = Thread(target = prepare)
-                #t.start()
+
 
             def COMMITTING(self):
 

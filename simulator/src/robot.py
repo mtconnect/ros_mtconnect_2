@@ -28,7 +28,41 @@ class Robot:
         """The model for MTConnect behavior in the robot."""
         def __init__(self):
 
-            self.adapter = Adapter(('localhost',7967))
+            self.initiate_adapter('localhost',7961)
+            self.adapter.start()
+            self.initiate_dataitems()
+
+            self.initiate_interfaces()
+
+            self.events = []
+
+            self.master_tasks ={}
+
+            self.deviceUuid = "r1"
+
+            self.material_load_interface.superstate.simulated_duration = 20
+            self.material_unload_interface.superstate.simulated_duration = 20
+
+            self.master_uuid = str()
+
+            self.iscoordinator = False
+            
+            self.iscollaborator = True
+
+            self.fail_next = False
+
+            self.initiate_pull_thread()
+
+        def initiate_interfaces(self):
+            self.material_load_interface = MaterialLoadResponse(self)
+            self.material_unload_interface = MaterialUnloadResponse(self)
+            self.open_chuck_interface = OpenChuckRequest(self)
+            self.close_chuck_interface = CloseChuckRequest(self)
+            self.open_door_interface = OpenDoorRequest(self)
+            self.close_door_interface = CloseDoorRequest(self)
+            
+        def initiate_adapter(self, host, port):
+            self.adapter = Adapter((host,port))
 
             self.mode1 = Event('mode')
             self.adapter.add_data_item(self.mode1)
@@ -63,45 +97,7 @@ class Robot:
             self.material_state = Event('material_state')
             self.adapter.add_data_item(self.material_state)
 
-            self.adapter.start()
-
-            self.material_load_interface = MaterialLoadResponse(self)
-            self.material_unload_interface = MaterialUnloadResponse(self)
-
-            self.open_chuck_interface = OpenChuckRequest(self)
-            #self.open_chuck_interface.superstate.set_processing_time_limit(10)
-
-            self.close_chuck_interface = CloseChuckRequest(self)
-            #self.close_chuck_interface.superstate.set_processing_time_limit(10)
-
-            self.open_door_interface = OpenDoorRequest(self)
-            #self.open_door_interface.superstate.set_processing_time_limit(10)
-
-            self.close_door_interface = CloseDoorRequest(self)
-            #self.close_door_interface.superstate.set_processing_time_limit(10)
-
-            self.fail_next = False
-
-            self.material_load_interface.superstate.simulated_duration = 20
-            self.material_unload_interface.superstate.simulated_duration = 20
-
-            #State variables of the robot
-            self.availability = "AVAILABLE"
-            self.execution = "READY"
-            self.controller_mode = "AUTOMATIC"
-            self.link = "ENABLED"
-
-            self.events = []
-
-            self.master_tasks ={}
-
-            self.deviceUuid = "r1"
-
-            self.master_uuid = 'r1.1'
-
-            self.iscoordinator = False
-            self.iscollaborator = True
-
+        def initiate_dataitems(self):
             self.adapter.begin_gather()
 
             self.avail1.set_value("AVAILABLE")
@@ -117,10 +113,6 @@ class Robot:
             self.material_state.set_value("UNLOADED")
 
             self.adapter.complete_gather()
-
-            self.device_pull =[]
-
-            self.initiate_pull_thread()
 
         def initiate_pull_thread(self):
 
@@ -174,7 +166,7 @@ class Robot:
             self.CHECK_COMPLETION()
 
         def CHECK_COMPLETION(self):
-            
+            #temporary fix till task/subtask sequencing is determined
             while self.master_tasks[self.master_uuid]['collaborators'][self.deviceUuid]['state'][2] != 'COMPLETE':
                 pass
                 
@@ -202,19 +194,13 @@ class Robot:
                 elif "unloaded" in self.interfaceType.lower():
                     self.material_state.set_value("UNLOADED")
                     self.event(self.deviceUuid, 'material_interface', 'SubTask_'+'MaterialLoad','COMPLETE')
-                #print self.state
-                #print self.material_load_interface.superstate.state, self.material_unload_interface.superstate.state
-                #self.event(self.deviceUuid, 'material_interface', 'SubTask_'+'Material','COMPLETE')
-                #self.complete()
-                #print self.state
-
 
         def event(self, source, comp, name, value, code = None, text = None):
             """Process events.
 
             :type ev: .event.Event
             """
-            print "\nROBOT Event Enter",source,comp,name,value,datetime.datetime.now().isoformat()
+            #print "\nROBOT Event Enter",source,comp,name,value,datetime.datetime.now().isoformat()
             ev = RobotEvent(source, comp, name, value, code, text)
 
             #print('Robot received: ', source, comp, name, value)
@@ -288,8 +274,6 @@ class Robot:
                     else:
                         self.collaborator.superstate.event(source, comp, name, value, code, text)
 
-            #elif ev.source == 'cnc': #other general CNC events
-                #self.cnc_event(ev)
 
             elif ev.name.startswith('Material') and action!='unavailable':
                 #print "in material method"
@@ -318,7 +302,7 @@ class Robot:
             else:
                 """#print('Unknown event: ' + str(ev))"""
 
-            print "\nRobotEvent Exit",source,comp,name,value,datetime.datetime.now().isoformat()
+            #print "\nRobotEvent Exit",source,comp,name,value,datetime.datetime.now().isoformat()
         def material_event(self, ev):
             if ev.name == "MaterialLoad":
                 if self.state == 'base:operational:idle':
@@ -343,49 +327,34 @@ class Robot:
 
         def controller_event(self, ev):
             if ev.name == "ControllerMode":
-                if ev.source.lower() == 'cnc':
-                    self.controller_mode = ev.value.upper()
-                    if ev.value.lower() == 'automatic':
-                        self.cnc_controller_mode_automatic()
+                if ev.source.lower() == 'robot':
+                    
+                    self.adapter.begin_gather()
+                    self.mode1.set_value(ev.value.upper())
+                    self.adapter.complete_gather()
+                    
             elif ev.name == "Execution":
-                if ev.source.lower() == 'cnc':
-                    self.execution = ev.value.upper()
-                    if ev.value.lower() == 'active':
-                        self.cnc_execution_active()
+                if ev.source.lower() == 'robot':
+                    
+                    self.adapter.begin_gather()
+                    self.e1.set_value(ev.value.upper())
+                    self.adapter.complete_gather()
+                    
             else:
                 """raise(Exception('Unknown Controller event: ' + str(ev)))"""
 
 
         def device_event(self, ev):
-            if ev.name == 'System':
-                pass
-                #exec('self.'+ev.source.lower()+'_system_'+value.lower()+'()')
-
-            elif ev.name == 'Availability':
+            if ev.name == 'Availability':
                 if ev.source.lower() == 'robot':
-                    self.robot_availability = value.upper()
+                    
+                    self.adapter.begin_gather()
+                    self.avail1.set_value(ev.value.upper())
+                    self.adapter.complete_gather()
                 #exec('self.'+ev.source.lower()+'_availability_'+value.lower()+'()')
 
             else:
                 raise(Exception('Unknown Device event: ' + str(ev)))
-
-        def cnc_event(self, ev):
-            if ev.name == "ChuckState":
-                self.cnc_chuck_state = ev.value.upper()
-                if self.cnc_chuck_state == "OPEN":
-                    self.open_chuck_interface.statemachine.set_state('base:active')
-                elif self.cnc_chuck_state == "CLOSED":
-                    self.close_chuck_interface.statemachine.set_state('base:not_ready')
-
-            elif ev.name == "DoorState":
-                self.cnc_door_state = ev.value.upper()
-                if self.cnc_door_state == "OPEN":
-                    self.open_door_interface.statemachine.set_state('base:active')
-                elif self.cnc_door_state == "CLOSED":
-                    self.close_door_interface.statemachine.set_state('base:not_ready')
-
-            else:
-                raise(Exception('Unknown CNC event: ' + str(ev)))
 
 
         #end StateModel class definition
