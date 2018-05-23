@@ -37,6 +37,8 @@ class collaborator(object):
                 
             def INACTIVE(self): 
                 
+                self.subTask = {}
+                self.currentSubTask = str()
                 self.parent.adapter.begin_gather()
                 self.interface.set_value("INACTIVE")
                 self.parent.adapter.complete_gather()
@@ -86,14 +88,19 @@ class collaborator(object):
                 self.parent.adapter.begin_gather()
                 self.interface.set_value("COMMITTED")
                 self.parent.adapter.complete_gather()
+
                 
-                t1= Thread(target = self.commited_init)
-                t1.start()
-
-
             def commited_init(self):
                 collabUuid = False
+                ordered_tasks = []
                 for key,val in self.parent.master_tasks[self.parent.master_uuid]['coordinator'][self.parent.master_tasks[self.parent.master_uuid]['coordinator'].keys()[0]]['SubTask'].iteritems():
+                    if val:
+                        ordered_tasks.append([val[4],key,val])
+                ordered_tasks.sort()
+                        
+                for i,z in enumerate(ordered_tasks):
+                    key = z[1]
+                    val = z[2]
 
                     if val:
                         if self.parent.deviceUuid in val[2]:
@@ -141,6 +148,9 @@ class collaborator(object):
 
                     elif value.lower() == 'committed':
                         self.parent.master_tasks[code]['coordinator'][text]['state'][2] = value
+
+                        t1= Thread(target = self.commited_init)
+                        t1.start()
 
                 elif 'SubTask' in name:
 

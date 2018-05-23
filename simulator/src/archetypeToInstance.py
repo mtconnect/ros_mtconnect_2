@@ -142,14 +142,15 @@ class archetypeToInstance(object):
                                                 
                     CoordinatorSubTask[y.attrib['collaboratorId']] = []
 
-
+        i=0
         for key, val in subTaskModel.values()[0].iteritems():
+            i+=1
             if len(val['collaborators']) == 1:
                 collaborators = val['collaborators'][0]
 
             taskType = val['TaskType']
                 
-            CoordinatorSubTask[val['coordinator']] = [key, None, collaborators,taskType]
+            CoordinatorSubTask[val['coordinator']] = [key, None, collaborators,taskType, i]
             if key in val:
                 for keys, vals in val[key].iteritems():
                     if not jsonModel['collaborators'][vals['coordinator']]['SubTask']:

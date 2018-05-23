@@ -28,7 +28,7 @@ class cnc(object):
 
             def __init__(self):
                 
-                self.initiate_adapter('localhost',7861)
+                self.initiate_adapter('localhost',7880)
                 self.adapter.start()
                 self.initiate_dataitems()
 
@@ -138,6 +138,9 @@ class cnc(object):
 
                 thread2= Thread(target = self.start_pull,args=("http://localhost:5000","/robot/sample?interval=100&count=1000",from_long_pull))
                 thread2.start()
+
+                thread3= Thread(target = self.start_pull,args=("http://localhost:5000","/buffer/sample?interval=100&count=1000",from_long_pull))
+                thread3.start()
 
             def start_pull(self,addr,request, func, stream = True):
 
@@ -387,7 +390,7 @@ class cnc(object):
                 if action == "fail":
                     action = "failure"
 
-                if comp == "Collaborator" and action!='unavailable':
+                if comp == "Task_Collaborator" and action!='unavailable':
                     self.coordinator.superstate.event(source, comp, name, value, code, text)
 
                 elif comp == "Coordinator" and action!='unavailable':
@@ -548,6 +551,8 @@ class cnc(object):
 
         
 if __name__ == '__main__':
+    """
+    #collaborator
     cnc1 = cnc()
     cnc1.create_statemachine()
     cnc1.superstate.has_material = False
@@ -555,4 +560,21 @@ if __name__ == '__main__':
     cnc1.superstate.unload_time_limit(200)
     time.sleep(10)
     cnc1.superstate.enable()
+    """
+
+    #Coordinator
+    cnc1 = cnc()
+    cnc1.create_statemachine()
+    cnc1.superstate.has_material = True
+    cnc1.superstate.load_time_limit(200)
+    cnc1.superstate.unload_time_limit(200)
+    
+    cnc1.superstate.adapter.begin_gather()
+    cnc1.superstate.door_state.set_value("CLOSED")
+    cnc1.superstate.chuck_state.set_value("CLOSED")
+    cnc1.superstate.adapter.complete_gather()
+    
+    time.sleep(15)
+    cnc1.superstate.enable()
+    
     

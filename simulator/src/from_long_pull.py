@@ -84,16 +84,11 @@ def from_long_pull(self, chunk, addr = None):
                                         elif self.master_tasks[self.master_uuid]['collaborators'][self.deviceUuid]['SubTask']: #single robot case
                                             if self.binding_state_material.value() == "COMMITTED" and event.text == "COMMITTED":
                                                 if self.master_tasks[self.master_uuid]['coordinator'].keys()[0] == collabUuid:
-                                                    self.event(source.lower(), 'BindingState', 'SubTask_binding_state', event.text, self.master_uuid,  collabUuid)
-                                                else:
-                                                    """#print "SOURCE"+collabUuid"""
-                                            elif (collabUuid in self.master_tasks[self.master_uuid]['coordinator'][self.master_tasks[self.master_uuid]['coordinator'].keys()[0]]['SubTask'] or collabUuid in self.master_tasks[self.master_uuid]['coordinator'].keys()[0]) and 'bindingstate' not in event.tag:
-                                                coord = self.master_tasks[self.master_uuid]['coordinator'].keys()[0]
-                                                if self.master_tasks[self.master_uuid]['coordinator'][coord]['SubTask'][coord][1] != 'COMPLETE':
-                                                    self.event(source.lower(), component, 'SubTask_'+event.tag.split('}')[-1], event.text, self.master_uuid,  collabUuid)
-
-                                                elif self.master_tasks[self.master_uuid]['coordinator'][coord]['SubTask'][coord][1] == 'COMPLETE' and coord!=collabUuid:
-                                                    self.event(source.lower(), component, 'SubTask_'+event.tag.split('}')[-1], event.text, self.master_uuid,  collabUuid)
+                                                    self.event(source.lower(), 'Coordinator', 'binding_state', event.text, self.master_uuid,  collabUuid)
+                                        elif self.master_tasks[self.master_uuid]['collaborators'][self.deviceUuid]:
+                                            #going to the non robot collab
+                                            self.event(source.lower(), 'Coordinator', 'binding_state', event.text, self.master_uuid,  collabUuid)
+                                                    
 
                             elif self.binding_state_material.value() == "COMMITTED":
                                 stream_root = [event,source,component,x.attrib['uuid']]
@@ -118,7 +113,7 @@ def from_long_pull(self, chunk, addr = None):
                                     elif self.master_tasks[self.master_uuid]['collaborators'][self.deviceUuid]['SubTask']: #single robot case
                                         if self.binding_state_material.value() == "COMMITTED" and event.text == "COMMITTED":
                                             if self.master_tasks[self.master_uuid]['coordinator'].keys()[0] == collabUuid:
-                                                self.event(source.lower(), 'BindingState', 'SubTask_binding_state', event.text, self.master_uuid,  collabUuid)
+                                                self.event(source.lower(), 'Coordinator', 'binding_state', event.text, self.master_uuid,  collabUuid)
                                             else:
                                                 """#print "SOURCE"+collabUuid"""
                                         elif (collabUuid in self.master_tasks[self.master_uuid]['coordinator'][self.master_tasks[self.master_uuid]['coordinator'].keys()[0]]['SubTask'] or collabUuid in self.master_tasks[self.master_uuid]['coordinator'].keys()[0]) and 'bindingstate' not in event.tag:

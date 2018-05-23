@@ -29,7 +29,7 @@ class task(object):
 
                 self.interface = interface
                 self.parent = parent
-                self.commit_time_limit = 1000.0
+                self.commit_time_limit = 60.0
                 self.master_task_uuid = master_task_uuid
                 self.coordinator = coordinator
                 self.subTask = {}
@@ -39,13 +39,15 @@ class task(object):
 
             def INACTIVE(self):
                 
+                self.subTask = {}
+                self.currentSubTask = str()
                 arch2ins = archetypeToInstance(self.parent.coordinator_task, self.master_task_uuid, self.parent.deviceUuid)
                 self.arch2ins = arch2ins
                 self.parent.master_tasks[self.master_task_uuid] = arch2ins.jsonInstance()
                 self.taskIns = arch2ins.taskIns
                 
                 self.parent.adapter.addAsset('Task', self.master_task_uuid, arch2ins.taskIns)
-                
+
                 self.activated()
 
             def PREPARING(self):
@@ -186,7 +188,10 @@ class task(object):
                 self.default()
 
             def event(self, source, comp, name, value, code = None, text = None):
-                self.subTask[self.currentSubTask].superstate.event(source, comp, name, value, code, text)
+                if self.subTask and self.currentSubTask:
+                    self.subTask[self.currentSubTask].superstate.event(source, comp, name, value, code, text)
+                elif 'SubTask' in name:
+                    self.coordinator.event(source, comp, name, value, code, text)
                 
             def void(self):
                 pass
@@ -198,6 +203,7 @@ class task(object):
         states = [{'name':'base', 'children':['inactive', 'preparing', 'committing', 'committed', 'complete', 'fail']}, 'removed']
 
         transitions = [['create', 'base', 'base:inactive'],
+                       ['unavailable', 'base', 'base:inactive'],
 
                        ['activated', 'base:inactive', 'base:preparing'],
                        ['failure', 'base:inactive', 'base:fail'],

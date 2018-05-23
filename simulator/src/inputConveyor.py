@@ -27,7 +27,7 @@ class inputConveyor(object):
 
             def __init__(self):
 
-                self.initiate_adapter('localhost',7761)
+                self.initiate_adapter('localhost',7771)
                 self.adapter.start()
                 self.initiate_dataitems()
 

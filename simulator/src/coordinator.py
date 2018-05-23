@@ -53,7 +53,7 @@ class coordinator(object):
                 coordinator_task = None
                 
                 collab = self.parent.master_tasks[code]['coordinator'][self.coordinator_name]['SubTask'][self.coordinator_name][2]
-                taskType = self.parent.master_tasks[code]['coordinator'][self.coordinator_name]['SubTask'][self.coordinator_name][3]
+                taskType = self.parent.master_tasks[code]['coordinator'][self.coordinator_name]['SubTask'][self.coordinator_name][0]
 
                 if text in collab:
                     try:
