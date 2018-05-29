@@ -258,8 +258,8 @@ class inputConveyor(object):
                 elif name == "MaterialLoad" and action!= 'unavailable':
                     if value.lower() == 'ready' and self.state == 'base:operational:idle':
                         eval('self.robot_material_load_ready()')
-                    else:
-                        eval('self.material_load_interface.superstate.'+action+'()')
+
+                    eval('self.material_load_interface.superstate.'+action+'()')
 
                 elif name == "MaterialUnload" and action!= 'unavailable':
                     if value.lower() == 'ready' and self.state == 'base:operational:idle':

@@ -28,7 +28,7 @@ class Robot:
         """The model for MTConnect behavior in the robot."""
         def __init__(self):
 
-            self.initiate_adapter('localhost',7980)
+            self.initiate_adapter('localhost',7991)
             self.adapter.start()
             self.initiate_dataitems()
 
@@ -124,6 +124,12 @@ class Robot:
 
             thread3= Thread(target = self.start_pull,args=("http://localhost:5000","/buffer/sample?interval=100&count=1000",from_long_pull))
             thread3.start()
+
+            thread4= Thread(target = self.start_pull,args=("http://localhost:5000","/cmm/sample?interval=100&count=1000",from_long_pull))
+            thread4.start()
+
+            thread5= Thread(target = self.start_pull,args=("http://localhost:5000","/conv2/sample?interval=100&count=1000",from_long_pull))
+            thread5.start()
             
         def interface_type(self, value = None, subtype = None):
             self.interfaceType = value

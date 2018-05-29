@@ -40,6 +40,8 @@ class coordinator(object):
                     self.task.create_statemachine()
                     self.task.superstate.create()
 
+                    self.initialize = False
+
                     self.bind_to_task()
 
             def COMMITTED(self):

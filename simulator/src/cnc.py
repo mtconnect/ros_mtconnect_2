@@ -36,7 +36,7 @@ class cnc(object):
 
                 self.system = []
                 
-                self.cycle_time = 2.0
+                self.cycle_time = 10.0
 
                 self.load_time_limit(20)
                 self.unload_time_limit(20)

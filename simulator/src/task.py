@@ -36,19 +36,25 @@ class task(object):
                 self.currentSubTask = str()
                 self.taskIns = "xml/text"
                 self.arch2ins = {}
+                self.initialize = False
 
             def INACTIVE(self):
                 
                 self.subTask = {}
                 self.currentSubTask = str()
-                arch2ins = archetypeToInstance(self.parent.coordinator_task, self.master_task_uuid, self.parent.deviceUuid)
-                self.arch2ins = arch2ins
-                self.parent.master_tasks[self.master_task_uuid] = arch2ins.jsonInstance()
-                self.taskIns = arch2ins.taskIns
-                
-                self.parent.adapter.addAsset('Task', self.master_task_uuid, arch2ins.taskIns)
 
-                self.activated()
+                if not self.initialize:
+                    
+                    arch2ins = archetypeToInstance(self.parent.coordinator_task, self.master_task_uuid, self.parent.deviceUuid)
+                    self.arch2ins = arch2ins
+                    self.parent.master_tasks[self.master_task_uuid] = arch2ins.jsonInstance()
+                    self.taskIns = arch2ins.taskIns
+                    
+                    self.parent.adapter.addAsset('Task', self.master_task_uuid, arch2ins.taskIns)
+                    
+                    self.initialize = True
+                    
+                    self.activated()
 
             def PREPARING(self):
                 self.parent.adapter.begin_gather()
@@ -219,7 +225,8 @@ class task(object):
                        ['default', 'base:fail', 'removed'],
 
                        ['default', 'base:inactive', 'base:inactive'],
-                       ['default', 'base:committed', 'base:committed']
+                       ['default', 'base:committed', 'base:committed'],
+                       ['default', 'base', 'base']
                        ]
 
         self.statemachine = Machine(model = self.superstate, states = states, transitions = transitions, initial = 'base',ignore_invalid_triggers=True)

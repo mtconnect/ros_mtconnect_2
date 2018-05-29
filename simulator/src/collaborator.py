@@ -92,13 +92,13 @@ class collaborator(object):
                 
             def commited_init(self):
                 collabUuid = False
-                ordered_tasks = []
+                self.ordered_tasks = []
                 for key,val in self.parent.master_tasks[self.parent.master_uuid]['coordinator'][self.parent.master_tasks[self.parent.master_uuid]['coordinator'].keys()[0]]['SubTask'].iteritems():
                     if val:
-                        ordered_tasks.append([val[4],key,val])
-                ordered_tasks.sort()
+                        self.ordered_tasks.append([val[4],key,val])
+                self.ordered_tasks.sort()
                         
-                for i,z in enumerate(ordered_tasks):
+                for i,z in enumerate(self.ordered_tasks):
                     key = z[1]
                     val = z[2]
 
@@ -159,8 +159,8 @@ class collaborator(object):
                     elif self.subTask:
                         for k,v in self.parent.master_tasks[self.parent.master_uuid]['coordinator'][self.parent.master_tasks[self.parent.master_uuid]['coordinator'].keys()[0]]['SubTask'].iteritems():
 
-                            if v and name.split('_')[-1] in v[3]:
-
+                            if v and name.split('_')[-1] in v[3] and v[0] in self.subTask:
+                                
                                 self.subTask[v[0]].superstate.event(source, comp, name, value, code, text)
                 else:
 
@@ -189,7 +189,8 @@ class collaborator(object):
                        ['failed', 'base:committed', 'base:inactive'],
 
                        ['default', 'base:inactive', 'base:inactive'],
-                       ['default', 'base:committed', 'base:committed']
+                       ['default', 'base:committed', 'base:committed'],
+                       ['default', 'base', 'base']
                        ]
 
         self.statemachine = Machine(model = self.superstate, states = states, transitions = transitions, initial = 'base',ignore_invalid_triggers=True)
