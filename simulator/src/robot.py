@@ -26,9 +26,9 @@ RobotEvent = collections.namedtuple('RobotEvent', ['source', 'component', 'name'
 class Robot:
     class StateModel:
         """The model for MTConnect behavior in the robot."""
-        def __init__(self):
+        def __init__(self,host,port):
 
-            self.initiate_adapter('localhost',7991)
+            self.initiate_adapter(host,port)
             self.adapter.start()
             self.initiate_dataitems()
 
@@ -316,8 +316,8 @@ class Robot:
 
         #end StateModel class definition
 
-    def __init__(self):
-        self.superstate = Robot.StateModel()
+    def __init__(self,host,port):
+        self.superstate = Robot.StateModel(host,port)
         self.statemachine = self.create_state_machine(self.superstate)
 
     def draw(self):
@@ -410,6 +410,6 @@ class Robot:
         return statemachine
 
 if __name__ == '__main__':
-    robot1 = Robot()
+    robot1 = Robot('localhost',7971)
     time.sleep(1)
     robot1.superstate.enable()

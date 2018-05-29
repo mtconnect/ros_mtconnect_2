@@ -21,13 +21,13 @@ import requests, urllib2, uuid
 
 class inputConveyor(object):
 
-    def __init__(self):
+    def __init__(self, host, port):
 
         class statemachineModel(object):
 
-            def __init__(self):
+            def __init__(self, host, port):
 
-                self.initiate_adapter('localhost',7771)
+                self.initiate_adapter(host, port)
                 self.adapter.start()
                 self.initiate_dataitems()
 
@@ -297,7 +297,7 @@ class inputConveyor(object):
                             self.adapter.complete_gather()
 
 
-        self.superstate = statemachineModel()
+        self.superstate = statemachineModel(host, port)
 
     def draw(self):
         print "Creating inputConveyor.png diagram"
@@ -365,7 +365,7 @@ class inputConveyor(object):
         
 
 if __name__ == '__main__':
-    conv1 = inputConveyor()
+    conv1 = inputConveyor('localhost',7780)
     conv1.create_statemachine()
     conv1.superstate.has_material = True
     conv1.superstate.load_time_limit(200)

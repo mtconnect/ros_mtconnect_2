@@ -21,12 +21,12 @@ import requests, urllib2, uuid
 
 class outputConveyor(object):
 
-    def __init__(self):
+    def __init__(self,host,port):
 
         class statemachineModel(object):
 
-            def __init__(self):
-                self.initiate_adapter('localhost',7491)
+            def __init__(self,host,port):
+                self.initiate_adapter(host,port)
                 self.adapter.start()
                 self.initiate_dataitems()
 
@@ -287,7 +287,7 @@ class outputConveyor(object):
 
                      
 
-        self.superstate = statemachineModel()
+        self.superstate = statemachineModel(host,port)
 
     def draw(self):
         print "Creating outputConveyor.png diagram"
@@ -356,7 +356,7 @@ class outputConveyor(object):
         
 if __name__ == '__main__':
     #collaborator
-    conv2 = outputConveyor()
+    conv2 = outputConveyor('localhost',7482)
     conv2.create_statemachine()
     conv2.superstate.has_material = False
     conv2.superstate.load_time_limit(200)

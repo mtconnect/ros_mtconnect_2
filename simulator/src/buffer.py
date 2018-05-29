@@ -21,13 +21,13 @@ import requests, urllib2, uuid
 
 class Buffer(object):
 
-    def __init__(self):
+    def __init__(self,host,port):
 
         class statemachineModel(object):
 
-            def __init__(self):
+            def __init__(self,host,port):
 
-                self.initiate_adapter('localhost',7696)
+                self.initiate_adapter(host,port)
                 self.adapter.start()
                 self.initiate_dataitems()
 
@@ -146,7 +146,7 @@ class Buffer(object):
                 #add intelligence
                 #part id and destination and priority?
                 if len(self.buffer)<100:
-                    self.buffer.append([self.master_uuid])
+                    self.buffer.append([len(self.buffer)+1]) #should be part ID
 
             def buffer_pop(self):
                 if len(self.buffer)>0:
@@ -373,7 +373,7 @@ class Buffer(object):
                             self.adapter.complete_gather()
                      
 
-        self.superstate = statemachineModel()
+        self.superstate = statemachineModel(host,port)
 
     def draw(self):
         print "Creating Buffer.png diagram"
@@ -441,19 +441,19 @@ class Buffer(object):
 
 
 if __name__ == '__main__':
-    """
+    
     #collaborator
-    b1 = Buffer()
+    b1 = Buffer('localhost',7671)
     b1.create_statemachine()
     b1.superstate.has_material = False
     b1.superstate.load_time_limit(200)
     b1.superstate.unload_time_limit(200)
     time.sleep(10)
     b1.superstate.enable()
-
-    #Coordinator
     """
-    b1 = Buffer()
+    #Coordinator
+    
+    b1 = Buffer('localhost',7670)
     b1.create_statemachine()
     b1.superstate.has_material = True
     b1.superstate.buffer.append('b1_testrun')
@@ -461,5 +461,5 @@ if __name__ == '__main__':
     b1.superstate.unload_time_limit(200)
     time.sleep(10)
     b1.superstate.enable()
-    
+    """
         

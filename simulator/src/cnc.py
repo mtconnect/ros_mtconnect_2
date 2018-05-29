@@ -22,13 +22,13 @@ import xml.etree.ElementTree as ET
 
 class cnc(object):
 
-    def __init__(self):
+    def __init__(self,host,port):
 
         class statemachineModel(object):
 
-            def __init__(self):
+            def __init__(self,host,port):
                 
-                self.initiate_adapter('localhost',7880)
+                self.initiate_adapter(host,port)
                 self.adapter.start()
                 self.initiate_dataitems()
 
@@ -370,6 +370,8 @@ class cnc(object):
 
             def UNLOADED(self):
                 self.has_material = False
+                while self.binding_state_material.value() == "COMMITTED":
+                    pass
 
             def FAILED(self):
                 if "Request" in self.interfaceType:
@@ -480,7 +482,7 @@ class cnc(object):
 
  
 
-        self.superstate = statemachineModel()
+        self.superstate = statemachineModel(host,port)
 
 
     def create_statemachine(self):
@@ -502,7 +504,8 @@ class cnc(object):
                       ['robot_material_unload_ready', 'base:disabled', 'base:activated'],
 
                       ['default', 'base:operational:cycle_start', 'base:operational:cycle_start'],
-                      ['complete', 'base:operational:loading', 'base:operational:cycle_start'],
+                      
+                      {'trigger':'complete', 'source':'base:operational:loading', 'dest':'base:operational:cycle_start', 'before':'LOADED'},
 
                       ['fault', 'base', 'base:disabled:fault'],
                       ['robot_system_fault', 'base', 'base:disabled:fault'],
@@ -517,7 +520,7 @@ class cnc(object):
 
                       ['loading', 'base:operational', 'base:operational:loading'],
                       ['default', 'base:operational:loading', 'base:operational:loading'],
-                      ['complete', 'base:operational:unloading', 'base:operational:loading'],
+                      {'trigger':'complete', 'source':'base:operational:unloading', 'dest':'base:operational:loading','before':'UNLOADED'},
                     
                       ['unloading', 'base:operational', 'base:operational:unloading'],
                       ['default', 'base:operational:unloading', 'base:operational:unloading'],
@@ -553,7 +556,7 @@ class cnc(object):
 if __name__ == '__main__':
     """
     #collaborator
-    cnc1 = cnc()
+    cnc1 = cnc('localhost',7880)
     cnc1.create_statemachine()
     cnc1.superstate.has_material = False
     cnc1.superstate.load_time_limit(200)
@@ -563,7 +566,7 @@ if __name__ == '__main__':
     """
 
     #Coordinator
-    cnc1 = cnc()
+    cnc1 = cnc('localhost',7871)
     cnc1.create_statemachine()
     cnc1.superstate.has_material = True
     cnc1.superstate.load_time_limit(200)

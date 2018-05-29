@@ -22,13 +22,13 @@ import xml.etree.ElementTree as ET
 
 class cmm(object):
 
-    def __init__(self):
+    def __init__(self,host,port):
 
         class statemachineModel(object):
 
-            def __init__(self):
+            def __init__(self,host,port):
                 
-                self.initiate_adapter('localhost',7591)
+                self.initiate_adapter(host,port)
                 self.adapter.start()
                 self.initiate_dataitems()
 
@@ -386,7 +386,7 @@ class cmm(object):
 
                      
 
-        self.superstate = statemachineModel()
+        self.superstate = statemachineModel(host,port)
 
     def draw(self):
         print "Creating cmm.png diagram"
@@ -461,7 +461,7 @@ class cmm(object):
 if __name__ == '__main__':
     """
     #collaborator
-    cmm1 = cmm()
+    cmm1 = cmm('localhost',7591)
     cmm1.create_statemachine()
     cmm1.superstate.has_material = False
     cmm1.superstate.load_time_limit(200)
@@ -472,7 +472,7 @@ if __name__ == '__main__':
 
     #Coordinator
     cmm1 = cmm()
-    cmm1.create_statemachine()
+    cmm1.create_statemachine('localhost',7591)
     cmm1.superstate.has_material = True
     cmm1.superstate.load_time_limit(200)
     cmm1.superstate.unload_time_limit(200)
