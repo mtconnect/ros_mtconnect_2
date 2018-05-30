@@ -116,7 +116,7 @@ class collaborator(object):
                                     self.subTask[x[1]].create_statemachine()
                                     self.subTask[x[1]].superstate.create()
                                     self.currentSubTask = copy.deepcopy(x[1])
-                                    self.parent.event(self.parent.deviceUuid, 'interface_intialization', 'SubTask_'+x[1],'IDLE')
+                                    self.parent.event(self.parent.deviceUuid, 'interface_initialization', 'SubTask_'+x[1],'IDLE')
                                     while self.subTask[self.currentSubTask].superstate.state != 'removed':
                                         pass
                                     self.parent.master_tasks[self.parent.master_uuid]['collaborators'][self.parent.deviceUuid]['SubTask'][val[0]][i][2] = 'COMPLETE'

@@ -317,7 +317,7 @@ class cmm(object):
 
 
             def event(self, source, comp, name, value, code = None, text = None):
-                print "CMM received " + comp + " " + name + " " + value + " from " + source
+                #print "CMM received " + comp + " " + name + " " + value + " from " + source
                 self.events.append([source, comp, name, value, code, text])
 
                 action= value.lower()

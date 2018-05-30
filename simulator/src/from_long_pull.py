@@ -86,7 +86,7 @@ def from_long_pull(self, chunk, addr = None):
                                                 if self.master_tasks[self.master_uuid]['coordinator'].keys()[0] == collabUuid:
                                                     self.event(source.lower(), 'Coordinator', 'binding_state', event.text, self.master_uuid,  collabUuid)
                                         elif self.master_tasks[self.master_uuid]['collaborators'][self.deviceUuid]:
-                                            print 'going to the non robot collab'
+                                            #print 'going to the non robot collab'
                                             self.event(source.lower(), 'Coordinator', 'binding_state', event.text, self.master_uuid,  collabUuid)
                                                     
 

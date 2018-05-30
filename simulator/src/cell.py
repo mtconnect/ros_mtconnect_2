@@ -30,12 +30,12 @@ class cell(object):
 
     def __init__(self):
 
-        self.initiate_inputConveyor('localhost',7783)
-        self.initiate_cnc('localhost',7883)
-        self.initiate_robot('localhost',7983)
-        self.initiate_buffer('localhost',7683)
-        self.initiate_cmm('localhost',7583)
-        self.initiate_outputConveyor('localhost',7483)
+        self.initiate_inputConveyor('localhost',7788)
+        self.initiate_cnc('localhost',7888)
+        self.initiate_robot('localhost',7988)
+        self.initiate_buffer('localhost',7688)
+        self.initiate_cmm('localhost',7588)
+        self.initiate_outputConveyor('localhost',7488)
 
     def part_arrival(self):
         if not self.inputConveyor.superstate.has_material:

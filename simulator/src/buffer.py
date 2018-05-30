@@ -337,7 +337,7 @@ class Buffer(object):
                             eval('self.robot_material_load_ready()')
                         eval('self.material_load_interface.superstate.'+action+'()')
                     except:
-                        print "incorrect material load event"
+                        """#print 'incorrect material load event'"""
 
                 elif name == "MaterialUnload":
                     try:
@@ -345,7 +345,7 @@ class Buffer(object):
                             eval('self.robot_material_unload_ready()')
                         eval('self.material_unload_interface.superstate.'+action+'()')
                     except:
-                        print "incorrect material unload event"
+                        """#print 'incorrect material unload event'"""
 
                 elif comp == "Controller":
                     

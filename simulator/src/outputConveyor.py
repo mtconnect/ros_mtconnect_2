@@ -159,7 +159,7 @@ class outputConveyor(object):
                     self.material_load_interface.superstate.DEACTIVATE()
 
                 else:
-                    print "Output Conveyor is waiting for a part to arrive!"
+                    #print "Output Conveyor is waiting for a part to arrive!"
                     self.material_unload_interface.superstate.DEACTIVATE()
 
             def LOADING(self):
@@ -225,7 +225,7 @@ class outputConveyor(object):
 
 
             def event(self, source, comp, name, value, code = None, text = None):
-                print "OutputConveyor received " + comp + " " + name + " " + value + " from " + source
+                #print "OutputConveyor received " + comp + " " + name + " " + value + " from " + source
                 self.events.append([source, comp, name, value, code, text])
 
                 action= value.lower()

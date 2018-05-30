@@ -230,11 +230,26 @@ class Robot:
                 self.collaborator.superstate.event(source, comp, name, value, code, text)
 
             elif 'SubTask' in name and action!='unavailable':
-                
-                if self.iscoordinator == True:
+                if comp == 'interface_initialization' and source == self.deviceUuid:
+                    if 'CloseChuck' in name:
+                        print "\n Robot has moved in!"
+                        print "\n Robot has requested CNC to Close Chuck!"
+                    elif 'CloseDoor' in name:
+                        print "\n Robot has released the Part!"
+                        print "\n Robot has moved out!"
+                        print "\n Robot has requested CNC to Close Door!"
+                    elif 'OpenChuck' in name:
+                        print "\n Robot has moved in!"
+                        print "\n Robot has grabbed the part!"
+                        print "\n Robot has requested CNC to Open Chuck!"
+                    elif 'OpenDoor' in name:
+                        print "\n Robot has requested CNC to Open Door!"
+
+                        
+                if self.iscoordinator:
                     self.coordinator.superstate.event(source, comp, name, value, code, text)
 
-                elif self.iscollaborator == True:
+                elif self.iscollaborator:
                     self.collaborator.superstate.event(source, comp, name, value, code, text)
 
 
