@@ -1,56 +1,41 @@
+import os, sys
+sys.path.insert(0,os.getcwd()+'\\utils')
 
 from material import *
 
 from collaborator import *
 from coordinator import *
 
+from mtconnect_adapter import Adapter
+from long_pull import LongPull
+from data_item import Event, SimpleCondition, Sample, ThreeDSample
+from archetypeToInstance import archetypeToInstance
+from from_long_pull import from_long_pull, from_long_pull_asset
+
 from transitions.extensions import HierarchicalMachine as Machine
 from transitions.extensions.nesting import NestedState
 from threading import Timer, Thread
 import functools, time, re, copy
-
-
-class adapter(object):
-
-    def __init__(self, value = None):
-        self.interface = value
-        
+import xml.etree.ElementTree as ET
+import requests, urllib2, uuid
 
 class outputConveyor(object):
 
-    def __init__(self, interface):
+    def __init__(self,host,port):
 
         class statemachineModel(object):
 
-            def __init__(self):
-                #initializing the interfaces
-                self.material_load = interface()
-                self.material_unload = interface()
+            def __init__(self,host,port):
+                self.initiate_adapter(host,port)
+                self.adapter.start()
+                self.initiate_dataitems()
 
-                self.material_load_interface = MaterialLoad(self)
-                self.material_unload_interface = MaterialUnload(self)
-                
-                self.has_material = False
-                self.fail_next = False
-
-                self.availability = "AVAILABLE"
-                self.execution = "READY"
-                self.controller_mode = "AUTOMATIC"
-                
-                self.robot_availability = "AVAILABLE" #intialized for testing
-                self.robot_execution = "ACTIVE"
-                self.robot_controller_mode = "AUTOMATIC"
+                self.initiate_interfaces()
                 
                 self.system = []
 
-                self.system_normal = True
-
-                self.link = "ENABLED"
-
-                self.adapter = adapter
-
-                self.load_time_limit(2)
-                self.unload_time_limit(2)
+                self.load_time_limit(15)
+                self.unload_time_limit(15)
 
                 self.load_failed_time_limit(2)
                 self.unload_failed_time_limit(2)
@@ -59,28 +44,98 @@ class outputConveyor(object):
 
                 self.master_tasks = {}
 
-                self.master_uuid = 1
+                self.deviceUuid = "conv2"
 
-                self.binding_state = "INACTIVE"
+                self.master_uuid = str()
 
                 self.iscoordinator = False
+                
                 self.iscollaborator = False
+                
+                self.system_normal = True
+                                
+                self.has_material = False
+                
+                self.fail_next = False
+
+                self.initiate_pull_thread()
 
                 
+            def initiate_interfaces(self):
+                self.material_load_interface = MaterialLoad(self)
+                self.material_unload_interface = MaterialUnload(self)
+
+            def initiate_adapter(self, host, port):
                 
+                self.adapter = Adapter((host,port))
+
+                self.mode1 = Event('mode')
+                self.adapter.add_data_item(self.mode1)
+
+                self.e1 = Event('exec')
+                self.adapter.add_data_item(self.e1)
+
+                self.avail1 = Event('avail')
+                self.adapter.add_data_item(self.avail1)
+
+                self.binding_state_material = Event('binding_state_material')
+                self.adapter.add_data_item(self.binding_state_material)
+
+                self.material_load = Event('material_load')
+                self.adapter.add_data_item(self.material_load)
+
+                self.material_unload = Event('material_unload')
+                self.adapter.add_data_item(self.material_unload)
+                
+            def initiate_dataitems(self):
+
+                self.adapter.begin_gather()
+
+                self.avail1.set_value("AVAILABLE")
+                self.e1.set_value("READY")
+                self.mode1.set_value("AUTOMATIC")
+                self.binding_state_material.set_value("INACTIVE")
+                self.material_load.set_value("NOT_READY")
+                self.material_unload.set_value("NOT_READY")
+
+                self.adapter.complete_gather()                
+
+            def initiate_pull_thread(self):
+
+                thread= Thread(target = self.start_pull,args=("http://localhost:5000","/cmm/sample?interval=100&count=1000",from_long_pull))
+                thread.start()
+
+                thread2= Thread(target = self.start_pull,args=("http://localhost:5000","/robot/sample?interval=100&count=1000",from_long_pull))
+                thread2.start()
+
+                thread3= Thread(target = self.start_pull,args=("http://localhost:5000","/buffer/sample?interval=100&count=1000",from_long_pull))
+                thread3.start()
+                
+            def start_pull(self,addr,request, func, stream = True):
+
+                response = requests.get(addr+request, stream=stream)
+                lp = LongPull(response, addr, self)
+                lp.long_pull(func)
+
+            def start_pull_asset(self, addr, request, assetId, stream_root):
+                response = urllib2.urlopen(addr+request).read()
+                from_long_pull_asset(self, response, stream_root) 
 
             def OutputConveyor_NOT_READY(self):
                 self.material_load_interface.superstate.DEACTIVATE()
                 self.material_unload_interface.superstate.DEACTIVATE()
 
             def ACTIVATE(self):
-                if self.controller_mode == "AUTOMATIC":
+                if self.mode1.value() == "AUTOMATIC" and self.avail1.value() == "AVAILABLE":
+
                     self.make_operational()
 
                 elif self.system_normal:
+                    
                     self.still_not_ready()
 
                 else:
+                    
                     self.faulted()
 
             def OPERATIONAL(self):
@@ -89,33 +144,32 @@ class outputConveyor(object):
                     print "Waiting for the part to be cleared!"
                 else:
                     self.loading()
+                    
                     self.iscoordinator = False
                     self.iscollaborator = True
-                    self.collaborator = collaborator(parent = self, interface = interface, collaborator_name = 'outputConveyor1')
+                    self.master_tasks = {}
+                    self.collaborator = collaborator(parent = self, interface = self.binding_state_material, collaborator_name = self.deviceUuid)
                     self.collaborator.create_statemachine()
-                    self.collaborator.superstate.task_name = "MaterialLoad"
+                    self.collaborator.superstate.task_name = "LoadConv"
                     self.collaborator.superstate.unavailable()
 
 
             def IDLE(self):
                 if self.has_material:
                     self.material_load_interface.superstate.DEACTIVATE()
-                    self.material_unload_interface.superstate.IDLE()
 
                 else:
-                    print "Output Conveyor is waiting for a part to arrive!"
+                    #print "Output Conveyor is waiting for a part to arrive!"
                     self.material_unload_interface.superstate.DEACTIVATE()
-                    self.material_load_interface.superstate.IDLE()
 
             def LOADING(self):
                 if not self.has_material:
                     self.material_unload_interface.superstate.DEACTIVATE()
-                    self.material_load_interface.superstate.ACTIVATE()
+                    self.material_load_interface.superstate.IDLE()
 
             def UNLOADING(self):
                 if self.has_material:
                     self.material_load_interface.superstate.DEACTIVATE()
-                    self.material_unload_interface.superstate.ACTIVATE()
 
             def EXIT_LOADING(self):
                 self.material_load_interface.superstate.DEACTIVATE()
@@ -135,11 +189,7 @@ class outputConveyor(object):
 
             def unload_failed_time_limit(self, limit):
                 self.material_unload_interface.superstate.fail_time_limit = limit
-
-            def status(self):
-                'state'
-                #return all the states. Necessary for the first draft?
-
+                
             def interface_type(self, value = None, subtype = None):
                 self.interfaceType = value
 
@@ -150,11 +200,13 @@ class outputConveyor(object):
             def EXITING_IDLE(self):
                 if not self.has_material:
                     self.loading()
+                    
                     self.iscoordinator = False
                     self.iscollaborator = True
-                    self.collaborator = collaborator(parent = self, interface = interface, collaborator_name = 'outputConveyor1')
+                    self.master_tasks = {}
+                    self.collaborator = collaborator(parent = self, interface = self.binding_state_material, collaborator_name = self.deviceUuid)
                     self.collaborator.create_statemachine()
-                    self.collaborator.superstate.task_name = "MaterialLoad"
+                    self.collaborator.superstate.task_name = "LoadConv"
                     self.collaborator.superstate.unavailable()
               
               
@@ -173,7 +225,7 @@ class outputConveyor(object):
 
 
             def event(self, source, comp, name, value, code = None, text = None):
-                print "OutputConveyor received " + comp + " " + name + " " + value + " from " + source
+                #print "OutputConveyor received " + comp + " " + name + " " + value + " from " + source
                 self.events.append([source, comp, name, value, code, text])
 
                 action= value.lower()
@@ -197,8 +249,7 @@ class outputConveyor(object):
                 elif name == "MaterialLoad":
                     if value.lower() == 'ready' and self.state == 'base:operational:idle':
                         eval('self.robot_material_load_ready()')
-                    else:
-                        eval('self.material_load_interface.superstate.'+action+'()')
+                    eval('self.material_load_interface.superstate.'+action+'()')
 
                 elif name == "MaterialUnload":
                     if value.lower() == 'ready' and self.state == 'base:operational:idle':
@@ -208,34 +259,35 @@ class outputConveyor(object):
                 elif comp == "Controller":
                     
                     if name == "ControllerMode":
-                        if source.lower() == 'outputConveyor':
-                            self.controller_mode = value.upper()
-                        elif source.lower() == 'robot':
-                            self.robot_controller_mode = value.upper()
-                        eval('self.'+source+'_controller_mode_'+value.lower()+'()')
+                        if source.lower() == 'conv':
+                            self.adapter.begin_gather()
+                            self.mode1.set_value(value.upper())
+                            self.adapter.complete_gather()
+                            
 
                     elif name == "Execution":
-                        if source.lower() == 'outputConveyor':
-                            self.execution = value.upper()
-                        elif source.lower() == 'robot':
-                            self.robot_execution = value.upper()
-                        eval('self.'+source+'_execution_'+value.lower()+'()')
+                        if source.lower() == 'conv':
+                            self.adapter.begin_gather()
+                            self.e1.set_value(value.upper())
+                            self.adapter.complete_gather()
 
                 elif comp == "Device":
 
-                    if name == "SYSTEM":
-                        eval('self.'+source+'_system_'+value.lower()+'()')
+                    if name == "SYSTEM" and action!='unavailable':
+                        try:
+                            eval('self.'+source.lower()+'_system_'+value.lower()+'()')
+                        except:
+                            "Not a valid trigger"
 
                     elif name == "Availability":
-                        if source.lower() == 'outputConveyor':
-                            self.availability = value.upper()
-                        elif source.lower() == 'robot':
-                            self.robot_availability = value.upper()
-                        eval('self.'+source+'_availability_'+value.lower()+'()')
+                        if source.lower() == 'conv':
+                            self.adapter.begin_gather()
+                            self.avail1.set_value(value.upper())
+                            self.adapter.complete_gather()
 
                      
 
-        self.superstate = statemachineModel()
+        self.superstate = statemachineModel(host,port)
 
     def draw(self):
         print "Creating outputConveyor.png diagram"
@@ -302,4 +354,13 @@ class outputConveyor(object):
         self.statemachine.on_exit('base:operational:unloading', 'EXIT_UNLOADING')
 
         
+if __name__ == '__main__':
+    #collaborator
+    conv2 = outputConveyor('localhost',7482)
+    conv2.create_statemachine()
+    conv2.superstate.has_material = False
+    conv2.superstate.load_time_limit(200)
+    conv2.superstate.unload_time_limit(200)
+    time.sleep(7)
+    conv2.superstate.enable()
         

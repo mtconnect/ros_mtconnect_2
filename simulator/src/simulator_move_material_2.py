@@ -5,7 +5,7 @@ from threading import Timer, Thread
 
 
 def bot():
-    adapter = Adapter(('localhost', 7881))
+    adapter = Adapter(('localhost', 7790))
     avail = Event('avail')
     adapter.add_data_item(avail)
     e1 = Event('exec')
@@ -51,7 +51,7 @@ def bot():
 
     if True:
         
-        time.sleep(35)
+        time.sleep(20)
 
 
         adapter.begin_gather()
@@ -60,10 +60,10 @@ def bot():
         
         adapter.complete_gather()
         
-        time.sleep(0.2)
+        #time.sleep(0.2)
 
 
-        time.sleep(10)
+        #time.sleep(10)
 
         adapter.begin_gather()
         
@@ -71,17 +71,17 @@ def bot():
         
         adapter.complete_gather()
         
-        time.sleep(0.2)
+        #time.sleep(0.2)
 
-        time.sleep(2)
-
+        #time.sleep(2)
+        adapter.begin_gather()
 
         
         material_unload.set_value("ACTIVE")
         
         adapter.complete_gather()
 
-        time.sleep(0.5)
+        #time.sleep(0.5)
 
         adapter.begin_gather()
         
@@ -90,7 +90,7 @@ def bot():
         adapter.complete_gather()
 
         
-        time.sleep(2)
+        time.sleep(0.2)
         
         adapter.begin_gather()
         
@@ -98,7 +98,18 @@ def bot():
         
         adapter.complete_gather()
 
-        time.sleep(2.5)
+        adapter.begin_gather()
+        
+        material_load.set_value("ACTIVE")
+        
+        adapter.complete_gather()
+
+        adapter.begin_gather()
+        
+        material_load.set_value("ACTIVE")
+        
+        adapter.complete_gather()
+
         """
         ####open door
         adapter.begin_gather()
