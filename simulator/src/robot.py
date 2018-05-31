@@ -1,17 +1,19 @@
 """
 Sample module for implementing a robot that coordinates with a CNC and conveyors.
 """
+from __future__ import absolute_import, division, print_function, unicode_literals
+__metaclass__ = type
 
-from material import *
-from door import *
-from chuck import *
-from coordinator import *
-from collaborator import *
-from mtconnect_adapter import Adapter
-from long_pull import LongPull
-from data_item import Event, SimpleCondition, Sample, ThreeDSample
-from archetypeToInstance import archetypeToInstance
-from from_long_pull import from_long_pull, from_long_pull_asset
+from .material import *
+from .door import *
+from .chuck import *
+from .coordinator import *
+from .collaborator import *
+from .mtconnect_adapter import Adapter
+from .long_pull import LongPull
+from .data_item import Event, SimpleCondition, Sample, ThreeDSample
+from .archetypeToInstance import archetypeToInstance
+from .from_long_pull import from_long_pull, from_long_pull_asset
 
 from transitions.extensions import HierarchicalMachine as Machine
 from transitions.extensions.nesting import NestedState
@@ -178,7 +180,7 @@ class Robot:
             #temporary fix till task/subtask sequencing is determined
             while self.master_tasks[self.master_uuid]['collaborators'][self.deviceUuid]['state'][2] != 'COMPLETE':
                 pass
-                
+
 
         def UNLOADING_COMPLETE(self):
             """self.material_unload_interface.superstate.not_ready()"""
@@ -258,7 +260,7 @@ class Robot:
                 self.material_event(ev)
 
             elif ('Chuck' in name or 'Door' in name) and action!='unavailable':
-                                                                             
+
                 if 'Chuck' in name:
                     if 'Open' in name:
                         eval('self.open_chuck_interface.superstate.'+action+'()')
@@ -269,7 +271,7 @@ class Robot:
                         eval('self.open_door_interface.superstate.'+action+'()')
                     elif 'Close' in name:
                         eval('self.close_door_interface.superstate.'+action+'()')
-                    
+
 
             #elif ev.component.startswith('Controller'):
                 #self.controller_event(ev)
@@ -336,7 +338,6 @@ class Robot:
         self.statemachine = self.create_state_machine(self.superstate)
 
     def draw(self):
-        print("Creating robot.png diagram")
         self.statemachine.get_graph().draw('robot.png', prog='dot')
 
     @staticmethod
@@ -372,7 +373,7 @@ class Robot:
             ['activate', 'base:disabled:not_ready', 'base:activated'],
             ['make_operational', 'base:activated', 'base:operational'],
             ['make_idle', 'base:operational', 'base:operational:idle'],
-            
+
             ['enable', 'base', 'base:activated'],
 
             ['safety_violation', 'base', 'base:disabled:soft'],
