@@ -21,14 +21,9 @@ class Request(object):
         
             def __init__(self, adapter, interface, parent):
                 self.interface = interface
-<<<<<<< HEAD
                 self.adapter = adapter
                 self.processing_time_limit = 20
                 self.fail_time_limit = 2
-=======
-                self.processing_time_limit = 10.0
-                self.fail_time_limit = 0.0
->>>>>>> e78f625d3e484bab9863ab1c58523773ae491597
                 self.failing = False
                 self.parent = parent
 
