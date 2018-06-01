@@ -369,25 +369,6 @@ class Robot:
             else:
                 raise(Exception('Unknown Device event: ' + str(ev)))
 
-        def cnc_event(self, ev):
-            if ev.name == "ChuckState":
-                self.cnc_chuck_state = ev.value.upper()
-                if self.cnc_chuck_state == "OPEN":
-                    self.open_chuck_interface.statemachine.set_state('base:active')
-                elif self.cnc_chuck_state == "CLOSED":
-                    self.close_chuck_interface.statemachine.set_state('base:not_ready')
-
-            elif ev.name == "DoorState":
-                self.cnc_door_state = ev.value.upper()
-                if self.cnc_door_state == "OPEN":
-                    self.open_door_interface.statemachine.set_state('base:active')
-                elif self.cnc_door_state == "CLOSED":
-                    self.close_door_interface.statemachine.set_state('base:not_ready')
-
-            else:
-                raise(Exception('Unknown CNC event: ' + str(ev)))
-
-
         #end StateModel class definition
 
     def __init__(self):
@@ -396,6 +377,13 @@ class Robot:
 
     def draw(self):
         self.statemachine.get_graph().draw('robot.png', prog='dot')
+
+    def set_hook(self, state, callback):
+        """
+        Allows a user to set a function to be called when the device enters a particular state. Returns a function
+        that the user should call at the end of the callback to signal that the hook is done.
+        """
+        self.statemachine.on_enter(state, callback)
 
     @staticmethod
     def create_state_machine(state_machine_model):
@@ -409,7 +397,17 @@ class Robot:
                     'activated',
                     {
                         'name': 'operational',
-                        'children': ['idle', 'loading', 'unloading']
+                        'children': [
+                            'idle',
+                            {
+                                'name': 'loading',
+                                'children': ['moving_in', 'waiting_chuck', 'moving_out']
+                            },
+                            {
+                                'name': 'unloading',
+                                'children': ['moving_in', 'waiting_chuck', 'moving_out']
+                            }
+                        ]
                     },
                     {
                         'name': 'disabled',
