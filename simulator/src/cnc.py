@@ -12,6 +12,8 @@ from data_item import Event, SimpleCondition, Sample, ThreeDSample
 from archetypeToInstance import archetypeToInstance
 from from_long_pull import from_long_pull, from_long_pull_asset
 
+from hurco_bridge import *
+
 from transitions.extensions import HierarchicalMachine as Machine
 from transitions.extensions.nesting import NestedState
 from threading import Timer, Thread
@@ -22,11 +24,11 @@ import xml.etree.ElementTree as ET
 
 class cnc(object):
 
-    def __init__(self,host,port):
+    def __init__(self,host,port,sim=True):
 
         class statemachineModel(object):
 
-            def __init__(self,host,port):
+            def __init__(self,host,port,sim):
                 
                 self.initiate_adapter(host,port)
                 self.adapter.start()
@@ -61,8 +63,16 @@ class cnc(object):
                 self.has_material = False
                 
                 self.fail_next = False
+
+                self.sim = sim
+
+                self.initiate_cnc_client()
                 
                 self.initiate_pull_thread()
+
+            def initiate_cnc_client(self):
+                if not self.sim:
+                    self.cnc_client = hurcoClient('localhost',4503)                    
 
             def initiate_interfaces(self):
                 self.material_load_interface = MaterialLoad(self)
@@ -265,9 +275,15 @@ class cnc(object):
                         self.coordinator.superstate.task_name = "UnloadCnc"
 
                         self.coordinator.superstate.unavailable()
+
+                    if self.sim:
+                        timer_cycling = Timer(self.cycle_time,func)
+                        timer_cycling.start()
+                    else:
+                        cycle_completion = self.cnc_client.load_run_pgm(tasks.cycle)
+                        if cycle_completion == True:
+                            func()
                         
-                    timer_cycling = Timer(self.cycle_time,func)
-                    timer_cycling.start()
 
 
             def LOADING(self):
@@ -482,7 +498,7 @@ class cnc(object):
 
  
 
-        self.superstate = statemachineModel(host,port)
+        self.superstate = statemachineModel(host,port,sim)
 
 
     def create_statemachine(self):

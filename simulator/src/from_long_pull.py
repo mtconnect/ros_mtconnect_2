@@ -20,7 +20,7 @@ def from_long_pull(self, chunk, addr = None):
 
             events = y.find('.//'+xmlns+'Events')
             for event in events:
-                if True:
+                try:
                     #THIS CLAUSE? DO WE NEED IT?
                     if 'Availability' in event.tag or 'Execution' in event.tag or 'ControllerMode' in event.tag:
                         #print "1_avail"
@@ -143,7 +143,7 @@ def from_long_pull(self, chunk, addr = None):
 
                             #print 'REMOVED'+event.tag+'\n'
                             try:
-                                if self.deviceUuid in event.text:
+                                if self.deviceUuid in event.text.split('_')[0]:
                                         self.adapter.removeAsset(event.text)
                             except:
                                 "THIS CLAUSE IS FOR MAKING SURE THE ASSET IS REMOVED WHEN COMPLETED."
@@ -156,8 +156,8 @@ def from_long_pull(self, chunk, addr = None):
                             thread1= Thread(target = self.event,args=(source.lower(), component, event.tag.split('}')[-1], event.text))
                             thread1.start()
                     """
-                if False:
-                    "Invalid attribute"
+                except:
+                    print "Invalid Event"
     #print '\nFROM PULL END'+root[0].attrib['creationTime']+datetime.datetime.now().isoformat()
 def from_long_pull_asset(self,chunk, stream_root = None):
     root=ET.fromstring(chunk)

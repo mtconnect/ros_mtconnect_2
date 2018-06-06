@@ -6,6 +6,7 @@ from door import *
 from chuck import *
 from coordinator import *
 from collaborator import *
+from hurco_bridge import *
 from mtconnect_adapter import Adapter
 from long_pull import LongPull
 from data_item import Event, SimpleCondition, Sample, ThreeDSample
@@ -30,12 +31,12 @@ class cell(object):
 
     def __init__(self):
 
-        self.initiate_inputConveyor('localhost',7788)
-        self.initiate_cnc('localhost',7888)
-        self.initiate_robot('localhost',7988)
-        self.initiate_buffer('localhost',7688)
-        self.initiate_cmm('localhost',7588)
-        self.initiate_outputConveyor('localhost',7488)
+        self.initiate_inputConveyor('localhost',7782)
+        self.initiate_cnc('localhost',7882, False)
+        self.initiate_robot('localhost',7982)
+        self.initiate_buffer('localhost',7682)
+        self.initiate_cmm('localhost',7582)
+        self.initiate_outputConveyor('localhost',7482)
 
     def part_arrival(self):
         if not self.inputConveyor.superstate.has_material:
@@ -51,8 +52,8 @@ class cell(object):
         self.inputConveyor.superstate.load_time_limit(200)
         self.inputConveyor.superstate.unload_time_limit(200)
 
-    def initiate_cnc(self,host,port):
-        self.cnc = cnc(host,port)
+    def initiate_cnc(self,host,port,sim = True):
+        self.cnc = cnc(host,port,sim)
         self.cnc.create_statemachine()
         self.cnc.superstate.load_time_limit(200)
         self.cnc.superstate.unload_time_limit(200)
