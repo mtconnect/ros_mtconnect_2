@@ -40,8 +40,8 @@ class Robot:
 
             self.deviceUuid = "r1"
 
-            self.material_load_interface.superstate.simulated_duration = 20
-            self.material_unload_interface.superstate.simulated_duration = 20
+            self.material_load_interface.superstate.simulated_duration = 60
+            self.material_unload_interface.superstate.simulated_duration = 60
 
             self.master_uuid = str()
 
@@ -179,9 +179,23 @@ class Robot:
             while self.master_tasks[self.master_uuid]['collaborators'][self.deviceUuid]['state'][2] != 'COMPLETE':
                 pass
                 
-
+        def CHECK_COMPLETION_UL(self):
+            #temporary fix till task/subtask sequencing is determined
+            coordinator = self.master_tasks[self.master_uuid]['coordinator'].keys()[0]
+            unload_task = self.master_tasks[self.master_uuid]['coordinator'][coordinator]['SubTask'][coordinator][0]
+            test = None
+            while not test:
+                if unload_task in self.master_tasks[self.master_uuid]['collaborators'][self.deviceUuid]['SubTask']:
+                    for x in self.master_tasks[self.master_uuid]['collaborators'][self.deviceUuid]['SubTask'][unload_task]:
+                        if x[2] == 'COMPLETE' and (test== None or test == True):
+                            test = True
+                        else:
+                            test = False
+                else:
+                    test = True
+            
         def UNLOADING_COMPLETE(self):
-            """self.material_unload_interface.superstate.not_ready()"""
+            self.CHECK_COMPLETION_UL()
 
         def LOAD_READY(self):
             """Function triggered when the CNC is ready to be loaded"""
@@ -214,8 +228,11 @@ class Robot:
 
             #print('Robot received: ', source, comp, name, value)
             self.events.append(ev)
-
+            
             action = value.lower()
+
+            if action == "fail":
+                action = "failure"
 
             if "Collaborator" in comp and action!='unavailable':
                 self.coordinator.superstate.event(source, comp, name, value, code, text)
@@ -282,17 +299,21 @@ class Robot:
 
             #print "\nRobotEvent Exit",source,comp,name,value,datetime.datetime.now().isoformat()
         def material_event(self, ev):
+            action = ev.value.lower()
+            if action == "fail":
+                action = "failure"
+                
             if ev.name == "MaterialLoad":
                 if ev.value.lower() == 'complete':
                     self.complete()
                 else:
-                    eval('self.material_load_interface.superstate.'+ev.value.lower()+'()')
+                    eval('self.material_load_interface.superstate.'+action+'()')
 
             elif ev.name == "MaterialUnload":
                 if ev.value.lower() == 'complete':
                     self.complete()
                 else:
-                    eval('self.material_unload_interface.superstate.'+ev.value.lower()+'()')
+                    eval('self.material_unload_interface.superstate.'+action+'()')
 
             else:
                 """#print "raise(Exception('Unknown Material event: ' + str(ev)))'"""
@@ -403,7 +424,7 @@ class Robot:
                 'trigger': 'complete',
                 'source': 'base:operational:unloading',
                 'dest': 'base:operational:loading',
-                'after': 'UNLOADING_COMPLETE'
+                'before': 'UNLOADING_COMPLETE'
             },
 
         ]

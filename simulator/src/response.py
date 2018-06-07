@@ -85,11 +85,9 @@ class Response(object):
                 else:
                     self.adapter.begin_gather()
                     self.interface.set_value("ACTIVE")
+                    self.response_state.set_value(self.transition_state)
                     self.adapter.complete_gather()
-                    if self.simulate:
-                        self.adapter.begin_gather()
-                        self.response_state.set_value(self.transition_state)
-                        self.adapter.complete_gather()
+
                     check_state_list=[
                     self.DEFAULT.has_been_called, self.FAILURE.has_been_called, self.READY.has_been_called, self.NOT_READY.has_been_called, self.COMPLETE.has_been_called
                     ]
@@ -138,18 +136,19 @@ class Response(object):
 
             @check_state_calls  
             def COMPLETE(self):
-                
-                if self.simulate:
-                    self.adapter.begin_gather()
-                    self.response_state.set_value(self.dest_state)
-                    self.adapter.complete_gather()
-                    
+                self.adapter.begin_gather()
+                self.response_state.set_value(self.dest_state)
+                self.adapter.complete_gather()
+
+                self.parent.interface_type(value = 'Response'+self.prefix.lower()+self.dest_state.lower())
+
                 self.adapter.begin_gather()
                 self.interface.set_value("COMPLETE")
                 self.adapter.complete_gather()
-               
-                self.parent.interface_type(value = 'Response'+self.prefix.lower()+self.dest_state.lower())
+                
                 self.parent.COMPLETED()
+                
+                
 
             def void(self):
                 pass

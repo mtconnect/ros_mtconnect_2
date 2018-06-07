@@ -11,10 +11,10 @@ programStatus = ('Uninitialized', 'Started', 'Completed Successful', 'Completed 
 cncEvent = collections.namedtuple('cncEvent', ['openChuck','openDoor','closeChuck','closeDoor','cycle'])
 
 tasks = cncEvent
-tasks.openChuck = 'address'
-tasks.closeChuck = 'address'
-tasks.openDoor = 'address'
-tasks.closeDoor = 'address'
+tasks.openChuck = 'C:\Program Files (x86)\Hurco\DS WinMax Mill\Samples\intro-29.HWM'
+tasks.closeChuck = 'C:\Program Files (x86)\Hurco\DS WinMax Mill\Samples\intro-29.HWM'
+tasks.openDoor = 'C:\Program Files (x86)\Hurco\DS WinMax Mill\Samples\intro-29.HWM'
+tasks.closeDoor = 'C:\Program Files (x86)\Hurco\DS WinMax Mill\Samples\intro-29.HWM'
 tasks.cycle = 'C:\Program Files (x86)\Hurco\DS WinMax Mill\Samples\intro-05.HWM'
 
 class RestAPIException(Exception):
