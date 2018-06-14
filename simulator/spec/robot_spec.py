@@ -89,28 +89,10 @@ with description('Robot'):
 
             time.sleep(0.2)
 
-<<<<<<< HEAD
             expect(the_robot.superstate.close_chuck.value()).to(equal('NOT_READY'))
-            time.sleep(0.2)
-
-            the_robot.superstate.event('cnc','ChuckInterface', 'SubTask_CloseDoor', 'READY','1','cnc1')
-            time.sleep(1)
-            expect(the_robot.superstate.close_door.value()).to(equal('ACTIVE'))
-=======
-            expect(self.robot.superstate.close_chuck.value()).to(equal('NOT_READY'))
->>>>>>> d7ef7892317e10573da51cdf87bab1bea5f8393f
 
             time.sleep(10)
-
-            the_robot.superstate.event('cnc','DoorInterface', 'SubTask_CloseDoor', 'ACTIVE','1','cnc1')
-            time.sleep(0.2)
-            expect(the_robot.superstate.close_door.value()).to(equal('ACTIVE'))
-
-            the_robot.superstate.event('cnc','DoorInterface', 'SubTask_CloseDoor', 'COMPLETE','1','cnc1')
-            time.sleep(0.2)
-            expect(the_robot.superstate.close_door.value()).to(equal('NOT_READY'))
-
-
+    
             time.sleep(0.2)
 
             expect(the_robot.superstate.material_load.value()).to(equal('NOT_READY'))
