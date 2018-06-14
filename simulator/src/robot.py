@@ -180,11 +180,7 @@ class Robot:
             #temporary fix till task/subtask sequencing is determined
             while self.master_tasks[self.master_uuid]['collaborators'][self.deviceUuid]['state'][2] != 'COMPLETE':
                 pass
-<<<<<<< HEAD
 
-
-=======
-                
         def CHECK_COMPLETION_UL(self):
             #temporary fix till task/subtask sequencing is determined
             print 'checking completion'
@@ -201,7 +197,6 @@ class Robot:
                 else:
                     test = True
             
->>>>>>> d7ef7892317e10573da51cdf87bab1bea5f8393f
         def UNLOADING_COMPLETE(self):
             self.CHECK_COMPLETION_UL()
 
