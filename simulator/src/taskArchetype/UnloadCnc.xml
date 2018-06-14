@@ -15,9 +15,11 @@
 			</Collaborators>
 			<SubTaskRefs>
 				<SubTaskRef order="1">OpenDoor</SubTaskRef>
-				<!-- <SubTaskRef order="1.5">GrabPart</SubTaskRef> Robot Process?: not a request/response-->
-				<SubTaskRef order="2">OpenChuck</SubTaskRef>
-				<!-- <SubTaskRef order="2.5">MovePart</SubTaskRef> Robot Process?: not a request/response-->
+				<SubTaskRef order="2">MoveIn</SubTaskRef>
+				<SubTaskRef order="3">GrabPart</SubTaskRef>
+				<SubTaskRef order="4">OpenChuck</SubTaskRef>
+				<SubTaskRef order="5">MoveOut</SubTaskRef>
+				<SubTaskRef order="6">CloseDoor</SubTaskRef>
 			</SubTaskRefs>
 		</TaskArchetype>
 	</Assets>

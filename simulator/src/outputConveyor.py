@@ -162,6 +162,10 @@ class outputConveyor(object):
                     #print "Output Conveyor is waiting for a part to arrive!"
                     self.material_unload_interface.superstate.DEACTIVATE()
 
+                time.sleep(5)
+                self.EXITING_IDLE()
+                self.enable()
+
             def LOADING(self):
                 if not self.has_material:
                     self.material_unload_interface.superstate.DEACTIVATE()
@@ -198,16 +202,8 @@ class outputConveyor(object):
                     self.complete()
             
             def EXITING_IDLE(self):
-                if not self.has_material:
-                    self.loading()
-                    
-                    self.iscoordinator = False
-                    self.iscollaborator = True
-                    self.master_tasks = {}
-                    self.collaborator = collaborator(parent = self, interface = self.binding_state_material, collaborator_name = self.deviceUuid)
-                    self.collaborator.create_statemachine()
-                    self.collaborator.superstate.task_name = "LoadConv"
-                    self.collaborator.superstate.unavailable()
+                if self.has_material:
+                    self.has_material = False
               
               
             def LOADED(self):

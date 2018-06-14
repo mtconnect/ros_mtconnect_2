@@ -10,7 +10,7 @@ the_robot = Robot()
 
 with description('Robot'):
     with before.all:
-        self.robot = Robot('localhost',7900)
+        self.robot = Robot('localhost',7994)
 
     with it('should be in binding state INACTIVE initially'):
         expect(the_robot.superstate.binding_state_material.value()).to(equal('INACTIVE'))
@@ -34,9 +34,9 @@ with description('Robot'):
     with context('move material from conv to cnc'):
         with before.all:
             self.robot.superstate.enable()
-            self.robot.superstate.material_load_interface.superstate.simulated_duration = 4
-            self.robot.superstate.material_unload_interface.superstate.simulated_duration = 4
-            self.robot.superstate.master_tasks['1'] = {'coordinator': {'conv1': {'state': ['conveyor', 'conv1', None], 'Task': ['move_material', None], 'SubTask': {'conv1': ['UnloadConv', None, 'r1', 'MaterialUnload', '1'], 'r1': [], 'cnc1': ['LoadCnc', None, 'r1', 'MaterialLoad', '2']}}}, 'collaborators': {'r1': {'state': ['ROBOT', 'r1', None], 'SubTask': {'LoadCnc': [['Interface', 'CloseChuck', None, '1', None], ['Interface', 'CloseDoor', None, '2', None]]}}, 'cnc1': {'state': ['CNC', 'cnc1', None], 'SubTask': {}}}}
+            self.robot.superstate.material_load_interface.superstate.simulated_duration = 15
+            self.robot.superstate.material_unload_interface.superstate.simulated_duration = 10
+            self.robot.superstate.master_tasks['1'] = {'coordinator': {'conv1': {'state': ['conveyor', 'conv1', None], 'Task': ['move_material', None], 'SubTask': {'conv1': ['UnloadConv', None, 'r1', 'MaterialUnload', '1'], 'r1': [], 'cnc1': ['LoadCnc', None, 'r1', 'MaterialLoad', '2']}}}, 'collaborators': {'r1': {'state': ['ROBOT', 'r1', None], 'SubTask': {'UnloadConv': [['Interface', 'MoveIn', None, '1', None], ['Interface', 'GrabPart', None, '2', None], ['Interface', 'MoveOut', None, '3', None]], 'LoadCnc': [['Interface', 'OpenDoor', None, '1', None], ['Interface', 'MoveIn', None, '2', None], ['Interface', 'CloseChuck', None, '3', ['cnc1']], ['Interface', 'ReleasePart', None, '4', None], ['Interface', 'MoveOut', None, '5', None], ['Interface', 'CloseDoor', None, '6', None]]}}, 'cnc1': {'state': ['CNC', 'cnc1', None], 'SubTask': {}}}}
             self.robot.superstate.master_uuid = '1'
             
 
@@ -59,18 +59,22 @@ with description('Robot'):
             self.robot.superstate.event('conv','MaterialHandlerInterface', 'SubTask_MaterialUnload', 'ACTIVE','1','conv1')
 
             expect(self.robot.superstate.material_unload.value()).to(equal('ACTIVE'))
-            time.sleep(5)
-
+            time.sleep(15)
+            
+            #print self.robot.superstate.events
             #unload completes and state goes from active-complete-not_ready
             expect(self.robot.superstate.material_unload.value()).to(equal('NOT_READY'))
-            
-            time.sleep(1)
-            self.robot.superstate.event('conv','MaterialHandlerInterface', 'SubTask_MaterialLoad', 'ACTIVE','1','cnc1')
 
+            print self.robot.superstate.material_load_interface.superstate.state
+            
+            self.robot.superstate.event('cnc','MaterialHandlerInterface', 'SubTask_MaterialLoad', 'ACTIVE','1','cnc1')
+
+            print self.robot.superstate.state
+            time.sleep(0.2)
+            print self.robot.superstate.material_load_interface.superstate.state
             expect(self.robot.superstate.material_load.value()).to(equal('ACTIVE'))
             
-            time.sleep(5)
-            expect(self.robot.superstate.material_load.value()).to(equal('COMPLETE'))
+            time.sleep(6)
 
             self.robot.superstate.event('cnc','ChuckInterface', 'SubTask_CloseChuck', 'READY','1','cnc1')
 
@@ -85,13 +89,18 @@ with description('Robot'):
 
             time.sleep(0.2)
 
+<<<<<<< HEAD
             expect(the_robot.superstate.close_chuck.value()).to(equal('NOT_READY'))
             time.sleep(0.2)
 
             the_robot.superstate.event('cnc','ChuckInterface', 'SubTask_CloseDoor', 'READY','1','cnc1')
             time.sleep(1)
             expect(the_robot.superstate.close_door.value()).to(equal('ACTIVE'))
+=======
+            expect(self.robot.superstate.close_chuck.value()).to(equal('NOT_READY'))
+>>>>>>> d7ef7892317e10573da51cdf87bab1bea5f8393f
 
+            time.sleep(10)
 
             the_robot.superstate.event('cnc','DoorInterface', 'SubTask_CloseDoor', 'ACTIVE','1','cnc1')
             time.sleep(0.2)

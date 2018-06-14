@@ -179,7 +179,8 @@ class inputConveyor(object):
                 self.material_load_interface.superstate.DEACTIVATE()
 
             def EXIT_UNLOADING(self):
-                self.material_unload_interface.superstate.DEACTIVATE()              
+                self.has_material = False #look into it later
+                self.material_unload_interface.superstate.DEACTIVATE()            
 
             def load_time_limit(self, limit):
                 self.material_load_interface.superstate.processing_time_limit = limit
@@ -202,21 +203,7 @@ class inputConveyor(object):
             
             def EXITING_IDLE(self):
                 if self.has_material:
-                    self.unloading()
-                    
-                    self.iscoordinator = True
-                    self.iscollaborator = False
-                    self.master_tasks = {}
-                    self.master_uuid = self.deviceUuid+'_'+str(uuid.uuid4())
-                    master_task_uuid = copy.deepcopy(self.master_uuid)
-                    self.coordinator_task = "MoveMaterial_1"
-
-                    self.coordinator = coordinator(parent = self, master_task_uuid = master_task_uuid, interface = self.binding_state_material , coordinator_name = self.deviceUuid)
-                    self.coordinator.create_statemachine()
-
-                    self.coordinator.superstate.task_name = "UnloadConv"
-
-                    self.coordinator.superstate.unavailable()
+                    self.has_material = False #look into it later
                
               
             def LOADED(self):

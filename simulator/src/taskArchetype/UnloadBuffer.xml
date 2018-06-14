@@ -13,6 +13,11 @@
 					<CollaboratorType>ROBOT</CollaboratorType>
 				</Collaborator>
 			</Collaborators>
+			<SubTaskRefs>
+				<SubTaskRef order="1">MoveIn</SubTaskRef>
+				<SubTaskRef order="2">GrabPart</SubTaskRef>
+				<SubTaskRef order="3">MoveOut</SubTaskRef>
+			</SubTaskRefs>
 		</TaskArchetype>
 	</Assets>
 </MTConnectAssets>
