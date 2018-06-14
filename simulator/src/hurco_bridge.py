@@ -17,6 +17,9 @@ tasks.openDoor = 'C:\Program Files (x86)\Hurco\DS WinMax Mill\Samples\intro-29.H
 tasks.closeDoor = 'C:\Program Files (x86)\Hurco\DS WinMax Mill\Samples\intro-29.HWM'
 tasks.cycle = 'C:\Program Files (x86)\Hurco\DS WinMax Mill\Samples\intro-05.HWM'
 
+local_vendor = "0025"
+local_passwd = "5twOdw/SXwnvLAJg+QbSpDCV2tkak9WaaLHN9AxAs2sKiZYQxQQ2Whwp0JC0WM+LnooyOjxTFmvD2G1/fVsi8g=="
+
 class RestAPIException(Exception):
   def __init__( self, ErrorMsg ):
     self.errorMsg = ErrorMsg
@@ -100,12 +103,12 @@ class hurcoClient(object):
             raise RestAPIException('Remote Cmd Request Result: %s', result.text)
 
 if __name__ == '__main__':
-    
     cnc = hurcoClient('localhost',4503)
     task_execution = cnc.load_run_pgm(tasks.cycle)
     if task_execution:
         print "Successful Execution"
     else:
         print "Error!"
+
 
 

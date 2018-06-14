@@ -181,6 +181,7 @@ class Robot:
                 
         def CHECK_COMPLETION_UL(self):
             #temporary fix till task/subtask sequencing is determined
+            print 'checking completion'
             coordinator = self.master_tasks[self.master_uuid]['coordinator'].keys()[0]
             unload_task = self.master_tasks[self.master_uuid]['coordinator'][coordinator]['SubTask'][coordinator][0]
             test = None
@@ -246,6 +247,7 @@ class Robot:
                         self.material_unload_ready()
                 self.collaborator.superstate.event(source, comp, name, value, code, text)
 
+
             elif 'SubTask' in name and action!='unavailable':
                 if comp == 'interface_initialization' and source == self.deviceUuid:
                     if 'CloseChuck' in name:
@@ -274,6 +276,9 @@ class Robot:
                 #print "in material method"
                 self.material_event(ev)
 
+            elif comp == 'internal_event':
+                self.internal_event(ev)
+
             elif ('Chuck' in name or 'Door' in name) and action!='unavailable':
                                                                              
                 if 'Chuck' in name:
@@ -298,6 +303,47 @@ class Robot:
                 """#print('Unknown event: ' + str(ev))"""
 
             #print "\nRobotEvent Exit",source,comp,name,value,datetime.datetime.now().isoformat()
+
+        def internal_event(self, ev):
+            action = ev.value.lower()
+            if ev.name == "MoveIn":
+                print "Moving In " + ev.text
+                time.sleep(2)
+                print "Moved in"
+
+            elif ev.name == "MoveOut":
+                print "Moving Out From " + ev.text
+                time.sleep(2)
+                print "Moved out"
+
+            elif ev.name == "ReleasePart":
+                print "Releasing the Part onto " + ev.text
+                time.sleep(2)
+                print "Released"
+
+            elif ev.name == "GrabPart":
+                print "Grabbing Part from " + ev.text
+                time.sleep(2)
+                print "Grabbed"
+
+            elif ev.name == "OpenDoor":
+                eval('self.open_door_interface.superstate.'+action+'()')
+                self.open_door_interface.superstate.active()
+                print "Opening Door"
+                time.sleep(2)
+                self.open_door_interface.superstate.complete()
+                print "Opened Door"
+                self.open_door_interface.superstate.not_ready()
+
+            elif ev.name == "CloseDoor":
+                eval('self.close_door_interface.superstate.'+action+'()')
+                self.close_door_interface.superstate.active()
+                print "Closing Door"
+                time.sleep(2)
+                self.close_door_interface.superstate.complete()
+                print "Closed Door"
+                self.close_door_interface.superstate.not_ready()
+                    
         def material_event(self, ev):
             action = ev.value.lower()
             if action == "fail":

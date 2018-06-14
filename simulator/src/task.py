@@ -136,17 +136,19 @@ class task(object):
 
                             if self.coordinator.task_name in val['SubTask']:
                                 for i,x in enumerate(val['SubTask'][self.coordinator.task_name]):
-                                    
-                                    self.subTask[x[1]] = subTask.subTask(parent = self.parent , interface = interface, master_task_uuid = self.subTask[value[0]].superstate.task_uuid, collaborators = x[4],taskName = x[1])
-                                    self.subTask[x[1]].create_statemachine()
-                                    self.subTask[x[1]].superstate.create()
-                                    self.currentSubTask = copy.deepcopy(x[1])
 
-                                    while self.subTask[self.currentSubTask].superstate.state != 'removed':
-                                        pass
-                                    self.parent.master_tasks[self.master_task_uuid]['collaborators'][key]['SubTask'][self.coordinator.task_name][i][2] = 'COMPLETE'
+                                    if x and x[4] and self.parent.deviceUuid in x[4]:
+                                    
+                                        self.subTask[x[1]] = subTask.subTask(parent = self.parent , interface = interface, master_task_uuid = self.subTask[value[0]].superstate.task_uuid, collaborators = x[4],taskName = x[1])
+                                        self.subTask[x[1]].create_statemachine()
+                                        self.subTask[x[1]].superstate.create()
+                                        self.currentSubTask = copy.deepcopy(x[1])
+
+                                        while self.subTask[self.currentSubTask].superstate.state != 'removed':
+                                            pass
+                                        self.parent.master_tasks[self.master_task_uuid]['collaborators'][key]['SubTask'][self.coordinator.task_name][i][2] = 'COMPLETE'
                                         
-                        self.currentSubTask = copy.deepcopy(value[0])
+                                        self.currentSubTask = copy.deepcopy(value[0])
                         
                         while self.subTask[self.currentSubTask].superstate.state != 'removed':
                             pass
