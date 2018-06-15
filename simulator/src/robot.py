@@ -378,10 +378,10 @@ class Robot:
     def draw(self):
         self.statemachine.get_graph().draw('robot.png', prog='dot')
 
-    def set_hook(self, state, callback):
+    def set_state_trigger(self, state, callback):
         """
         Allows a user to set a function to be called when the device enters a particular state. Returns a function
-        that the user should call at the end of the callback to signal that the hook is done.
+        that the user should call at the end of the callback to signal that the callback is done.
         """
         self.statemachine.on_enter(state, callback)
 
