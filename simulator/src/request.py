@@ -19,18 +19,13 @@ class Request(object):
 
         class statemachineModel(object):
         
-            def __init__(self,interface = interface, parent = parent):
+            def __init__(self, adapter, interface, parent):
                 self.interface = interface
-                self.processing_time_limit = 0.0
-                self.fail_time_limit = 0.0
+                self.adapter = adapter
+                self.processing_time_limit = 100
+                self.fail_time_limit = 2
                 self.failing = False
                 self.parent = parent
-
-            def set_processing_time_limit(self, limit):
-                self.processing_time_limit = float(limit)
-
-            def set_fail_time_limit(self, limit):
-                self.fail_time_limit = float(limit)
 
             def check_state_calls(func):
                 @functools.wraps(func)
@@ -65,19 +60,28 @@ class Request(object):
 
             @check_state_calls
             def NOT_READY(self):
-                self.interface.value = "NOT_READY"
+                self.adapter.begin_gather()
+                self.interface.set_value("NOT_READY")
+                self.adapter.complete_gather()
+                
 
             @check_state_calls
             def READY(self):
-                self.interface.value = "READY"
+                self.adapter.begin_gather()
+                self.interface.set_value("READY")
+                self.adapter.complete_gather()
 
             @check_state_calls
             def ACTIVE(self):
-                self.interface.value = "ACTIVE"
+                self.adapter.begin_gather()
+                self.interface.set_value("ACTIVE")
+                self.adapter.complete_gather()
 
             @check_state_calls
             def FAILURE(self):
-                self.interface.value = "FAIL"
+                self.adapter.begin_gather()
+                self.interface.set_value("FAIL")
+                self.adapter.complete_gather()
                 check_state_list=[
                     self.FAILURE.has_been_called, self.ACTIVE.has_been_called, self.READY.has_been_called, self.IDLE.has_been_called, self.NOT_READY.has_been_called, self.ACTIVATE.has_been_called, self.COMPLETE.has_been_called, self.DEFAULT.has_been_called
                     ]
@@ -155,14 +159,14 @@ class Request(object):
             def PROCESSING(self):
                 
                 check_state_list=[
-                    self.FAILURE.has_been_called, self.ACTIVE.has_been_called, self.READY.has_been_called, self.IDLE.has_been_called, self.NOT_READY.has_been_called, self.ACTIVATE.has_been_called, self.DEFAULT.has_been_called
+                    self.FAILURE.has_been_called, self.ACTIVE.has_been_called, self.READY.has_been_called, self.IDLE.has_been_called, self.NOT_READY.has_been_called, self.ACTIVATE.has_been_called, self.DEFAULT.has_been_called, self.COMPLETE.has_been_called
                     ]
                 #all the triggers addressed except active,not_ready,ready which would come from the bot interface. To be done.
                 def complete_check():
                     timer_processing = Timer(self.processing_time_limit,self.void)
                     timer_processing.start()
                     while timer_processing.isAlive():
-                        if self.COMPLETE.has_been_called:
+                        if self.COMPLETE.has_been_called!=check_state_list[7]:
                             timer_processing.cancel()
                             break
                             
@@ -204,16 +208,8 @@ class Request(object):
             def DEFAULT(self):
                 self.default()
 
-            def event(self, ev):
-                """Process events.
-
-                :type ev: .event.Event
-                """
-                if ev.value.lower() == 'ready':
-                    self.ready()
-
                 
-        self.superstate = statemachineModel(interface)
+        self.superstate = statemachineModel(adapter = adapter, interface = interface, parent = parent)
         self.interface = self.superstate.interface
         self.related = None
         if rel: self.related = rel
@@ -221,9 +217,6 @@ class Request(object):
         self.adapter = adapter
         self.failing = self.superstate.failing
     
-    def draw(self):
-        print "Creating request.png diagram"
-        self.statemachine.get_graph().draw('request.png', prog='dot')
 
     def create_statemachine(self):
         NestedState.separator = ':'

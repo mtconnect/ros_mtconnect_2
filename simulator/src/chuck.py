@@ -1,26 +1,26 @@
-from response import Response
-from request import Request
+from response import *
+from request import *
 
-def OpenChuck(parent):
-    OpenChuck = Response(parent, 'adapter', parent.open_chuck, 'chuck', 'OPEN', 'UNLATCHED', rel = True, simulate = True)
+def OpenChuck(parent, simulate = True):
+    OpenChuck = Response(parent, parent.adapter, parent.open_chuck, 'chuck', 'OPEN', 'UNLATCHED', parent.chuck_state, rel = True, simulate = simulate)
     OpenChuck.create_statemachine()
     OpenChuck.superstate.start()
     return OpenChuck
 
 def OpenChuckRequest(parent):
-    OpenChuck = Request(parent, "adapter", parent.open_chuck, rel = True)
+    OpenChuck = Request(parent, parent.adapter, parent.open_chuck, rel = True)
     OpenChuck.create_statemachine()
     OpenChuck.superstate.start()
     return OpenChuck
 
-def CloseChuck(parent):
-    CloseChuck = Response(parent, 'adapter', parent.close_chuck, 'chuck', 'CLOSED', 'UNLATCHED', rel = True, simulate = True)
+def CloseChuck(parent, simulate = True):
+    CloseChuck = Response(parent, parent.adapter, parent.close_chuck, 'chuck', 'CLOSED', 'UNLATCHED', parent.chuck_state, rel = True, simulate = simulate)
     CloseChuck.create_statemachine()
     CloseChuck.superstate.start()
     return CloseChuck
 
 def CloseChuckRequest(parent):
-    CloseChuck = Request(parent, "adapter", parent.close_chuck, rel = True)
+    CloseChuck = Request(parent, parent.adapter, parent.close_chuck, rel = True)
     CloseChuck.create_statemachine()
     CloseChuck.superstate.start()
     return CloseChuck
