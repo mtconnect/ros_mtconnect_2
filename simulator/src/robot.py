@@ -1,17 +1,19 @@
 """
 Sample module for implementing a robot that coordinates with a CNC and conveyors.
 """
+from __future__ import absolute_import, division, print_function, unicode_literals
+__metaclass__ = type
 
-from material import *
-from door import *
-from chuck import *
-from coordinator import *
-from collaborator import *
-from mtconnect_adapter import Adapter
-from long_pull import LongPull
-from data_item import Event, SimpleCondition, Sample, ThreeDSample
-from archetypeToInstance import archetypeToInstance
-from from_long_pull import from_long_pull, from_long_pull_asset
+from .material import *
+from .door import *
+from .chuck import *
+from .coordinator import *
+from .collaborator import *
+from .mtconnect_adapter import Adapter
+from .long_pull import LongPull
+from .data_item import Event, SimpleCondition, Sample, ThreeDSample
+from .archetypeToInstance import archetypeToInstance
+from .from_long_pull import from_long_pull, from_long_pull_asset
 
 from transitions.extensions import HierarchicalMachine as Machine
 from transitions.extensions.nesting import NestedState
@@ -130,7 +132,7 @@ class Robot:
 
             thread5= Thread(target = self.start_pull,args=("http://localhost:5000","/conv2/sample?interval=100&count=1000",from_long_pull))
             thread5.start()
-            
+
         def interface_type(self, value = None, subtype = None):
             self.interfaceType = value
 
@@ -272,6 +274,7 @@ class Robot:
                     self.collaborator.superstate.event(source, comp, name, value, code, text)
 
 
+
             elif ev.name.startswith('Material') and action!='unavailable':
                 #print "in material method"
                 self.material_event(ev)
@@ -280,7 +283,7 @@ class Robot:
                 self.internal_event(ev)
 
             elif ('Chuck' in name or 'Door' in name) and action!='unavailable':
-                                                                             
+
                 if 'Chuck' in name:
                     if 'Open' in name:
                         eval('self.open_chuck_interface.superstate.'+action+'()')
@@ -291,7 +294,7 @@ class Robot:
                         eval('self.open_door_interface.superstate.'+action+'()')
                     elif 'Close' in name:
                         eval('self.close_door_interface.superstate.'+action+'()')
-                    
+
 
             #elif ev.component.startswith('Controller'):
                 #self.controller_event(ev)
@@ -395,7 +398,6 @@ class Robot:
             else:
                 raise(Exception('Unknown Device event: ' + str(ev)))
 
-
         #end StateModel class definition
 
     def __init__(self,host,port):
@@ -403,8 +405,14 @@ class Robot:
         self.statemachine = self.create_state_machine(self.superstate)
 
     def draw(self):
-        print("Creating robot.png diagram")
         self.statemachine.get_graph().draw('robot.png', prog='dot')
+
+    def set_state_trigger(self, state, callback):
+        """
+        Allows a user to set a function to be called when the device enters a particular state. Returns a function
+        that the user should call at the end of the callback to signal that the callback is done.
+        """
+        self.statemachine.on_enter(state, callback)
 
     @staticmethod
     def create_state_machine(state_machine_model):
@@ -418,7 +426,17 @@ class Robot:
                     'activated',
                     {
                         'name': 'operational',
-                        'children': ['idle', 'loading', 'unloading']
+                        'children': [
+                            'idle',
+                            {
+                                'name': 'loading',
+                                'children': ['moving_in', 'waiting_chuck', 'moving_out']
+                            },
+                            {
+                                'name': 'unloading',
+                                'children': ['moving_in', 'waiting_chuck', 'moving_out']
+                            }
+                        ]
                     },
                     {
                         'name': 'disabled',
@@ -439,7 +457,7 @@ class Robot:
             ['activate', 'base:disabled:not_ready', 'base:activated'],
             ['make_operational', 'base:activated', 'base:operational'],
             ['make_idle', 'base:operational', 'base:operational:idle'],
-            
+
             ['enable', 'base', 'base:activated'],
 
             ['safety_violation', 'base', 'base:disabled:soft'],

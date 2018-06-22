@@ -5,10 +5,17 @@ from src.response import Response
 from src.robot import Robot
 import time
 
-#make sure "self.initiate_pull_thread()" is commented out in robot.py 
+#make sure "self.initiate_pull_thread()" is commented out in robot.py
+the_robot = Robot()
+#either here or under desc('Robot') before.all
+
 with description('Robot'):
     with before.all:
-        self.robot = Robot('localhost',7994)
+        #self.robot = Robot('localhost',7994)
+        self.robot = the_robot
+        #TODO: whenever we create a new Robot the old one has to release the adapter connection
+        #self.robot = Robot()
+        pass
 
     with it('should be in binding state INACTIVE initially'):
         expect(self.robot.superstate.binding_state_material.value()).to(equal('INACTIVE'))
@@ -37,11 +44,12 @@ with description('Robot'):
             self.robot.superstate.master_tasks['1'] = {'coordinator': {'conv1': {'state': ['conveyor', 'conv1', None], 'Task': ['move_material', None], 'SubTask': {'conv1': ['UnloadConv', None, 'r1', 'MaterialUnload', '1'], 'r1': [], 'cnc1': ['LoadCnc', None, 'r1', 'MaterialLoad', '2']}}}, 'collaborators': {'r1': {'state': ['ROBOT', 'r1', None], 'SubTask': {'UnloadConv': [['Interface', 'MoveIn', None, '1', None], ['Interface', 'GrabPart', None, '2', None], ['Interface', 'MoveOut', None, '3', None]], 'LoadCnc': [['Interface', 'OpenDoor', None, '1', None], ['Interface', 'MoveIn', None, '2', None], ['Interface', 'CloseChuck', None, '3', ['cnc1']], ['Interface', 'ReleasePart', None, '4', None], ['Interface', 'MoveOut', None, '5', None], ['Interface', 'CloseDoor', None, '6', None]]}}, 'cnc1': {'state': ['CNC', 'cnc1', None], 'SubTask': {}}}}
             self.robot.superstate.master_uuid = '1'
             
+
         with it ('should complete successfully'):
 
             self.robot.superstate.event('conv','Coordinator', 'binding_state', 'PREPARING',['1', self.robot.superstate.master_tasks['1']],'conv1')
             time.sleep(0.2)
-            
+
             expect(self.robot.superstate.binding_state_material.value()).to(equal('PREPARING'))
 
             self.robot.superstate.event('conv','Coordinator', 'binding_state', 'COMMITTING','1','conv1')
@@ -53,13 +61,14 @@ with description('Robot'):
 
             expect(self.robot.superstate.material_unload.value()).to(equal('READY'))
 
-            self.robot.superstate.event('conv','MaterialHandlerInterface', 'SubTask_MaterialUnload', 'ACTIVE','1','conv1')
+            self.robot.superstate.event('conv','MaterialHandlerInterface', 'SubTask_MaterialUnload', 'ACTIVE','1','conv1')    
 
             expect(self.robot.superstate.material_unload.value()).to(equal('ACTIVE'))
             time.sleep(15)
             
             #print self.robot.superstate.events
             #unload completes and state goes from active-complete-not_ready
+
             expect(self.robot.superstate.material_unload.value()).to(equal('NOT_READY'))
 
             print self.robot.superstate.material_load_interface.superstate.state
@@ -93,14 +102,6 @@ with description('Robot'):
             time.sleep(0.2)
 
             expect(self.robot.superstate.material_load.value()).to(equal('NOT_READY'))
-            
-
-
-            
-
-               
-
-    
 
 #    with context('when loading material'):
 #
