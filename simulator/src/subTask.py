@@ -8,7 +8,7 @@ from archetypeToInstance import update as assetUpdate
 from transitions.extensions import HierarchicalMachine as Machine
 from transitions.extensions.nesting import NestedState
 from threading import Timer, Thread
-import functools, time, uuid
+import functools, time, uuid, datetime
 
 #will be included under assets!?
 class interface(object):
@@ -60,27 +60,29 @@ class subTask(object):
                 
 
             def event(self, source, comp, name, value, code = None , text = None):
-                print source,comp,name,value,code,text
+                #print "\nSubtaskEvent Enter",source,comp,name,value,datetime.datetime.now().isoformat()
+                #print source,comp,name,value,code,text
                 if 'SubTask' in name:
                     if value.lower() == 'complete':
-                        print "in COMPLETION"+self.taskName
-                        print self.state
+                        #print "in COMPLETION"+self.taskName
+                        #print self.state
                         self.success()
                         self.parent.event(source, comp, name.split('_')[1], value, code , text)
   
                     elif 'fail' in value.lower():
-                        print "IN FAILURE"
+                        #print "IN FAILURE"
                         self.failure()
                         self.parent.event(source, comp, name.split('_')[1], value, code , text)
 
                     elif self.state == 'base:committed' and value.lower() == 'not_ready': #door/chuck response states.. update later
-                        print "not_ready_success"
+                        #print "not_ready_success"
                         self.success()
                         self.parent.event(source, comp, name.split('_')[1], value, code , text)
 
                     else:
-                        print 'no filter in the event'
+                        #print 'no filter in the event'
                         self.parent.event(source, comp, name.split('_')[1], value, code , text)
+                #print "\nSubtaskEvent Exit",source,comp,name,value,datetime.datetime.now().isoformat()
                 
                 
 

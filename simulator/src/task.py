@@ -29,24 +29,32 @@ class task(object):
 
                 self.interface = interface
                 self.parent = parent
-                self.commit_time_limit = 1000.0
+                self.commit_time_limit = 60.0
                 self.master_task_uuid = master_task_uuid
                 self.coordinator = coordinator
                 self.subTask = {}
                 self.currentSubTask = str()
                 self.taskIns = "xml/text"
                 self.arch2ins = {}
+                self.initialize = False
 
             def INACTIVE(self):
-                print "@@@@HERE",self.parent.coordinator_task, self.master_task_uuid, self.parent.deviceUuid
-                arch2ins = archetypeToInstance(self.parent.coordinator_task, self.master_task_uuid, self.parent.deviceUuid)
-                self.arch2ins = arch2ins
-                self.parent.master_tasks[self.master_task_uuid] = arch2ins.jsonInstance()
-                self.taskIns = arch2ins.taskIns
-                print "TASK CREATED"
-                self.parent.adapter.addAsset('Task', self.master_task_uuid, arch2ins.taskIns)
-                print "ASSET ADDED"
-                self.activated()
+                
+                self.subTask = {}
+                self.currentSubTask = str()
+
+                if not self.initialize:
+                    
+                    arch2ins = archetypeToInstance(self.parent.coordinator_task, self.master_task_uuid, self.parent.deviceUuid)
+                    self.arch2ins = arch2ins
+                    self.parent.master_tasks[self.master_task_uuid] = arch2ins.jsonInstance()
+                    self.taskIns = arch2ins.taskIns
+                    
+                    self.parent.adapter.addAsset('Task', self.master_task_uuid, arch2ins.taskIns)
+                    
+                    self.initialize = True
+                    
+                    self.activated()
 
             def PREPARING(self):
                 self.parent.adapter.begin_gather()
@@ -59,7 +67,7 @@ class task(object):
 
             def prepare(self):
                 quorum = True
-                #remove while loops or add events to test
+                
                 if True:
                     for key, value in self.parent.master_tasks[self.master_task_uuid]['collaborators'].iteritems():
                             
@@ -71,11 +79,7 @@ class task(object):
                         
                     if quorum == True:
                         self.quorum()
-                                         
-                    #self.quorum()
-                    
-                #t = Thread(target = prepare)
-                #t.start()
+
 
             def COMMITTING(self):
 
@@ -132,17 +136,19 @@ class task(object):
 
                             if self.coordinator.task_name in val['SubTask']:
                                 for i,x in enumerate(val['SubTask'][self.coordinator.task_name]):
-                                    
-                                    self.subTask[x[1]] = subTask.subTask(parent = self.parent , interface = interface, master_task_uuid = self.subTask[value[0]].superstate.task_uuid, collaborators = x[4],taskName = x[1])
-                                    self.subTask[x[1]].create_statemachine()
-                                    self.subTask[x[1]].superstate.create()
-                                    self.currentSubTask = copy.deepcopy(x[1])
 
-                                    while self.subTask[self.currentSubTask].superstate.state != 'removed':
-                                        pass
-                                    self.parent.master_tasks[self.master_task_uuid]['collaborators'][key]['SubTask'][self.coordinator.task_name][i][2] = 'COMPLETE'
+                                    if x and x[4] and self.parent.deviceUuid in x[4]:
+                                    
+                                        self.subTask[x[1]] = subTask.subTask(parent = self.parent , interface = interface, master_task_uuid = self.subTask[value[0]].superstate.task_uuid, collaborators = x[4],taskName = x[1])
+                                        self.subTask[x[1]].create_statemachine()
+                                        self.subTask[x[1]].superstate.create()
+                                        self.currentSubTask = copy.deepcopy(x[1])
+
+                                        while self.subTask[self.currentSubTask].superstate.state != 'removed':
+                                            pass
+                                        self.parent.master_tasks[self.master_task_uuid]['collaborators'][key]['SubTask'][self.coordinator.task_name][i][2] = 'COMPLETE'
                                         
-                        self.currentSubTask = copy.deepcopy(value[0])
+                                        self.currentSubTask = copy.deepcopy(value[0])
                         
                         while self.subTask[self.currentSubTask].superstate.state != 'removed':
                             pass
@@ -190,7 +196,10 @@ class task(object):
                 self.default()
 
             def event(self, source, comp, name, value, code = None, text = None):
-                self.subTask[self.currentSubTask].superstate.event(source, comp, name, value, code, text)
+                if self.subTask and self.currentSubTask:
+                    self.subTask[self.currentSubTask].superstate.event(source, comp, name, value, code, text)
+                elif 'SubTask' in name:
+                    self.coordinator.event(source, comp, name, value, code, text)
                 
             def void(self):
                 pass
@@ -202,6 +211,7 @@ class task(object):
         states = [{'name':'base', 'children':['inactive', 'preparing', 'committing', 'committed', 'complete', 'fail']}, 'removed']
 
         transitions = [['create', 'base', 'base:inactive'],
+                       ['unavailable', 'base', 'base:inactive'],
 
                        ['activated', 'base:inactive', 'base:preparing'],
                        ['failure', 'base:inactive', 'base:fail'],
@@ -217,7 +227,8 @@ class task(object):
                        ['default', 'base:fail', 'removed'],
 
                        ['default', 'base:inactive', 'base:inactive'],
-                       ['default', 'base:committed', 'base:committed']
+                       ['default', 'base:committed', 'base:committed'],
+                       ['default', 'base', 'base']
                        ]
 
         self.statemachine = Machine(model = self.superstate, states = states, transitions = transitions, initial = 'base',ignore_invalid_triggers=True)

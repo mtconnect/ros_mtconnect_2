@@ -73,13 +73,14 @@ class archetypeToInstance(object):
             coordinator = ET.SubElement(taskIns, "Coordinator")
             coordinator.attrib["collaboratorId"] = self.root.findall('.//'+self.root.tag.split('}')[0]+'}Coordinator')[0].attrib['collaboratorId']
             self.taskCoordinator = coordinator.attrib["collaboratorId"]
-            print coordinator.attrib["collaboratorId"]
+            #print coordinator.attrib["collaboratorId"]
             coordinator.text = self.root.findall('.//'+self.root.tag.split('}')[0]+'}Coordinator')[0][0].text
 
-            for i,x in enumerate(self.root.findall('.//'+self.root.tag.split('}')[0]+'}Collaborators')[0]):
-                collaborator = ET.SubElement(taskIns, "Collaborator")
-                collaborator.attrib["collaboratorId"] = str(x.attrib['collaboratorId']) #update this later
-                collaborator.text = str(x[0].text)
+            if self.root.findall('.//'+self.root.tag.split('}')[0]+'}Collaborators'):
+                for i,x in enumerate(self.root.findall('.//'+self.root.tag.split('}')[0]+'}Collaborators')[0]):
+                    collaborator = ET.SubElement(taskIns, "Collaborator")
+                    collaborator.attrib["collaboratorId"] = str(x.attrib['collaboratorId']) #update this later
+                    collaborator.text = str(x[0].text)
             
 
             self.taskIns = taskIns
@@ -142,19 +143,30 @@ class archetypeToInstance(object):
                                                 
                     CoordinatorSubTask[y.attrib['collaboratorId']] = []
 
-
+        #print subTaskModel
         for key, val in subTaskModel.values()[0].iteritems():
             if len(val['collaborators']) == 1:
                 collaborators = val['collaborators'][0]
 
             taskType = val['TaskType']
+            order = val['order']
                 
-            CoordinatorSubTask[val['coordinator']] = [key, None, collaborators,taskType]
+            CoordinatorSubTask[val['coordinator']] = [key, None, collaborators,taskType, order]
+            #print key , val
             if key in val:
                 for keys, vals in val[key].iteritems():
                     if not jsonModel['collaborators'][vals['coordinator']]['SubTask']:
                         jsonModel['collaborators'][vals['coordinator']]['SubTask'][key] = []
-                    jsonModel['collaborators'][vals['coordinator']]['SubTask'][key].append(['Interface',keys, None, vals['order'], None])
+                    #print key, keys, jsonModel['collaborators'][vals['coordinator']]['SubTask']
+                    elif key not in jsonModel['collaborators'][vals['coordinator']]['SubTask']:
+                        jsonModel['collaborators'][vals['coordinator']]['SubTask'][key] = []
+
+                    #self.root.findall('.//'+self.root.tag.split('}')[0]+'}Collaborators')
+                    if vals['collaborators']:
+                        subtask_collaborators = vals['collaborators']
+                    else:
+                        subtask_collaborators = None
+                    jsonModel['collaborators'][vals['coordinator']]['SubTask'][key].append(['Interface',keys, None, vals['order'], subtask_collaborators ])
 
                 if vals:
                     jsonModel['collaborators'][vals['coordinator']]['SubTask'][key] = sorted(jsonModel['collaborators'][vals['coordinator']]['SubTask'][key], key=lambda x: x[3])
@@ -187,10 +199,12 @@ def update(taskIns, dataitem, value):
             
 
 if __name__ == "__main__":
-    print archetypeToInstance("MoveMaterial_2","xyz","cnc1").jsonInstance()
-    a2i = archetypeToInstance("MoveMaterial_2","xyz","cnc1")
+    #print archetypeToInstance("MoveMaterial_2","xyz","cnc1").jsonInstance()
+    print datetime.datetime.now().isoformat()
+    a2i = archetypeToInstance("MoveMaterial_1","xyz","b1")
     a2i.jsonInstance()
-    a2i.traverse(a2i.root)
+    print a2i.jsonModel
+    print datetime.datetime.now().isoformat()
     
     
 

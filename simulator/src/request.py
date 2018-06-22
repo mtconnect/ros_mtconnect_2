@@ -22,7 +22,7 @@ class Request(object):
             def __init__(self, adapter, interface, parent):
                 self.interface = interface
                 self.adapter = adapter
-                self.processing_time_limit = 20
+                self.processing_time_limit = 100
                 self.fail_time_limit = 2
                 self.failing = False
                 self.parent = parent
@@ -159,14 +159,14 @@ class Request(object):
             def PROCESSING(self):
                 
                 check_state_list=[
-                    self.FAILURE.has_been_called, self.ACTIVE.has_been_called, self.READY.has_been_called, self.IDLE.has_been_called, self.NOT_READY.has_been_called, self.ACTIVATE.has_been_called, self.DEFAULT.has_been_called
+                    self.FAILURE.has_been_called, self.ACTIVE.has_been_called, self.READY.has_been_called, self.IDLE.has_been_called, self.NOT_READY.has_been_called, self.ACTIVATE.has_been_called, self.DEFAULT.has_been_called, self.COMPLETE.has_been_called
                     ]
                 #all the triggers addressed except active,not_ready,ready which would come from the bot interface. To be done.
                 def complete_check():
                     timer_processing = Timer(self.processing_time_limit,self.void)
                     timer_processing.start()
                     while timer_processing.isAlive():
-                        if self.COMPLETE.has_been_called:
+                        if self.COMPLETE.has_been_called!=check_state_list[7]:
                             timer_processing.cancel()
                             break
                             

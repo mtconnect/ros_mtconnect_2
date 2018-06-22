@@ -1,6 +1,6 @@
 import re
 import scanner
-import requests
+import requests, datetime
 from threading import Timer, Thread
 from xml.etree import ElementTree as ET
 
@@ -57,10 +57,10 @@ class LongPull:
                     header = True
 
 if __name__ == "__main__":
-    response = requests.get("http://127.0.0.1:5005/sample?interval=1000&count=1000", stream=True)
+    response = requests.get("http://localhost:5007/sample?interval=100&count=100", stream=True)
 
     lp = LongPull(response)
-    def callback(chunk, addr):
-        print chunk
+    def callback(chunk, body, addr):
+        print chunk,datetime.datetime.now().isoformat()
 
     lp.long_pull(callback)
