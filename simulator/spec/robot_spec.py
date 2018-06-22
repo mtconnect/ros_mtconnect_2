@@ -7,29 +7,34 @@ import time
 
 #make sure "self.initiate_pull_thread()" is commented out in robot.py
 the_robot = Robot()
+#either here or under desc('Robot') before.all
 
 with description('Robot'):
     with before.all:
-        self.robot = Robot('localhost',7994)
+        #self.robot = Robot('localhost',7994)
+        self.robot = self.robot
+        #TODO: whenever we create a new Robot the old one has to release the adapter connection
+        #self.robot = Robot()
+        pass
 
     with it('should be in binding state INACTIVE initially'):
-        expect(the_robot.superstate.binding_state_material.value()).to(equal('INACTIVE'))
+        expect(self.robot.superstate.binding_state_material.value()).to(equal('INACTIVE'))
 
     with it('should have request interfaces'):
-        expect(the_robot.superstate.open_chuck_interface).to(be_a(Request))
-        expect(the_robot.superstate.close_chuck_interface).to(be_a(Request))
-        expect(the_robot.superstate.open_door_interface).to(be_a(Request))
-        expect(the_robot.superstate.close_door_interface).to(be_a(Request))
+        expect(self.robot.superstate.open_chuck_interface).to(be_a(Request))
+        expect(self.robot.superstate.close_chuck_interface).to(be_a(Request))
+        expect(self.robot.superstate.open_door_interface).to(be_a(Request))
+        expect(self.robot.superstate.close_door_interface).to(be_a(Request))
 
     with it('should have response interfaces'):
-        expect(the_robot.superstate.material_load_interface).to(be_a(Response))
-        expect(the_robot.superstate.material_unload_interface).to(be_a(Response))
+        expect(self.robot.superstate.material_load_interface).to(be_a(Response))
+        expect(self.robot.superstate.material_unload_interface).to(be_a(Response))
 
     with it('should be in execution ready when the robot is initialized'):
-        expect(the_robot.superstate.e1.value()).to(equal('READY'))
+        expect(self.robot.superstate.e1.value()).to(equal('READY'))
 
     with it('should be in controller mode automatic when the robot is initialized'):
-        expect(the_robot.superstate.mode1.value()).to(equal('AUTOMATIC'))
+        expect(self.robot.superstate.mode1.value()).to(equal('AUTOMATIC'))
 
     with context('move material from conv to cnc'):
         with before.all:
@@ -42,19 +47,19 @@ with description('Robot'):
 
         with it ('should complete successfully'):
 
-            the_robot.superstate.event('conv','Coordinator', 'binding_state', 'PREPARING',['1', the_robot.superstate.master_tasks['1']],'conv1')
+            self.robot.superstate.event('conv','Coordinator', 'binding_state', 'PREPARING',['1', self.robot.superstate.master_tasks['1']],'conv1')
             time.sleep(0.2)
 
-            expect(the_robot.superstate.binding_state_material.value()).to(equal('PREPARING'))
+            expect(self.robot.superstate.binding_state_material.value()).to(equal('PREPARING'))
 
-            the_robot.superstate.event('conv','Coordinator', 'binding_state', 'COMMITTING','1','conv1')
-            expect(the_robot.superstate.binding_state_material.value()).to(equal('COMMITTED'))
+            self.robot.superstate.event('conv','Coordinator', 'binding_state', 'COMMITTING','1','conv1')
+            expect(self.robot.superstate.binding_state_material.value()).to(equal('COMMITTED'))
             time.sleep(0.3)
             
             self.robot.superstate.event('conv','Coordinator', 'binding_state', 'COMMITTED','1','conv1')
             time.sleep(0.1)
 
-            expect(the_robot.superstate.material_unload.value()).to(equal('READY'))
+            expect(self.robot.superstate.material_unload.value()).to(equal('READY'))
             
             self.robot.superstate.event('conv','MaterialHandlerInterface', 'SubTask_MaterialUnload', 'ACTIVE','1','conv1')
 
@@ -63,6 +68,7 @@ with description('Robot'):
             
             #print self.robot.superstate.events
             #unload completes and state goes from active-complete-not_ready
+            
             expect(self.robot.superstate.material_unload.value()).to(equal('NOT_READY'))
 
             print self.robot.superstate.material_load_interface.superstate.state
@@ -79,41 +85,23 @@ with description('Robot'):
             self.robot.superstate.event('cnc','ChuckInterface', 'SubTask_CloseChuck', 'READY','1','cnc1')
 
             time.sleep(1)
-            expect(the_robot.superstate.close_chuck.value()).to(equal('ACTIVE'))
+            expect(self.robot.superstate.close_chuck.value()).to(equal('ACTIVE'))
 
-            the_robot.superstate.event('cnc','ChuckInterface', 'SubTask_CloseChuck', 'ACTIVE','1','cnc1')
+            self.robot.superstate.event('cnc','ChuckInterface', 'SubTask_CloseChuck', 'ACTIVE','1','cnc1')
             time.sleep(0.2)
-            expect(the_robot.superstate.close_chuck.value()).to(equal('ACTIVE'))
+            expect(self.robot.superstate.close_chuck.value()).to(equal('ACTIVE'))
 
-            the_robot.superstate.event('cnc','ChuckInterface', 'SubTask_CloseChuck', 'COMPLETE','1','cnc1')
+            self.robot.superstate.event('cnc','ChuckInterface', 'SubTask_CloseChuck', 'COMPLETE','1','cnc1')
 
-            time.sleep(0.2)
-
-<<<<<<< HEAD
-            expect(the_robot.superstate.close_chuck.value()).to(equal('NOT_READY'))
             time.sleep(0.2)
 
-            the_robot.superstate.event('cnc','ChuckInterface', 'SubTask_CloseDoor', 'READY','1','cnc1')
-            time.sleep(1)
-            expect(the_robot.superstate.close_door.value()).to(equal('ACTIVE'))
-=======
             expect(self.robot.superstate.close_chuck.value()).to(equal('NOT_READY'))
->>>>>>> d7ef7892317e10573da51cdf87bab1bea5f8393f
 
             time.sleep(10)
 
-            the_robot.superstate.event('cnc','DoorInterface', 'SubTask_CloseDoor', 'ACTIVE','1','cnc1')
-            time.sleep(0.2)
-            expect(the_robot.superstate.close_door.value()).to(equal('ACTIVE'))
-
-            the_robot.superstate.event('cnc','DoorInterface', 'SubTask_CloseDoor', 'COMPLETE','1','cnc1')
-            time.sleep(0.2)
-            expect(the_robot.superstate.close_door.value()).to(equal('NOT_READY'))
-
-
             time.sleep(0.2)
 
-            expect(the_robot.superstate.material_load.value()).to(equal('NOT_READY'))
+            expect(self.robot.superstate.material_load.value()).to(equal('NOT_READY'))
 
 #    with context('when loading material'):
 #

@@ -132,7 +132,7 @@ class Robot:
 
             thread5= Thread(target = self.start_pull,args=("http://localhost:5000","/conv2/sample?interval=100&count=1000",from_long_pull))
             thread5.start()
-            
+
         def interface_type(self, value = None, subtype = None):
             self.interfaceType = value
 
@@ -180,10 +180,6 @@ class Robot:
             #temporary fix till task/subtask sequencing is determined
             while self.master_tasks[self.master_uuid]['collaborators'][self.deviceUuid]['state'][2] != 'COMPLETE':
                 pass
-<<<<<<< HEAD
-
-
-=======
                 
         def CHECK_COMPLETION_UL(self):
             #temporary fix till task/subtask sequencing is determined
@@ -201,7 +197,6 @@ class Robot:
                 else:
                     test = True
             
->>>>>>> d7ef7892317e10573da51cdf87bab1bea5f8393f
         def UNLOADING_COMPLETE(self):
             self.CHECK_COMPLETION_UL()
 
@@ -402,7 +397,6 @@ class Robot:
             else:
                 raise(Exception('Unknown Device event: ' + str(ev)))
 
-
         #end StateModel class definition
 
     def __init__(self,host,port):
@@ -411,6 +405,13 @@ class Robot:
 
     def draw(self):
         self.statemachine.get_graph().draw('robot.png', prog='dot')
+
+    def set_state_trigger(self, state, callback):
+        """
+        Allows a user to set a function to be called when the device enters a particular state. Returns a function
+        that the user should call at the end of the callback to signal that the callback is done.
+        """
+        self.statemachine.on_enter(state, callback)
 
     @staticmethod
     def create_state_machine(state_machine_model):
@@ -424,7 +425,17 @@ class Robot:
                     'activated',
                     {
                         'name': 'operational',
-                        'children': ['idle', 'loading', 'unloading']
+                        'children': [
+                            'idle',
+                            {
+                                'name': 'loading',
+                                'children': ['moving_in', 'waiting_chuck', 'moving_out']
+                            },
+                            {
+                                'name': 'unloading',
+                                'children': ['moving_in', 'waiting_chuck', 'moving_out']
+                            }
+                        ]
                     },
                     {
                         'name': 'disabled',

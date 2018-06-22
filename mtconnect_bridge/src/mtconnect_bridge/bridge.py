@@ -15,29 +15,15 @@ ACTIONS = [
 
 class Bridge:
     def __init__(self):
-        self.action_clients = {}
-        self.current_work = {}
-        for action in ACTIONS:
-            self.action_clients[action] = actionlib.SimpleActionClient(action, DeviceWorkAction)
-            self.current_work[action] = None
-            #Work done callback
+        self.action_client = actionlib.SimpleActionClient("work", DeviceWorkAction)
 
     def do_work(self, action_type, work_info):
+        rospy.loginfo("Sending '{}' work, data: {}".format(action_type, work_info))
         action_goal = DeviceWorkGoal()
         action_goal.type = action_type
         action_goal.data = work_info
-        self.current_work[action_type] = action_goal
-        self.action_clients[action_type].send_goal(action_goal)
-
-    def wait_for_work(self, action_type):
-        self.action_clients[action_type].wait_for_result(rospy.Duration.from_sec(10.0))
-        self.current_work[action_type] = None
-
-    def is_working(self, action_type):
-        return self.current_work[action_type] != None
-
-    def work_done_cb(self, action_type, action_msg):
-        self.current_work[action_type] = None
+        self.action_client.send_goal(action_goal)
+        self.action_client.wait_for_result(rospy.Duration.from_sec(10.0))
 
     def spin(self):
         rospy.spin()
