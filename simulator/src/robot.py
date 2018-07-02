@@ -28,7 +28,7 @@ RobotEvent = collections.namedtuple('RobotEvent', ['source', 'component', 'name'
 class Robot:
     class StateModel:
         """The model for MTConnect behavior in the robot."""
-        def __init__(self,host,port):
+        def __init__(self,host,port,parent,sim):
 
             self.initiate_adapter(host,port)
             self.adapter.start()
@@ -36,6 +36,10 @@ class Robot:
 
             self.initiate_interfaces()
 
+            self.parent = parent
+
+            self.sim = sim
+            
             self.events = []
 
             self.master_tasks ={}
@@ -56,8 +60,8 @@ class Robot:
             self.initiate_pull_thread()
 
         def initiate_interfaces(self):
-            self.material_load_interface = MaterialLoadResponse(self)
-            self.material_unload_interface = MaterialUnloadResponse(self)
+            self.material_load_interface = MaterialLoadResponse(self, simulate = self.sim)
+            self.material_unload_interface = MaterialUnloadResponse(self, simulate = self.sim)
             self.open_chuck_interface = OpenChuckRequest(self)
             self.close_chuck_interface = CloseChuckRequest(self)
             self.open_door_interface = OpenDoorRequest(self)
@@ -311,29 +315,48 @@ class Robot:
             action = ev.value.lower()
             if ev.name == "MoveIn":
                 print "Moving In " + ev.text
-                time.sleep(2)
+                if self.sim:
+                    time.sleep(2)
+                else:
+                    self.parent.move_in(ev.text)
                 print "Moved in"
 
             elif ev.name == "MoveOut":
                 print "Moving Out From " + ev.text
-                time.sleep(2)
+                if self.sim:
+                    time.sleep(2)
+                else:
+                    #Moveout will confirm the completion of unloading/loading tasks
+                    complete = None
+                    complete = self.parent.move_out(ev.text)
+                    if complete:
+                        self.COMPLETED()
                 print "Moved out"
 
             elif ev.name == "ReleasePart":
                 print "Releasing the Part onto " + ev.text
-                time.sleep(2)
+                if self.sim:
+                    time.sleep(2)
+                else:
+                    self.parent.release(ev.text)
                 print "Released"
 
             elif ev.name == "GrabPart":
                 print "Grabbing Part from " + ev.text
-                time.sleep(2)
+                if self.sim:
+                    time.sleep(2)
+                else:
+                    self.parent.grab(ev.text)
                 print "Grabbed"
 
             elif ev.name == "OpenDoor":
                 eval('self.open_door_interface.superstate.'+action+'()')
                 self.open_door_interface.superstate.active()
                 print "Opening Door"
-                time.sleep(2)
+                if self.sim:
+                    time.sleep(2)
+                else:
+                    self.parent.open_door(ev.text)
                 self.open_door_interface.superstate.complete()
                 print "Opened Door"
                 self.open_door_interface.superstate.not_ready()
@@ -342,7 +365,10 @@ class Robot:
                 eval('self.close_door_interface.superstate.'+action+'()')
                 self.close_door_interface.superstate.active()
                 print "Closing Door"
-                time.sleep(2)
+                if self.sim:
+                    time.sleep(2)
+                else:
+                    self.parent.close_door(ev.text)
                 self.close_door_interface.superstate.complete()
                 print "Closed Door"
                 self.close_door_interface.superstate.not_ready()
@@ -400,8 +426,8 @@ class Robot:
 
         #end StateModel class definition
 
-    def __init__(self,host,port):
-        self.superstate = Robot.StateModel(host,port)
+    def __init__(self,host,port,parent=None,sim=True):
+        self.superstate = Robot.StateModel(host,port,parent,sim)
         self.statemachine = self.create_state_machine(self.superstate)
 
     def draw(self):
@@ -513,3 +539,33 @@ if __name__ == '__main__':
     robot1 = Robot('localhost',7971)
     time.sleep(1)
     robot1.superstate.enable()
+
+    sample_mtconnect_demo = None
+    if sample_mtconnect_demo:
+        #Sample MTConnect Demo Code
+        class MTConnectDemo:
+            def __init__(self):
+                self._bridge = mtconnect_bridge.Bridge()
+                self._robot = Robot(host, port, self, False)
+
+            def move_in(self, device = None):
+                if device == 'conv':
+                    rospy.loginfo("Demo moving to 'input_conveyor'")
+                    self._bridge.do_work('move', 'input_conveyor')
+                    return True
+                elif device == 'cnc1':
+                    rospy.loginfo("Demo moving to 'cnc'")
+                    self._bridge.do_work('move', 'cnc')
+                    return True
+                else:
+                    #repeat for different devices
+                    return
+
+            def move_out(self, device = None):
+                
+                rospy.loginfo("Demo moving to 'all_zeros'")
+                self._bridge.do_work('move', 'all_zeros')
+                #This method return indicates unload/load task completion
+                return True
+
+
