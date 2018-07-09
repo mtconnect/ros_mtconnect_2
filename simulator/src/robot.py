@@ -19,10 +19,14 @@ from from_long_pull import from_long_pull, from_long_pull_asset
 from transitions.extensions import HierarchicalMachine as Machine
 from transitions.extensions.nesting import NestedState
 from threading import Timer, Thread
-import functools, time, re, datetime
-import requests, urllib2, collections
+import collections
+import functools
+import datetime
+import time
+import re
+import requests
+import urllib2
 import xml.etree.ElementTree as ET
-
 
 RobotEvent = collections.namedtuple('RobotEvent', ['source', 'component', 'name', 'value', 'code', 'text'])
 
@@ -53,7 +57,7 @@ class Robot:
             self.master_uuid = str()
 
             self.iscoordinator = False
-            
+
             self.iscollaborator = True
 
             self.fail_next = False
@@ -70,7 +74,7 @@ class Robot:
             self.close_chuck_interface = CloseChuckRequest(self)
             self.open_door_interface = OpenDoorRequest(self)
             self.close_door_interface = CloseDoorRequest(self)
-            
+
         def initiate_adapter(self, host, port):
             self.adapter = Adapter((host,port))
 
@@ -218,7 +222,7 @@ class Robot:
                             test = False
                 else:
                     test = True
-            
+
         def UNLOADING_COMPLETE(self):
             self.CHECK_COMPLETION_UL()
 
@@ -248,12 +252,12 @@ class Robot:
 
             :type ev: .event.Event
             """
-            #print "\nROBOT Event Enter",source,comp,name,value,datetime.datetime.now().isoformat()
+            #print("\nROBOT Event Enter",source,comp,name,value,datetime.datetime.now().isoformat())
             ev = RobotEvent(source, comp, name, value, code, text)
 
             #print('Robot received: ', source, comp, name, value)
             self.events.append(ev)
-            
+
             action = value.lower()
 
             if action == "fail":
@@ -309,7 +313,7 @@ class Robot:
 
 
             elif ev.name.startswith('Material') and action!='unavailable':
-                #print "in material method"
+                #print("in material method")
                 self.material_event(ev)
 
             elif comp == 'internal_event':
@@ -339,7 +343,7 @@ class Robot:
             else:
                 """#print('Unknown event: ' + str(ev))"""
 
-            #print "\nRobotEvent Exit",source,comp,name,value,datetime.datetime.now().isoformat()
+            #print("\nRobotEvent Exit",source,comp,name,value,datetime.datetime.now().isoformat())
 
         def internal_event(self, ev):
             status = None
@@ -434,7 +438,7 @@ class Robot:
             action = ev.value.lower()
             if action == "fail":
                 action = "failure"
-                
+
             if ev.name == "MaterialLoad":
                 if ev.value.lower() == 'complete':
                     self.complete()
@@ -448,23 +452,23 @@ class Robot:
                     eval('self.material_unload_interface.superstate.'+action+'()')
 
             else:
-                """#print "raise(Exception('Unknown Material event: ' + str(ev)))'"""
+                """raise(Exception('Unknown Material event: ' + str(ev)))"""
 
         def controller_event(self, ev):
             if ev.name == "ControllerMode":
                 if ev.source.lower() == 'robot':
-                    
+
                     self.adapter.begin_gather()
                     self.mode1.set_value(ev.value.upper())
                     self.adapter.complete_gather()
-                    
+
             elif ev.name == "Execution":
                 if ev.source.lower() == 'robot':
-                    
+
                     self.adapter.begin_gather()
                     self.e1.set_value(ev.value.upper())
                     self.adapter.complete_gather()
-                    
+
             else:
                 """raise(Exception('Unknown Controller event: ' + str(ev)))"""
 
@@ -472,7 +476,7 @@ class Robot:
         def device_event(self, ev):
             if ev.name == 'Availability':
                 if ev.source.lower() == 'robot':
-                    
+
                     self.adapter.begin_gather()
                     self.avail1.set_value(ev.value.upper())
                     self.adapter.complete_gather()
