@@ -31,12 +31,12 @@ class cell(object):
 
     def __init__(self):
 
-        self.initiate_inputConveyor('localhost',7790)
-        self.initiate_cnc('localhost',7890, True)
-        self.initiate_robot('localhost',7990)
-        self.initiate_buffer('localhost',7690)
-        self.initiate_cmm('localhost',7590)
-        self.initiate_outputConveyor('localhost',7490)
+        self.initiate_inputConveyor('localhost',7791)
+        self.initiate_cnc('localhost',7891, True)
+        self.initiate_robot('localhost',7991, True)
+        self.initiate_buffer('localhost',7691)
+        self.initiate_cmm('localhost',7591)
+        self.initiate_outputConveyor('localhost',7491)
 
     def part_arrival(self):
         if not self.inputConveyor.superstate.has_material:
@@ -59,8 +59,8 @@ class cell(object):
         self.cnc.superstate.unload_time_limit(600)
         self.cnc.superstate.enable()
 
-    def initiate_robot(self,host,port):
-        self.robot = Robot(host,port)
+    def initiate_robot(self,host,port, sim = True):
+        self.robot = Robot(host,port,sim = sim)
         self.robot.superstate.material_load_interface.superstate.simulated_duration = 20
         self.robot.superstate.material_unload_interface.superstate.simulated_duration = 20
         self.robot.superstate.enable()
