@@ -6,17 +6,20 @@ from src.robot import Robot
 import time
 
 #make sure "self.initiate_pull_thread()" is commented out in robot.py
-the_robot = Robot()
+#the_robot = Robot()
 #either here or under desc('Robot') before.all
 
 with description('Robot'):
     with before.all:
-        #self.robot = Robot('localhost',7994)
-        self.robot = self.robot
+        self.robot = Robot('localhost',7994,sim = True)
+        #self.robot = the_robot
         #TODO: whenever we create a new Robot the old one has to release the adapter connection
         #self.robot = Robot()
         pass
 
+    with after.all:
+        self.robot.superstate.adapter.stop()
+        
     with it('should be in binding state INACTIVE initially'):
         expect(self.robot.superstate.binding_state_material.value()).to(equal('INACTIVE'))
 

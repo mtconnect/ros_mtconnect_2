@@ -1,19 +1,19 @@
 """
 Sample module for implementing a robot that coordinates with a CNC and conveyors.
 """
-from __future__ import absolute_import, division, print_function, unicode_literals
+#from __future__ import absolute_import, division, print_function, unicode_literals
 __metaclass__ = type
 
-from .material import *
-from .door import *
-from .chuck import *
-from .coordinator import *
-from .collaborator import *
-from .mtconnect_adapter import Adapter
-from .long_pull import LongPull
-from .data_item import Event, SimpleCondition, Sample, ThreeDSample
-from .archetypeToInstance import archetypeToInstance
-from .from_long_pull import from_long_pull, from_long_pull_asset
+from material import *
+from door import *
+from chuck import *
+from coordinator import *
+from collaborator import *
+from mtconnect_adapter import Adapter
+from long_pull import LongPull
+from data_item import Event, SimpleCondition, Sample, ThreeDSample
+from archetypeToInstance import archetypeToInstance
+from from_long_pull import from_long_pull, from_long_pull_asset
 
 from transitions.extensions import HierarchicalMachine as Machine
 from transitions.extensions.nesting import NestedState
@@ -30,16 +30,16 @@ class Robot:
         """The model for MTConnect behavior in the robot."""
         def __init__(self,host,port,parent,sim):
 
+            self.parent = parent
+
+            self.sim = sim
+
             self.initiate_adapter(host,port)
             self.adapter.start()
             self.initiate_dataitems()
 
             self.initiate_interfaces()
-
-            self.parent = parent
-
-            self.sim = sim
-            
+           
             self.events = []
 
             self.master_tasks ={}
@@ -57,11 +57,11 @@ class Robot:
 
             self.fail_next = False
 
-            self.initiate_pull_thread()
+            #self.initiate_pull_thread()
 
         def initiate_interfaces(self):
-            self.material_load_interface = MaterialLoadResponse(self, simulate = self.sim)
-            self.material_unload_interface = MaterialUnloadResponse(self, simulate = self.sim)
+            self.material_load_interface = MaterialLoadResponse(self, self.sim)
+            self.material_unload_interface = MaterialUnloadResponse(self, self.sim)
             self.open_chuck_interface = OpenChuckRequest(self)
             self.close_chuck_interface = CloseChuckRequest(self)
             self.open_door_interface = OpenDoorRequest(self)
@@ -187,7 +187,7 @@ class Robot:
 
         def CHECK_COMPLETION_UL(self):
             #temporary fix till task/subtask sequencing is determined
-            print 'checking completion'
+            #print 'checking completion'
             coordinator = self.master_tasks[self.master_uuid]['coordinator'].keys()[0]
             unload_task = self.master_tasks[self.master_uuid]['coordinator'][coordinator]['SubTask'][coordinator][0]
             test = None
