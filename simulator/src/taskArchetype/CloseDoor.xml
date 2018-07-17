@@ -8,6 +8,11 @@
 			<Coordinator collaboratorId="r1">
 				<CollaboratorType>ROBOT</CollaboratorType>
 			</Coordinator>
+			<Collaborators>
+				<Collaborator collaboratorId="cnc1">
+					<CollaboratorType>CNC</CollaboratorType>
+				</Collaborator>
+			</Collaborators>
 		</TaskArchetype>
 	</Assets>
 </MTConnectAssets>

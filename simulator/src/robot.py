@@ -57,7 +57,7 @@ class Robot:
 
             self.fail_next = False
 
-            #self.initiate_pull_thread()
+            self.initiate_pull_thread()
 
         def initiate_interfaces(self):
             self.material_load_interface = MaterialLoadResponse(self, self.sim)

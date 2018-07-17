@@ -18,8 +18,8 @@
 				<SubTaskRef order="2">MoveIn</SubTaskRef>
 				<SubTaskRef order="3">CloseChuck</SubTaskRef>
 				<SubTaskRef order="4">ReleasePart</SubTaskRef>
-				<SubTaskRef order="5">CloseDoor</SubTaskRef>
-				<SubTaskRef order="6">MoveOut</SubTaskRef>
+				<SubTaskRef order="5">MoveOut</SubTaskRef>
+				<SubTaskRef order="6">CloseDoor</SubTaskRef>
 			</SubTaskRefs>
 		</TaskArchetype>
 	</Assets>
