@@ -7,6 +7,7 @@ from chuck import *
 from coordinator import *
 from collaborator import *
 from hurco_bridge import *
+from cmm_bridge import *
 from mtconnect_adapter import Adapter
 from long_pull import LongPull
 from data_item import Event, SimpleCondition, Sample, ThreeDSample
@@ -33,10 +34,10 @@ class cell(object):
 
         self.cell_part_quality = None
 
-        self.initiate_cnc('localhost',7895)
+        self.initiate_cnc('localhost',7895, False)
         self.initiate_robot('localhost',7995)
         self.initiate_buffer('localhost',7695)
-        self.initiate_cmm('localhost',7595)
+        self.initiate_cmm('localhost',7595, False)
         self.initiate_inputConveyor('localhost',7795)
         self.initiate_outputConveyor('localhost',7495)
 
@@ -70,8 +71,8 @@ class cell(object):
 
     def initiate_robot(self,host,port, sim = True):
         self.robot = Robot(host,port,sim = sim)
-        self.robot.superstate.material_load_interface.superstate.simulated_duration = 20
-        self.robot.superstate.material_unload_interface.superstate.simulated_duration = 20
+        self.robot.superstate.material_load_interface.superstate.simulated_duration = 40
+        self.robot.superstate.material_unload_interface.superstate.simulated_duration = 40
         self.robot.superstate.enable()
 
     def initiate_buffer(self,host,port):
@@ -81,8 +82,8 @@ class cell(object):
         self.buffer.superstate.unload_time_limit(200)
         self.buffer.superstate.enable()
 
-    def initiate_cmm(self,host,port):
-        self.cmm = cmm(host,port,cell_part=self.cell_part)
+    def initiate_cmm(self,host,port, sim = True):
+        self.cmm = cmm(host,port,sim = sim, cell_part=self.cell_part)
         self.cmm.create_statemachine()
         self.cmm.superstate.load_time_limit(200)
         self.cmm.superstate.unload_time_limit(200)

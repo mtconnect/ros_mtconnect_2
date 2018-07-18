@@ -12,6 +12,7 @@ from data_item import Event, SimpleCondition, Sample, ThreeDSample
 from archetypeToInstance import archetypeToInstance
 from from_long_pull import from_long_pull, from_long_pull_asset
 
+from cmm_bridge import *
 from transitions.extensions import HierarchicalMachine as Machine
 from transitions.extensions.nesting import NestedState
 from threading import Timer, Thread
@@ -67,8 +68,15 @@ class cmm(object):
                 self.fail_next = False
 
                 self.part_quality = None
+
+                self.initiate_cmm_client()
                 
                 self.initiate_pull_thread()
+
+            def initiate_cmm_client(self):
+                if not self.sim:
+                    self.cmm_client = hexagonClient('192.168.1.41', 5000, 5000)
+                    self.cmm_client.connect()
 
             def initiate_interfaces(self):
                 self.material_load_interface = MaterialLoad(self)
@@ -251,6 +259,19 @@ class cmm(object):
                             self.part_quality = 'reworked'
                         timer_cycling = Timer(self.cycle_time,func)
                         timer_cycling.start()
+                    else:
+                        if self.part_quality!= 'rework':
+                            self.part_quality = self.cell_part()
+                        elif self.part_quality:
+                            self.part_quality = 'reworked'
+                            
+                        cycle = self.cmm_client.load_run_pgm(taskcmm.startProgramA)
+                        time.sleep(4)
+                        status = (self.cmm_client.load_run_pgm(taskcmm.getStatus)).lower()
+                        while 'good' not in status and 'bad' not in status and 'rework' not in status:
+                            status = (self.cmm_client.load_run_pgm(taskcmm.getStatus)).lower()
+                        
+                        func()
                     
                     
 

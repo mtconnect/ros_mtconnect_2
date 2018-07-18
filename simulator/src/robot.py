@@ -57,7 +57,10 @@ class Robot:
 
             self.fail_next = False
 
+            self.low_level_event_list = []
+
             self.initiate_pull_thread()
+            
 
         def initiate_interfaces(self):
             self.material_load_interface = MaterialLoadResponse(self, self.sim)
@@ -162,12 +165,13 @@ class Robot:
             self.make_idle()
 
         def IDLE(self):
-            self.material_unload_interface.superstate.not_ready()
-            self.material_load_interface.superstate.not_ready()
-            self.master_tasks = {}
-            self.collaborator = collaborator(parent = self, interface = self.binding_state_material, collaborator_name = 'r1')
-            self.collaborator.create_statemachine()
-            self.collaborator.superstate.unavailable()
+            if 'ToolChange' not in str(self.master_tasks):
+                self.material_unload_interface.superstate.not_ready()
+                self.material_load_interface.superstate.not_ready()
+                self.master_tasks = {}
+                self.collaborator = collaborator(parent = self, interface = self.binding_state_material, collaborator_name = 'r1')
+                self.collaborator.create_statemachine()
+                self.collaborator.superstate.unavailable()
 
         def LOADING(self):
             self.material_unload_interface.superstate.not_ready()
@@ -182,7 +186,7 @@ class Robot:
 
         def CHECK_COMPLETION(self):
             #temporary fix till task/subtask sequencing is determined
-            while self.master_tasks[self.master_uuid]['collaborators'][self.deviceUuid]['state'][2] != 'COMPLETE':
+            while self.master_tasks[self.master_uuid]['collaborators'][self.deviceUuid]['state'][2] != 'COMPLETE' and 'ToolChange' not in str(self.master_tasks):
                 pass
                 
         def CHECK_COMPLETION_UL(self):
@@ -293,6 +297,7 @@ class Robot:
                         eval('self.open_chuck_interface.superstate.'+action+'()')
                     elif 'Close' in name:
                         eval('self.close_chuck_interface.superstate.'+action+'()')
+                        
                 elif 'Door' in name:
                     if 'Open' in name:
                         eval('self.open_door_interface.superstate.'+action+'()')
@@ -314,23 +319,23 @@ class Robot:
         def internal_event(self, ev):
             action = ev.value.lower()
             if ev.name == "MoveIn":
+                if ['move_in',ev.text,self.master_tasks[self.master_uuid]['part_quality']] not in self.low_level_event_list:
+                    self.low_level_event_list.append(['move_in',ev.text,self.master_tasks[self.master_uuid]['part_quality']])
                 print "Moving In " + ev.text
                 if self.sim:
                     time.sleep(2)
                 else:
-                    self.parent.move_in(ev.text, self.master_tasks[code]['part_quality'])
+                    self.parent.move_in(ev.text, self.master_tasks[self.master_uuid]['part_quality'])
                 print "Moved in"
 
             elif ev.name == "MoveOut":
                 print "Moving Out From " + ev.text
+                if ['move_out',ev.text,self.master_tasks[self.master_uuid]['part_quality']] not in self.low_level_event_list:
+                    self.low_level_event_list.append(['move_out',ev.text,self.master_tasks[self.master_uuid]['part_quality']])
                 if self.sim:
                     time.sleep(2)
                 else:
-                    #Moveout will confirm the completion of unloading/loading tasks
-                    complete = None
-                    complete = self.parent.move_out(ev.text, self.master_tasks[code]['part_quality'])
-                    if complete:
-                        self.COMPLETED() #get confirmation from robot
+                    self.parent.move_out(ev.text, self.master_tasks[self.master_uuid]['part_quality'])
                 print "Moved out"
 
             elif ev.name == "PickUpTool":
@@ -365,6 +370,10 @@ class Robot:
                 """
             elif ev.name == "ReleasePart":
                 print "Releasing the Part onto " + ev.text
+
+                if ['release',ev.text,None] not in self.low_level_event_list:
+                    self.low_level_event_list.append(['release',ev.text,None])
+                    
                 if self.sim:
                     time.sleep(2)
                 else:
@@ -373,6 +382,10 @@ class Robot:
 
             elif ev.name == "GrabPart":
                 print "Grabbing Part from " + ev.text
+
+                if ['grab',ev.text,None] not in self.low_level_event_list:
+                    self.low_level_event_list.append(['grab',ev.text,None])
+                    
                 if self.sim:
                     time.sleep(2)
                 else:
