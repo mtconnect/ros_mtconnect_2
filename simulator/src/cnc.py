@@ -162,6 +162,9 @@ class cnc(object):
                 thread3= Thread(target = self.start_pull,args=("http://localhost:5000","/buffer/sample?interval=100&count=1000",from_long_pull))
                 thread3.start()
 
+                thread4= Thread(target = self.start_pull,args=("http://localhost:5000","/cmm/sample?interval=100&count=1000",from_long_pull))
+                thread4.start()
+
             def start_pull(self,addr,request, func, stream = True):
 
                 response = requests.get(addr+request, stream=stream)

@@ -31,12 +31,19 @@ class cell(object):
 
     def __init__(self):
 
-        self.initiate_inputConveyor('localhost',7796)
-        self.initiate_cnc('localhost',7896, True)
-        self.initiate_robot('localhost',7996, True)
-        self.initiate_buffer('localhost',7696)
-        self.initiate_cmm('localhost',7596)
-        self.initiate_outputConveyor('localhost',7496)
+        self.cell_part_quality = None
+
+        self.initiate_cnc('localhost',7895)
+        self.initiate_robot('localhost',7995)
+        self.initiate_buffer('localhost',7695)
+        self.initiate_cmm('localhost',7595)
+        self.initiate_inputConveyor('localhost',7795)
+        self.initiate_outputConveyor('localhost',7495)
+
+    def cell_part(self, value = None):
+        if value: self.cell_part_quality = value
+
+        return self.cell_part_quality
 
     def part_arrival(self):
         if not self.inputConveyor.superstate.has_material:
@@ -47,10 +54,12 @@ class cell(object):
             print "A Part already exists on the Input Conveyor"
 
     def initiate_inputConveyor(self,host,port):
-        self.inputConveyor = inputConveyor(host,port)
+        self.inputConveyor = inputConveyor(host,port,cell_part=self.cell_part)
         self.inputConveyor.create_statemachine()
         self.inputConveyor.superstate.load_time_limit(200)
         self.inputConveyor.superstate.unload_time_limit(200)
+        time.sleep(10)
+        self.inputConveyor.superstate.enable()
 
     def initiate_cnc(self,host,port,sim = True):
         self.cnc = cnc(host,port,sim)
@@ -73,7 +82,7 @@ class cell(object):
         self.buffer.superstate.enable()
 
     def initiate_cmm(self,host,port):
-        self.cmm = cmm(host,port)
+        self.cmm = cmm(host,port,cell_part=self.cell_part)
         self.cmm.create_statemachine()
         self.cmm.superstate.load_time_limit(200)
         self.cmm.superstate.unload_time_limit(200)
@@ -89,5 +98,5 @@ class cell(object):
 
 if __name__ == "__main__":
     machine_cell = cell()
-    time.sleep(10)
-    machine_cell.part_arrival()
+    #time.sleep(10)
+    #machine_cell.part_arrival()

@@ -22,14 +22,18 @@ import xml.etree.ElementTree as ET
 
 class cmm(object):
 
-    def __init__(self,host,port):
+    def __init__(self,host,port, sim = True, cell_part = None):
 
         class statemachineModel(object):
 
-            def __init__(self,host,port):
+            def __init__(self,host,port,sim, cell_part):
                 
                 self.initiate_adapter(host,port)
                 self.adapter.start()
+
+                self.sim = sim
+                self.cell_part = cell_part
+                
                 self.initiate_dataitems()
 
                 self.initiate_interfaces()
@@ -61,6 +65,8 @@ class cmm(object):
                 self.has_material = False
                 
                 self.fail_next = False
+
+                self.part_quality = None
                 
                 self.initiate_pull_thread()
 
@@ -105,7 +111,7 @@ class cmm(object):
 
             def initiate_pull_thread(self):
 
-                thread= Thread(target = self.start_pull,args=("http://localhost:5000","/conv2/sample?interval=100&count=1000",from_long_pull))
+                thread= Thread(target = self.start_pull,args=("http://localhost:5000","/conv/sample?interval=100&count=1000",from_long_pull))
                 thread.start()
 
                 thread2= Thread(target = self.start_pull,args=("http://localhost:5000","/robot/sample?interval=100&count=1000",from_long_pull))
@@ -113,6 +119,9 @@ class cmm(object):
 
                 thread3= Thread(target = self.start_pull,args=("http://localhost:5000","/buffer/sample?interval=100&count=1000",from_long_pull))
                 thread3.start()
+
+                thread4= Thread(target = self.start_pull,args=("http://localhost:5000","/cnc/sample?interval=100&count=1000",from_long_pull))
+                thread4.start()
 
             def start_pull(self,addr,request, func, stream = True):
 
@@ -152,16 +161,26 @@ class cmm(object):
 
                     self.master_uuid = self.deviceUuid+'_'+str(uuid.uuid4())
                     master_task_uuid = copy.deepcopy(self.master_uuid)
-                    self.coordinator_task = "MoveMaterial_4"
+                    
+                    if self.part_quality!= 'rework':
+                        self.part_quality = self.cell_part()
+                    elif self.part_quality:
+                        self.part_quality = 'reworked'
+                        
+                    if self.part_quality:
+                        if self.part_quality == 'rework':
+                            self.coordinator_task = "MoveMaterial_5"
+                        else:
+                            self.coordinator_task = "MoveMaterial_4"+"_"+self.part_quality
 
-                    self.master_tasks = {}
-                    
-                    self.coordinator = coordinator(parent = self, master_task_uuid = master_task_uuid, interface = self.binding_state_material , coordinator_name = self.deviceUuid)
-                    self.coordinator.create_statemachine()
-                    
-                    self.coordinator.superstate.task_name = "UnloadCmm"
-                    
-                    self.coordinator.superstate.unavailable()
+                        self.master_tasks = {}
+                        
+                        self.coordinator = coordinator(parent = self, master_task_uuid = master_task_uuid, interface = self.binding_state_material , coordinator_name = self.deviceUuid)
+                        self.coordinator.create_statemachine()
+                        
+                        self.coordinator.superstate.task_name = "UnloadCmm"
+                        
+                        self.coordinator.superstate.unavailable()
                     
                 elif self.has_material == False:
                     self.loading()
@@ -210,19 +229,28 @@ class cmm(object):
                     
                         self.master_uuid = self.deviceUuid+'_'+str(uuid.uuid4())
                         master_task_uuid = copy.deepcopy(self.master_uuid)
-                        self.coordinator_task = "MoveMaterial_4"
+                        if self.part_quality:
+                            if self.part_quality == 'rework':
+                                self.coordinator_task = "MoveMaterial_5"
+                            else:
+                                self.coordinator_task = "MoveMaterial_4"+"_"+self.part_quality
 
-                        self.master_tasks = {}
-                    
-                        self.coordinator = coordinator(parent = self, master_task_uuid = master_task_uuid, interface = self.binding_state_material , coordinator_name = self.deviceUuid)
-                        self.coordinator.create_statemachine()
-                    
-                        self.coordinator.superstate.task_name = "UnloadCmm"
-                    
-                        self.coordinator.superstate.unavailable()
-                    
-                    timer_cycling = Timer(self.cycle_time,func)
-                    timer_cycling.start()
+                            self.master_tasks = {}
+                        
+                            self.coordinator = coordinator(parent = self, master_task_uuid = master_task_uuid, interface = self.binding_state_material , coordinator_name = self.deviceUuid)
+                            self.coordinator.create_statemachine()
+                        
+                            self.coordinator.superstate.task_name = "UnloadCmm"
+                        
+                            self.coordinator.superstate.unavailable()
+
+                    if self.sim:
+                        if self.part_quality!= 'rework':
+                            self.part_quality = self.cell_part()
+                        elif self.part_quality:
+                            self.part_quality = 'reworked'
+                        timer_cycling = Timer(self.cycle_time,func)
+                        timer_cycling.start()
                     
                     
 
@@ -278,16 +306,26 @@ class cmm(object):
 
                     self.master_uuid = self.deviceUuid+'_'+str(uuid.uuid4())
                     master_task_uuid = copy.deepcopy(self.master_uuid)
-                    self.coordinator_task = "MoveMaterial_4"
 
-                    self.master_tasks = {}
-                    
-                    self.coordinator = coordinator(parent = self, master_task_uuid = master_task_uuid, interface = self.binding_state_material , coordinator_name = self.deviceUuid)
-                    self.coordinator.create_statemachine()
-                    
-                    self.coordinator.superstate.task_name = "UnloadCmm"
-                    
-                    self.coordinator.superstate.unavailable()
+                    if self.part_quality!= 'rework':
+                        self.part_quality = self.cell_part()
+                    elif self.part_quality:
+                        self.part_quality = 'reworked'
+                            
+                    if self.part_quality:
+                        if self.part_quality == 'rework':
+                            self.coordinator_task = "MoveMaterial_5"
+                        else:
+                            self.coordinator_task = "MoveMaterial_4"+"_"+self.part_quality
+
+                        self.master_tasks = {}
+                        
+                        self.coordinator = coordinator(parent = self, master_task_uuid = master_task_uuid, interface = self.binding_state_material , coordinator_name = self.deviceUuid)
+                        self.coordinator.create_statemachine()
+                        
+                        self.coordinator.superstate.task_name = "UnloadCmm"
+                        
+                        self.coordinator.superstate.unavailable()
                     
                 else:
                     self.loading()
@@ -386,7 +424,7 @@ class cmm(object):
 
                      
 
-        self.superstate = statemachineModel(host,port)
+        self.superstate = statemachineModel(host,port, sim, cell_part)
 
     def draw(self):
         print "Creating cmm.png diagram"

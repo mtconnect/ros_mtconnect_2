@@ -318,7 +318,7 @@ class Robot:
                 if self.sim:
                     time.sleep(2)
                 else:
-                    self.parent.move_in(ev.text)
+                    self.parent.move_in(ev.text, self.master_tasks[code]['part_quality'])
                 print "Moved in"
 
             elif ev.name == "MoveOut":
@@ -328,11 +328,41 @@ class Robot:
                 else:
                     #Moveout will confirm the completion of unloading/loading tasks
                     complete = None
-                    complete = self.parent.move_out(ev.text)
+                    complete = self.parent.move_out(ev.text, self.master_tasks[code]['part_quality'])
                     if complete:
-                        self.COMPLETED()
+                        self.COMPLETED() #get confirmation from robot
                 print "Moved out"
 
+            elif ev.name == "PickUpTool":
+                print "Picking Up Tool"
+                self.internal_event(RobotEvent('ToolHolder', ev.component, 'MoveIn', ev.value, ev.code, 't1'))
+
+                self.internal_event(RobotEvent('ToolHolder', ev.component, 'GrabPart', ev.value, ev.code, 't1'))
+
+                self.internal_event(RobotEvent('ToolHolder', ev.component, 'MoveOut', ev.value, ev.code, 't1'))
+
+                """
+                if self.sim:
+                    time.sleep(2)
+                else:
+                    self.parent.move_in(ev.text)
+                """
+
+            elif ev.name == "DropOffTool":
+                print "Droping Off Tool"
+                self.internal_event(RobotEvent('ToolHolder', ev.component, 'MoveIn', ev.value, ev.code, 't1'))
+
+                self.internal_event(RobotEvent('ToolHolder', ev.component, 'ReleasePart', ev.value, ev.code, 't1'))
+
+                self.internal_event(RobotEvent('ToolHolder', ev.component, 'MoveOut', ev.value, ev.code, 't1'))
+
+                self.collaborator.superstate.subTask['ToolChange'].superstate.success()
+                """
+                if self.sim:
+                    time.sleep(2)
+                else:
+                    self.parent.move_in(ev.text)
+                """
             elif ev.name == "ReleasePart":
                 print "Releasing the Part onto " + ev.text
                 if self.sim:
@@ -548,7 +578,7 @@ if __name__ == '__main__':
                 self._bridge = mtconnect_bridge.Bridge()
                 self._robot = Robot(host, port, self, False)
 
-            def move_in(self, device = None):
+            def move_in(self, device = None, destination = None):
                 if device == 'conv':
                     rospy.loginfo("Demo moving to 'input_conveyor'")
                     self._bridge.do_work('move', 'input_conveyor')
@@ -561,7 +591,7 @@ if __name__ == '__main__':
                     #repeat for different devices
                     return
 
-            def move_out(self, device = None):
+            def move_out(self, device = None, destination = None):
                 
                 rospy.loginfo("Demo moving to 'all_zeros'")
                 self._bridge.do_work('move', 'all_zeros')

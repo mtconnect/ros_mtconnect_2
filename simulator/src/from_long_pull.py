@@ -57,6 +57,9 @@ def from_long_pull(self, chunk, addr = None):
                                         if self.master_tasks[self.master_uuid]['coordinator'][self.deviceUuid]['SubTask'][collabUuid]:
                                             self.master_tasks[self.master_uuid]['coordinator'][self.deviceUuid]['SubTask'][collabUuid][1] = 'COMPLETE'
                                             self.coordinator.superstate.task.superstate.commit()
+                                        elif event.text == 'INACTIVE' and 'ToolChange' in str(self.master_tasks) and collabUuid == 'r1':
+                                            self.master_tasks[self.master_uuid]['coordinator'][self.deviceUuid]['SubTask']['cnc1'][1] = 'COMPLETE'
+                                            self.coordinator.superstate.task.superstate.success()
                                 elif self.iscollaborator:
                                     #print '\nBSEVENT:: '+event.text
                                     if self.binding_state_material.value() == "PREPARING" and event.text == 'COMMITTING':
@@ -69,7 +72,10 @@ def from_long_pull(self, chunk, addr = None):
                                         component = stream_root[2]
                                         collabUuid = stream_root[3]
                                         #print "Collaborator event"
-                                        if self.master_tasks[self.master_uuid]['coordinator'][self.master_tasks[self.master_uuid]['coordinator'].keys()[0]]['SubTask'][self.deviceUuid] and collabUuid in self.master_tasks[self.master_uuid]['coordinator'][self.master_tasks[self.master_uuid]['coordinator'].keys()[0]]['SubTask'][self.deviceUuid][2]:
+                                        if event.text == 'INACTIVE' and 'ToolChange' in str(self.master_tasks) and collabUuid == 'r1':
+                                            self.event(source.lower(), component, 'SubTask_binding_state', event.text, self.master_uuid, collabUuid)
+                                            
+                                        elif self.master_tasks[self.master_uuid]['coordinator'][self.master_tasks[self.master_uuid]['coordinator'].keys()[0]]['SubTask'][self.deviceUuid] and collabUuid in self.master_tasks[self.master_uuid]['coordinator'][self.master_tasks[self.master_uuid]['coordinator'].keys()[0]]['SubTask'][self.deviceUuid][2]:
                                             if event.tag.split('}')[-1] in self.master_tasks[self.master_uuid]['coordinator'][self.master_tasks[self.master_uuid]['coordinator'].keys()[0]]['SubTask'][self.deviceUuid][3]:
                                                 #print "First Filter"
                                                 self.event(source.lower(), component, 'SubTask_'+event.tag.split('}')[-1], event.text, self.master_uuid, collabUuid)

@@ -21,15 +21,17 @@ import requests, urllib2, uuid
 
 class inputConveyor(object):
 
-    def __init__(self, host, port):
+    def __init__(self, host, port, cell_part):
 
         class statemachineModel(object):
 
-            def __init__(self, host, port):
+            def __init__(self, host, port, cell_part):
 
                 self.initiate_adapter(host, port)
                 self.adapter.start()
                 self.initiate_dataitems()
+
+                self.cell_part = cell_part
 
                 self.initiate_interfaces()
                 
@@ -59,11 +61,22 @@ class inputConveyor(object):
                 
                 self.fail_next = False
 
+                self.internal_buffer = {}
+
+                self.current_part = 'good'
+
+                self.initiate_internal_buffer()
+
                 self.initiate_pull_thread()
 
             def initiate_interfaces(self):
                 self.material_load_interface = MaterialLoad(self)
                 self.material_unload_interface = MaterialUnload(self)
+
+            def initiate_internal_buffer(self):
+                self.internal_buffer['good'] = True
+                self.internal_buffer['bad'] = True
+                self.internal_buffer['rework'] = True
 
             def initiate_adapter(self, host, port):
                 
@@ -107,6 +120,9 @@ class inputConveyor(object):
 
                 thread2= Thread(target = self.start_pull,args=("http://localhost:5000","/robot/sample?interval=100&count=1000",from_long_pull))
                 thread2.start()
+
+                thread3= Thread(target = self.start_pull,args=("http://localhost:5000","/cmm/sample?interval=100&count=1000",from_long_pull))
+                thread3.start()
                 
             def start_pull(self,addr,request, func, stream = True):
 
@@ -139,7 +155,7 @@ class inputConveyor(object):
 
             def OPERATIONAL(self):
 
-                if self.has_material:
+                if False not in self.internal_buffer.values() and self.current_part:
                     self.unloading()
                     
                     self.iscoordinator = True
@@ -147,7 +163,7 @@ class inputConveyor(object):
                 
                     self.master_uuid = self.deviceUuid+'_'+str(uuid.uuid4())
                     master_task_uuid = copy.deepcopy(self.master_uuid)
-                    self.coordinator_task = "MoveMaterial_1"
+                    self.coordinator_task = "MoveMaterial_1"+"_"+self.current_part
                     
                     self.master_tasks = {}
                     self.coordinator = coordinator(parent = self, master_task_uuid = master_task_uuid, interface = self.binding_state_material , coordinator_name = self.deviceUuid)
@@ -157,30 +173,57 @@ class inputConveyor(object):
 
                     self.coordinator.superstate.unavailable()
 
-                else:
-                    """print 'Waiting for a part to arrive!'"""
+                elif False in self.internal_buffer.values() and True in self.internal_buffer.values() and self.current_part:
+                    self.loading()
+                    
+                    self.iscoordinator = False
+                    self.iscollaborator = True
+                    self.master_tasks = {}
+                    self.collaborator = collaborator(parent = self, interface = self.binding_state_material, collaborator_name = self.deviceUuid)
+                    self.collaborator.create_statemachine()
+                    self.collaborator.superstate.task_name = "LoadConv"
+                    self.collaborator.superstate.unavailable()
 
             def IDLE(self):
-                if self.has_material:
+                if False not in self.internal_buffer.values():
                     self.material_load_interface.superstate.DEACTIVATE()
 
-                else:
+                elif False in self.internal_buffer.values() and True in self.internal_buffer.values():
                     self.material_unload_interface.superstate.DEACTIVATE()
 
             def LOADING(self):
-                if not self.has_material:
+                if False in self.internal_buffer.values() and True in self.internal_buffer.values():
                     self.material_load_interface.superstate.IDLE()
 
             def UNLOADING(self):
-                if self.has_material:
+                if False not in self.internal_buffer.values():
                     self.material_unload_interface.superstate.IDLE()
 
             def EXIT_LOADING(self):
+                self.has_material = True
+                
+                self.internal_buffer[self.current_part] = True
+                if self.current_part == 'good':
+                    self.current_part = 'bad'
+                elif self.current_part == 'bad':
+                    self.current_part = 'rework'
+                elif self.current_part == 'rework':
+                    self.current_part = None
+
                 self.material_load_interface.superstate.DEACTIVATE()
+                while self.binding_state_material.value().lower() != 'inactive':
+                    pass
+                time.sleep(1)
+                print "Exiting LOADING"
 
             def EXIT_UNLOADING(self):
                 self.has_material = False #look into it later
-                self.material_unload_interface.superstate.DEACTIVATE()            
+                self.material_unload_interface.superstate.DEACTIVATE()
+                self.internal_buffer[self.current_part] = False
+                while self.binding_state_material.value().lower() != 'inactive':
+                    pass
+                print "Exiting UNLOADING"
+                print self.cell_part(self.current_part)
 
             def load_time_limit(self, limit):
                 self.material_load_interface.superstate.processing_time_limit = limit
@@ -284,7 +327,7 @@ class inputConveyor(object):
                             self.adapter.complete_gather()
 
 
-        self.superstate = statemachineModel(host, port)
+        self.superstate = statemachineModel(host, port, cell_part)
 
     def draw(self):
         print "Creating inputConveyor.png diagram"
@@ -324,7 +367,8 @@ class inputConveyor(object):
                       
                       ['failed', 'base:operational:loading', 'base:operational:idle'],
                       ['failed', 'base:operational:unloading', 'base:operational:idle'],
-                      ['complete', 'base:operational:unloading', 'base:operational:idle'],
+                      {'trigger':'complete', 'source':'base:operational:unloading', 'dest':'base:operational', 'before':'EXIT_UNLOADING', 'after':'OPERATIONAL'},
+                      {'trigger':'complete', 'source':'base:operational:loading', 'dest':'base:operational', 'before':'EXIT_LOADING','after':'OPERATIONAL'},
                       
                       ['start', 'base:operational', 'base:operational:idle'],
                       {'trigger':'robot_material_unload_ready','source':'base:operational:idle','dest':'base:operational', 'after':'EXITING_IDLE'},
@@ -345,9 +389,7 @@ class inputConveyor(object):
         self.statemachine.on_enter('base:operational', 'OPERATIONAL')
         self.statemachine.on_enter('base:operational:idle','IDLE')
         self.statemachine.on_enter('base:operational:loading', 'LOADING')
-        self.statemachine.on_exit('base:operational:loading', 'EXIT_LOADING')
         self.statemachine.on_enter('base:operational:unloading', 'UNLOADING')
-        self.statemachine.on_exit('base:operational:unloading', 'EXIT_UNLOADING')
 
         
 
