@@ -128,12 +128,12 @@ class hurcoClient(object):
       
 if __name__ == '__main__':
     cnc = hurcoClient('192.168.1.42',4503)
-    print "Connection Successfull"
+    print ("Connection Successfull")
     task_execution = cnc.load_run_pgm(tasks.openDoor)
-    print task_execution
+    print (task_execution)
     time.sleep(2)
     task_execution = cnc.load_run_pgm(tasks.closeChuck)
-    print task_execution
+    print (task_execution)
     time.sleep(2)
     task_execution = cnc.load_run_pgm(tasks.closeDoor)
 

@@ -264,8 +264,14 @@ class cmm(object):
                             self.part_quality = self.cell_part()
                         elif self.part_quality:
                             self.part_quality = 'reworked'
+
+                        if self.part_quality== 'good' or self.part_quality == 'reworked':
+                            cycle = self.cmm_client.load_run_pgm(taskcmm.startProgramA)
+                        elif self.part_quality == 'bad':
+                            cycle = self.cmm_client.load_run_pgm(taskcmm.startProgramB)
+                        elif self.part_quality == 'rework':
+                            cycle = self.cmm_client.load_run_pgm(taskcmm.startProgramC)
                             
-                        cycle = self.cmm_client.load_run_pgm(taskcmm.startProgramA)
                         time.sleep(4)
                         status = (self.cmm_client.load_run_pgm(taskcmm.getStatus)).lower()
                         while 'good' not in status and 'bad' not in status and 'rework' not in status:

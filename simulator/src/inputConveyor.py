@@ -65,6 +65,8 @@ class inputConveyor(object):
 
                 self.current_part = 'good'
 
+                self.cycle_count = 0
+
                 self.initiate_internal_buffer()
 
                 self.initiate_pull_thread()
@@ -204,17 +206,18 @@ class inputConveyor(object):
                 
                 self.internal_buffer[self.current_part] = True
                 if self.current_part == 'good':
-                    self.current_part = None
+                    self.current_part = 'bad'
                 elif self.current_part == 'bad':
                     self.current_part = 'rework'
                 elif self.current_part == 'rework':
-                    self.current_part = None
+                    self.current_part = 'good'
+                    self.cycle_count = self.cycle_count + 1
+                    print ("Number of cycles completed: "+ str(self.cycle_count)+ " !")
 
                 self.material_load_interface.superstate.DEACTIVATE()
                 while self.binding_state_material.value().lower() != 'inactive':
                     pass
                 time.sleep(1)
-                print "Exiting LOADING"
 
             def EXIT_UNLOADING(self):
                 self.has_material = False #look into it later
@@ -222,8 +225,8 @@ class inputConveyor(object):
                 self.internal_buffer[self.current_part] = False
                 while self.binding_state_material.value().lower() != 'inactive':
                     pass
-                print "Exiting UNLOADING"
-                print self.cell_part(self.current_part)
+                
+                print (self.cell_part(self.current_part))
 
             def load_time_limit(self, limit):
                 self.material_load_interface.superstate.processing_time_limit = limit

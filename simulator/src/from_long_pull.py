@@ -20,7 +20,7 @@ def from_long_pull(self, chunk, addr = None):
 
             events = y.find('.//'+xmlns+'Events')
             for event in events:
-                try:
+                if True:
                     #THIS CLAUSE? DO WE NEED IT?
                     if 'Availability' in event.tag or 'Execution' in event.tag or 'ControllerMode' in event.tag:
                         #print "1_avail"
@@ -80,11 +80,11 @@ def from_long_pull(self, chunk, addr = None):
                                                 #print "First Filter"
                                                 self.event(source.lower(), component, 'SubTask_'+event.tag.split('}')[-1], event.text, self.master_uuid, collabUuid)
                                             else:
-                                                try:
+                                                if True:
                                                     if event.tag.split('}')[-1] in str(self.master_tasks[self.master_uuid]['collaborators'][collabUuid]['SubTask'][self.collaborator.superstate.task_name]):
                                                         #print "Second Filter"
                                                         self.event(source.lower(), component, 'SubTask_'+event.tag.split('}')[-1], event.text, self.master_uuid, collabUuid)
-                                                except:
+                                                if False:
                                                     "Inavlid Trigger"
 
                                         elif self.master_tasks[self.master_uuid]['collaborators'][self.deviceUuid]['SubTask']  or self.deviceUuid in self.master_tasks[self.master_uuid]['coordinator'][self.master_tasks[self.master_uuid]['coordinator'].keys()[0]]['SubTask'][collabUuid][2]: #single robot case
@@ -109,11 +109,11 @@ def from_long_pull(self, chunk, addr = None):
                                             #print "First Filter"
                                             self.event(source.lower(), component, 'SubTask_'+event.tag.split('}')[-1], event.text, self.master_uuid, collabUuid)
                                         else:
-                                            try:
+                                            if True:
                                                 if event.tag.split('}')[-1] in str(self.master_tasks[self.master_uuid]['collaborators'][collabUuid]['SubTask'][self.collaborator.superstate.task_name]):
                                                     #print "Second Filter"
                                                     self.event(source.lower(), component, 'SubTask_'+event.tag.split('}')[-1], event.text, self.master_uuid, collabUuid)
-                                            except:
+                                            if False:
                                                 "Inavlid Trigger"
 
                                     elif self.master_tasks[self.master_uuid]['collaborators'][self.deviceUuid]['SubTask'] or self.deviceUuid in self.master_tasks[self.master_uuid]['coordinator'][self.master_tasks[self.master_uuid]['coordinator'].keys()[0]]['SubTask'][collabUuid][2]: #single robot case
@@ -162,7 +162,7 @@ def from_long_pull(self, chunk, addr = None):
                             thread1= Thread(target = self.event,args=(source.lower(), component, event.tag.split('}')[-1], event.text))
                             thread1.start()
                     """
-                except:
+                if False:
                     print "Invalid Event"
     #print '\nFROM PULL END'+root[0].attrib['creationTime']+datetime.datetime.now().isoformat()
 def from_long_pull_asset(self,chunk, stream_root = None):

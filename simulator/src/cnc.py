@@ -137,7 +137,7 @@ class cnc(object):
                 self.adapter.begin_gather()
 
                 self.door_state.set_value("CLOSED")
-                self.chuck_state.set_value("CLOSED")
+                self.chuck_state.set_value("OPEN")
                 self.avail1.set_value("AVAILABLE")
                 self.e1.set_value("READY")
                 self.mode1.set_value("AUTOMATIC")
@@ -494,10 +494,10 @@ class cnc(object):
                         if not self.sim and action == 'active': #where should this be : reconsider later
                             closeDoor_completion = self.cnc_client.load_run_pgm(tasks.closeDoor)
                             if closeDoor_completion == True:
-                                time.sleep(2)
+                                time.sleep(3)
                                 eval('self.close_door_interface.superstate.complete()')
                             elif closeDoor_completion == False:
-                                time.sleep(2)
+                                time.sleep(3)
                                 eval('self.close_door_interface.superstate.DEFAULT()')
                         
                     if 'chuck' in name.lower():
@@ -506,10 +506,10 @@ class cnc(object):
                         if not self.sim and action == 'active': #where should this be : reconsider later
                             closeChuck_completion = self.cnc_client.load_run_pgm(tasks.closeChuck)
                             if closeChuck_completion == True:
-                                time.sleep(2)
+                                time.sleep(3)
                                 eval('self.close_chuck_interface.superstate.complete()')
                             elif closeChuck_completion == False:
-                                time.sleep(2)
+                                time.sleep(3)
                                 eval('self.close_chuck_interface.superstate.DEFAULT()')
                         
                 elif name == "MaterialLoad" and action!='unavailable':

@@ -161,6 +161,19 @@ class Robot:
             self.open_door_interface.superstate.start()
             self.close_door_interface.superstate.start()
 
+
+        def FAULT(self):
+
+            self.collaborator.superstate.unavailable()
+            self.open_chuck_interface.superstate.DEACTIVATE()
+            self.close_chuck_interface.superstate.DEACTIVATE()
+            self.open_door_interface.superstate.DEACTIVATE()
+            self.close_door_interface.superstate.DEACTIVATE()
+            self.material_load_interface.superstate.DEACTIVATE()
+            self.material_unload_interface.superstate.DEACTIVATE()
+
+
+            
         def OPERATIONAL(self):
             self.make_idle()
 
@@ -249,31 +262,26 @@ class Robot:
                 self.coordinator.superstate.event(source, comp, name, value, code, text)
 
             elif "Coordinator" in comp and action!='unavailable':
-                
+                self.collaborator.superstate.event(source, comp, name, value, code, text)
                 if 'binding_state' in name and value.lower() == 'committed' and text == self.master_tasks[self.master_uuid]['coordinator'].keys()[0]:
                     if self.material_state.value() == "LOADED":
                         self.material_load_ready()
                     else:
                         self.material_unload_ready()
-                self.collaborator.superstate.event(source, comp, name, value, code, text)
+                
 
 
             elif 'SubTask' in name and action!='unavailable':
+
                 if comp == 'interface_initialization' and source == self.deviceUuid:
                     if 'CloseChuck' in name:
-                        print "\n Robot has moved in!"
-                        print "\n Robot has requested CNC to Close Chuck!"
+                        print ("CloseChuck Request to cnc1")
                     elif 'CloseDoor' in name:
-                        print "\n Robot has released the Part!"
-                        print "\n Robot has moved out!"
-                        print "\n Robot has requested CNC to Close Door!"
+                        print ("CloseDoor Request to cnc1")
                     elif 'OpenChuck' in name:
-                        print "\n Robot has moved in!"
-                        print "\n Robot has grabbed the part!"
-                        print "\n Robot has requested CNC to Open Chuck!"
+                        print ("OpenChuck Request to cnc1")
                     elif 'OpenDoor' in name:
-                        print "\n Robot has requested CNC to Open Door!"
-
+                        print ("OpenDoor Request to cnc1")
                         
                 if self.iscoordinator:
                     self.coordinator.superstate.event(source, comp, name, value, code, text)
@@ -317,104 +325,93 @@ class Robot:
             #print "\nRobotEvent Exit",source,comp,name,value,datetime.datetime.now().isoformat()
 
         def internal_event(self, ev):
+            status = None
             action = ev.value.lower()
             if ev.name == "MoveIn":
+                print ("Moving In " + ev.text)
+                
                 if ['move_in',ev.text,self.master_tasks[self.master_uuid]['part_quality']] not in self.low_level_event_list:
                     self.low_level_event_list.append(['move_in',ev.text,self.master_tasks[self.master_uuid]['part_quality']])
-                print "Moving In " + ev.text
-                if self.sim:
-                    time.sleep(2)
-                else:
-                    self.parent.move_in(ev.text, self.master_tasks[self.master_uuid]['part_quality'])
-                print "Moved in"
+                
+                status = self.parent.move_in(ev.text, self.master_tasks[self.master_uuid]['part_quality'])
+                if status != True:
+                    self.fault()
+                print ("Moved in")
 
             elif ev.name == "MoveOut":
-                print "Moving Out From " + ev.text
+                print ("Moving Out From " + ev.text)
+                
                 if ['move_out',ev.text,self.master_tasks[self.master_uuid]['part_quality']] not in self.low_level_event_list:
                     self.low_level_event_list.append(['move_out',ev.text,self.master_tasks[self.master_uuid]['part_quality']])
-                if self.sim:
-                    time.sleep(2)
-                else:
-                    self.parent.move_out(ev.text, self.master_tasks[self.master_uuid]['part_quality'])
-                print "Moved out"
+
+                status = self.parent.move_out(ev.text, self.master_tasks[self.master_uuid]['part_quality'])
+                if status != True:
+                    self.fault()
+                print ("Moved out")
 
             elif ev.name == "PickUpTool":
-                print "Picking Up Tool"
-                self.internal_event(RobotEvent('ToolHolder', ev.component, 'MoveIn', ev.value, ev.code, 't1'))
+                print ("Picking Up Tool")
+                
+                status = self.internal_event(RobotEvent('ToolHolder', ev.component, 'MoveIn', ev.value, ev.code, 't1'))
+                if status != True:
+                    self.fault()
+                    
+                if status == True:
+                    status = self.internal_event(RobotEvent('ToolHolder', ev.component, 'GrabPart', ev.value, ev.code, 't1'))
+                if status != True:
+                    self.fault()
 
-                self.internal_event(RobotEvent('ToolHolder', ev.component, 'GrabPart', ev.value, ev.code, 't1'))
-
-                self.internal_event(RobotEvent('ToolHolder', ev.component, 'MoveOut', ev.value, ev.code, 't1'))
-
-                """
-                if self.sim:
-                    time.sleep(2)
-                else:
-                    self.parent.move_in(ev.text)
-                """
+                if status == True:
+                    status = self.internal_event(RobotEvent('ToolHolder', ev.component, 'MoveOut', ev.value, ev.code, 't1'))
+                if status != True:
+                    self.fault()
 
             elif ev.name == "DropOffTool":
-                print "Droping Off Tool"
-                self.internal_event(RobotEvent('ToolHolder', ev.component, 'MoveIn', ev.value, ev.code, 't1'))
+                print ("Droping Off Tool")
+                
+                status = self.internal_event(RobotEvent('ToolHolder', ev.component, 'MoveIn', ev.value, ev.code, 't1'))
+                if status != True:
+                    self.fault()
+                    
+                if status == True:
+                    self.internal_event(RobotEvent('ToolHolder', ev.component, 'ReleasePart', ev.value, ev.code, 't1'))
+                if status != True:
+                    self.fault()
+                    
+                if status == True:
+                    self.internal_event(RobotEvent('ToolHolder', ev.component, 'MoveOut', ev.value, ev.code, 't1'))
+                if status != True:
+                    self.fault()
 
-                self.internal_event(RobotEvent('ToolHolder', ev.component, 'ReleasePart', ev.value, ev.code, 't1'))
-
-                self.internal_event(RobotEvent('ToolHolder', ev.component, 'MoveOut', ev.value, ev.code, 't1'))
-
-                self.collaborator.superstate.subTask['ToolChange'].superstate.success()
-                """
-                if self.sim:
-                    time.sleep(2)
+                if status == True:
+                    self.collaborator.superstate.subTask['ToolChange'].superstate.success()
                 else:
-                    self.parent.move_in(ev.text)
-                """
+                    self.fault()
+
             elif ev.name == "ReleasePart":
-                print "Releasing the Part onto " + ev.text
+                print ("Releasing the Part onto " + ev.text)
 
                 if ['release',ev.text,None] not in self.low_level_event_list:
                     self.low_level_event_list.append(['release',ev.text,None])
                     
-                if self.sim:
-                    time.sleep(2)
-                else:
-                    self.parent.release(ev.text)
-                print "Released"
+                status = self.parent.release(ev.text)
+                if status != True:
+                    self.fault()
+                    
+                print ("Released")
 
             elif ev.name == "GrabPart":
-                print "Grabbing Part from " + ev.text
+                print ("Grabbing Part from " + ev.text)
 
                 if ['grab',ev.text,None] not in self.low_level_event_list:
                     self.low_level_event_list.append(['grab',ev.text,None])
                     
-                if self.sim:
-                    time.sleep(2)
-                else:
-                    self.parent.grab(ev.text)
-                print "Grabbed"
+                status = self.parent.grab(ev.text)
+                if status != True:
+                    self.fault()
+                print ("Grabbed")
 
-            elif ev.name == "OpenDoor":
-                eval('self.open_door_interface.superstate.'+action+'()')
-                self.open_door_interface.superstate.active()
-                print "Opening Door"
-                if self.sim:
-                    time.sleep(2)
-                else:
-                    self.parent.open_door(ev.text)
-                self.open_door_interface.superstate.complete()
-                print "Opened Door"
-                self.open_door_interface.superstate.not_ready()
-
-            elif ev.name == "CloseDoor":
-                eval('self.close_door_interface.superstate.'+action+'()')
-                self.close_door_interface.superstate.active()
-                print "Closing Door"
-                if self.sim:
-                    time.sleep(2)
-                else:
-                    self.parent.close_door(ev.text)
-                self.close_door_interface.superstate.complete()
-                print "Closed Door"
-                self.close_door_interface.superstate.not_ready()
+            return status
                     
         def material_event(self, ev):
             action = ev.value.lower()
@@ -529,6 +526,7 @@ class Robot:
 
             ['enable', 'base', 'base:activated'],
 
+            ['fault', 'base', 'base:disabled:fault'],
             ['safety_violation', 'base', 'base:disabled:soft'],
             ['collision', 'base', 'base:disabled:fault:soft'],
             ['hard_fault', 'base', 'base:disable:fault:hard'],
@@ -575,6 +573,7 @@ class Robot:
         statemachine.on_enter('base:operational:idle','IDLE')
         statemachine.on_enter('base:operational:loading', 'LOADING')
         statemachine.on_enter('base:operational:unloading', 'UNLOADING')
+        statemachine.on_enter('base:disabled:fault', 'FAULT')
 
         return statemachine
 

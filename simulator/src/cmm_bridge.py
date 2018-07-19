@@ -61,7 +61,7 @@ class hexagonClient(object):
             self.urlString = self.protocol + '://'+self.url+':' + str(self.localPort)
             return True
         except Exception as e:
-            print str(e)
+            print (str(e))
             return False
 
     def send_data(self, data):
@@ -147,9 +147,9 @@ if __name__ == '__main__':
     #task_execution = cmm.load_run_pgm(taskcmm.getDims)
     #print task_execution
     status = cmm.load_run_pgm(taskcmm.getStatus)
-    print status
+    #print status
     state = cmm.load_run_pgm(taskcmm.getCmmState)
-    print state
+    #print state
     task_execution = cmm.load_run_pgm(taskcmm.startProgramA)
     #time.sleep(0.1)
-    print task_execution
+    #print task_execution

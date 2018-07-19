@@ -79,7 +79,7 @@ class coordinator(object):
                 #samplevent('robot_r1','collaborator','subtask_address',["open_door",'COMMITTED'],execution_lines, 'execute')
                 
                 if comp == 'Task_Collaborator':
-                    if 'binding_state' in name:
+                    if 'binding_state' in name and value.lower() != 'inactive':
                         self.parent.master_tasks[code]['collaborators'][text]['state'][2] = value
                         if value.lower() == 'preparing':
                             self.task.superstate.prepare()
