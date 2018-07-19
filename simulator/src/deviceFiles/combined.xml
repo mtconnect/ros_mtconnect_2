@@ -206,7 +206,7 @@
 					<Components>
 						<MaterialHandlerInterface name="material" id="ml6">
 							<DataItems>
-								<!-- Interfaces -->
+								<!-- Interfaces-->
 								<!--<DataItem type="BINDING" category="EVENT" id="conv2_bind" name="conv2_binding"/>-->
 								<DataItem type="BINDING_STATE" category="EVENT" id="bs6" name="binding_state_material"/>
 								<DataItem type="MATERIAL_LOAD" subType="REQUEST" category="EVENT" id="rlm6" name="material_load"/>
