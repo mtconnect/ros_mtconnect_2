@@ -52,7 +52,7 @@ def from_long_pull(self, chunk, addr = None):
                                         #print "4_bind"
                                         self.event(source.lower(), "Task_Collaborator", "binding_state", event.text, self.master_uuid,  collabUuid)
 
-                                    elif 'BindingState' in event.tag and event.text == "INACTIVE" and self.binding_state_material.value() == "COMMITTED":
+                                    elif 'BindingState' in event.tag and event.text == "INACTIVE" and self.binding_state_material.value() == "COMMITTED" and self.master_uuid in self.master_tasks:
                                         #print "5 bind"
                                         if self.master_tasks[self.master_uuid]['coordinator'][self.deviceUuid]['SubTask'][collabUuid]:
                                             self.master_tasks[self.master_uuid]['coordinator'][self.deviceUuid]['SubTask'][collabUuid][1] = 'COMPLETE'
@@ -66,7 +66,7 @@ def from_long_pull(self, chunk, addr = None):
                                         source = stream_root[1]
                                         collabUuid = stream_root[3]
                                         self.event(source.lower(), "Coordinator", "binding_state", event.text, self.master_uuid,  collabUuid)
-                                    elif self.binding_state_material.value() == "COMMITTED":
+                                    elif self.binding_state_material.value() == "COMMITTED" and self.master_uuid in self.master_tasks:
                                         event = stream_root[0]
                                         source = stream_root[1]
                                         component = stream_root[2]
@@ -96,7 +96,7 @@ def from_long_pull(self, chunk, addr = None):
                                             self.event(source.lower(), 'Coordinator', 'binding_state', event.text, self.master_uuid,  collabUuid)
                                                     
 
-                            elif self.binding_state_material.value() == "COMMITTED":
+                            elif self.binding_state_material.value() == "COMMITTED" and self.master_uuid in self.master_tasks:
                                 stream_root = [event,source,component,x.attrib['uuid']]
                                 if self.iscollaborator:
                                     event = stream_root[0]
@@ -131,7 +131,7 @@ def from_long_pull(self, chunk, addr = None):
                                                 self.event(source.lower(), component, 'SubTask_'+event.tag.split('}')[-1], event.text, self.master_uuid,  collabUuid)
 
                                                 
-                                elif self.iscoordinator:
+                                elif self.iscoordinator and self.master_uuid in self.master_tasks:
                                     #print "3_bind"
                                     event = stream_root[0]
                                     source = stream_root[1]

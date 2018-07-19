@@ -35,7 +35,7 @@ class coordinator(object):
                 #print "HEREEEEEEEEE"
                 
                 if self.initialize:
-                    
+                    time.sleep(0.5)
                     self.task = task.task(parent = self.parent, interface = interface, master_task_uuid = self.master_task_uuid, coordinator = self)
                     self.task.create_statemachine()
                     self.task.superstate.create()
