@@ -108,7 +108,11 @@ class task(object):
 
                     if collaborators_commit == True:
                         self.parent.master_tasks[self.parent.master_uuid]['coordinator'][self.parent.deviceUuid]['Task'][1] = 'COMMITTED'
-                        self.all_commit()
+                        try:
+                            self.all_commit()
+                        except:
+                            time.sleep(0.2)
+                            self.all_commit()
                     else:
                         self.no_commit()
                     

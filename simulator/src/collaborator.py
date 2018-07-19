@@ -206,10 +206,17 @@ class collaborator(object):
                         self.completed()
 
                     elif self.currentSubTask and self.currentSubTask in name:
-                        self.subTask[self.currentSubTask].superstate.event(source, comp, name, value, code, text)
-                        if not self.currentSubTaskState and name.split('_')[1] in self.parent.master_tasks[self.parent.master_uuid]['collaborators'][self.parent.deviceUuid]['SubTask']:
-                            self.currentSubTaskState = value.lower()
-                        
+                        try:
+                            self.subTask[self.currentSubTask].superstate.event(source, comp, name, value, code, text)
+                            if not self.currentSubTaskState and name.split('_')[1] in self.parent.master_tasks[self.parent.master_uuid]['collaborators'][self.parent.deviceUuid]['SubTask']:
+                                self.currentSubTaskState = value.lower()
+
+                        except:
+                            time.sleep(0.500)
+                            self.parent.event(source, comp, name, value, code, text)
+                            if not self.currentSubTaskState and name.split('_')[1] in self.parent.master_tasks[self.parent.master_uuid]['collaborators'][self.parent.deviceUuid]['SubTask']:
+                                self.currentSubTaskState = value.lower()
+                                
                     elif self.subTask:
                         
                         for k,v in self.parent.master_tasks[self.parent.master_uuid]['coordinator'][self.parent.master_tasks[self.parent.master_uuid]['coordinator'].keys()[0]]['SubTask'].iteritems():
@@ -220,8 +227,9 @@ class collaborator(object):
                                     self.currentSubTaskState = value.lower()
                                 except:
                                     time.sleep(0.5)
-                                    self.subTask[v[0]].superstate.event(source, comp, name, value, code, text)
+                                    self.parent.event(source, comp, name, value, code, text)
                                     self.currentSubTaskState = value.lower()
+                                    
                             elif v and name.split('_')[-1] in v[3] and v[0] not in self.subTask:
                                 time.sleep(0.500)
                                 self.parent.event(source, comp, name.split('_')[-1], value, code, text)
