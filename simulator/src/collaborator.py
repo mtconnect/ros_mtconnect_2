@@ -174,7 +174,7 @@ class collaborator(object):
             def event(self, source, comp, name, value, code = None, text = None):
 
                 #print "\nCollabkEvent Enter",source,comp,name,value,datetime.datetime.now().isoformat()
-                if name == 'binding_state' and value.lower() == 'inactive' and self.parent.binding_state_material.value().lower() == 'committed':
+                if name == 'binding_state' and value.lower() == 'inactive' and self.parent.binding_state_material.value().lower() == 'committed' and self.currentSubTask:
                     self.subTask[self.currentSubTask].superstate.success()
                     time.sleep(0.1)
                     self.completed()

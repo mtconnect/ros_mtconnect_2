@@ -10,6 +10,7 @@ from chuck import *
 from coordinator import *
 from collaborator import *
 from mtconnect_adapter import Adapter
+from mtconnect_demo import *
 from long_pull import LongPull
 from data_item import Event, SimpleCondition, Sample, ThreeDSample
 from archetypeToInstance import archetypeToInstance
@@ -259,35 +260,51 @@ class Robot:
                 action = "failure"
 
             if "Collaborator" in comp and action!='unavailable':
-                self.coordinator.superstate.event(source, comp, name, value, code, text)
+                try:
+                    self.coordinator.superstate.event(source, comp, name, value, code, text)
+                except:
+                    time.sleep(0.2)
+                    print ("Error in Coordinator event: sending back to the event method for a retry")
+                    self.event(source, comp, name, value, code, text)
 
             elif "Coordinator" in comp and action!='unavailable':
-                self.collaborator.superstate.event(source, comp, name, value, code, text)
-                if 'binding_state' in name and value.lower() == 'committed' and text == self.master_tasks[self.master_uuid]['coordinator'].keys()[0]:
-                    if self.material_state.value() == "LOADED":
-                        self.material_load_ready()
-                    else:
-                        self.material_unload_ready()
+                try:
+                    self.collaborator.superstate.event(source, comp, name, value, code, text)
+                    if 'binding_state' in name and value.lower() == 'committed' and text == self.master_tasks[self.master_uuid]['coordinator'].keys()[0]:
+                        if self.material_state.value() == "LOADED":
+                            self.material_load_ready()
+                        else:
+                            self.material_unload_ready()
+                except:
+                    time.sleep(0.2)
+                    print ("Error in Collaborator event: sending back to the event method for a retry")
+                    self.event(source, comp, name, value, code, text)
+
                 
 
 
             elif 'SubTask' in name and action!='unavailable':
+                try:
+                    if comp == 'interface_initialization' and source == self.deviceUuid:
+                        if 'CloseChuck' in name:
+                            print ("CloseChuck Request to cnc1")
+                        elif 'CloseDoor' in name:
+                            print ("CloseDoor Request to cnc1")
+                        elif 'OpenChuck' in name:
+                            print ("OpenChuck Request to cnc1")
+                        elif 'OpenDoor' in name:
+                            print ("OpenDoor Request to cnc1")
+                            
+                    if self.iscoordinator:
+                        self.coordinator.superstate.event(source, comp, name, value, code, text)
 
-                if comp == 'interface_initialization' and source == self.deviceUuid:
-                    if 'CloseChuck' in name:
-                        print ("CloseChuck Request to cnc1")
-                    elif 'CloseDoor' in name:
-                        print ("CloseDoor Request to cnc1")
-                    elif 'OpenChuck' in name:
-                        print ("OpenChuck Request to cnc1")
-                    elif 'OpenDoor' in name:
-                        print ("OpenDoor Request to cnc1")
-                        
-                if self.iscoordinator:
-                    self.coordinator.superstate.event(source, comp, name, value, code, text)
+                    elif self.iscollaborator:
+                        self.collaborator.superstate.event(source, comp, name, value, code, text)
 
-                elif self.iscollaborator:
-                    self.collaborator.superstate.event(source, comp, name, value, code, text)
+                except:
+                    time.sleep(0.5)
+                    print ("Error in SubTask event: sending back to the event method for a retry")
+                    self.event(source, comp, name, value, code, text)
 
 
 
@@ -578,36 +595,10 @@ class Robot:
         return statemachine
 
 if __name__ == '__main__':
-    robot1 = Robot('localhost',7971)
-    time.sleep(1)
-    robot1.superstate.enable()
+    robot = Robot('localhost',7996,RobotInterface(), sim = True)
+    robot.superstate.material_load_interface.superstate.simulated_duration = 40
+    robot.superstate.material_unload_interface.superstate.simulated_duration = 40
+    robot.superstate.enable()
 
-    sample_mtconnect_demo = None
-    if sample_mtconnect_demo:
-        #Sample MTConnect Demo Code
-        class MTConnectDemo:
-            def __init__(self):
-                self._bridge = mtconnect_bridge.Bridge()
-                self._robot = Robot(host, port, self, False)
-
-            def move_in(self, device = None, destination = None):
-                if device == 'conv':
-                    rospy.loginfo("Demo moving to 'input_conveyor'")
-                    self._bridge.do_work('move', 'input_conveyor')
-                    return True
-                elif device == 'cnc1':
-                    rospy.loginfo("Demo moving to 'cnc'")
-                    self._bridge.do_work('move', 'cnc')
-                    return True
-                else:
-                    #repeat for different devices
-                    return
-
-            def move_out(self, device = None, destination = None):
-                
-                rospy.loginfo("Demo moving to 'all_zeros'")
-                self._bridge.do_work('move', 'all_zeros')
-                #This method return indicates unload/load task completion
-                return True
 
 
