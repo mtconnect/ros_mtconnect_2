@@ -189,6 +189,7 @@ class Robot:
                 self.master_tasks = {}
                 self.collaborator = collaborator(parent = self, interface = self.binding_state_material, collaborator_name = 'r1')
                 self.collaborator.create_statemachine()
+                time.sleep(0.1)
                 self.collaborator.superstate.unavailable()
 
         def LOADING(self):
@@ -200,7 +201,8 @@ class Robot:
             self.material_unload_interface.superstate.ready()
 
         def LOADING_COMPLETE(self):
-            self.CHECK_COMPLETION()
+            #self.CHECK_COMPLETION()
+            pass
 
         def CHECK_COMPLETION(self):
             #temporary fix till task/subtask sequencing is determined
@@ -252,7 +254,7 @@ class Robot:
 
             :type ev: .event.Event
             """
-            #print("\nROBOT Event Enter",source,comp,name,value,datetime.datetime.now().isoformat())
+            print("\nROBOT Event Enter",source,comp,name,value,datetime.datetime.now().isoformat())
             ev = RobotEvent(source, comp, name, value, code, text)
 
             #print('Robot received: ', source, comp, name, value)

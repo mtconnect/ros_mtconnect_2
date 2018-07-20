@@ -161,8 +161,7 @@ class collaborator(object):
 
                 if collabUuid == True:
                     self.parent.master_tasks[self.parent.master_uuid]['collaborators'][self.parent.deviceUuid]['state'][2] = 'COMPLETE'
-                    if 'Load' in self.currentSubTask:
-                        self.parent.material_load_interface.superstate.complete()
+                    self.parent.material_load_interface.superstate.complete()
                     self.completed()
                     self.parent.master_tasks = {}
                     self.parent.IDLE()

@@ -15,7 +15,8 @@ tasks.openChuck = 'D:\open_chuck.FNC'
 tasks.closeChuck = 'D:\close_chuck.FNC'
 tasks.openDoor = 'D:\open_door.FNC'
 tasks.closeDoor = 'D:\close_door.FNC'
-tasks.cycle = 'D:\AMT RH-2.HWM'
+#tasks.cycle = 'D:\AMT RH-2.HWM'
+tasks.cycle = 'D:\FRAME.HWM'
 
 local_vendor = "0025"
 local_passwd = "5twOdw/SXwnvLAJg+QbSpDCV2tkak9WaaLHN9AxAs2sKiZYQxQQ2Whwp0JC0WM+LnooyOjxTFmvD2G1/fVsi8g=="

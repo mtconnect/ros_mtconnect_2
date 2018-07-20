@@ -1,41 +1,32 @@
-#from __future__ import absolute_import, division, print_function, unicode_literals
+from __future__ import absolute_import, division, print_function, unicode_literals
 __metaclass__ = type
 
-import sys
-import os
 import time
-from robot import Robot
-#import rospy
-#import mtconnect_bridge
-#from simulator.src import Robot
-
-devices = ['conv1','cnc1','b1','cmm1','t1']
-destinations = ['good', 'bad', 'rework']
 
 class RobotInterface:
+    """
+    A mock robot interface to use in offline testing. Also specifies the functions the real
+    interface must implement.
+    """
     def __init__(self, sim = True):
         self.sim = sim
 
     def move_in(self, device, destination):
+        print("Robot moving into device={}, dest={}".format(device, destination))
         time.sleep(2)
-        return True 
-        
+        return True
+
     def move_out(self, device, destination):
+        print("Robot moving out of device={}, dest={}".format(device, destination))
         time.sleep(2)
         return True
 
     def grab(self, device):
+        print("Robot grabbing at device={}".format(device))
         time.sleep(2)
         return True
 
     def release(self, device):
+        print("Robot releasing at device={}".format(device))
         time.sleep(2)
         return True
-
-
-
-def main():
-    robot_state_machine = Robot(host, port, RobotInterface())
-
-if __name__ == '__main__':
-    main()
