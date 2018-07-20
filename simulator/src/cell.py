@@ -8,7 +8,7 @@ from coordinator import *
 from collaborator import *
 from hurco_bridge import *
 from cmm_bridge import *
-from mtconnect_demo import RobotInterface
+from robot_interface import RobotInterface
 from mtconnect_adapter import Adapter
 from long_pull import LongPull
 from data_item import Event, SimpleCondition, Sample, ThreeDSample

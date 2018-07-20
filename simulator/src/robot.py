@@ -10,7 +10,7 @@ from chuck import *
 from coordinator import *
 from collaborator import *
 from mtconnect_adapter import Adapter
-from mtconnect_demo import *
+from robot_interface import RobotInterface
 from long_pull import LongPull
 from data_item import Event, SimpleCondition, Sample, ThreeDSample
 from archetypeToInstance import archetypeToInstance
