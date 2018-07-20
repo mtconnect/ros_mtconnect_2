@@ -15,8 +15,8 @@ ACTIONS = [
 TIMEOUT = 20.0
 
 class Bridge:
-    def __init__(self, namespace='ur'):
-        self.action_client = actionlib.SimpleActionClient(namespace + "/work", DeviceWorkAction)
+    def __init__(self):
+        self.action_client = actionlib.SimpleActionClient("work", DeviceWorkAction)
         if (not self.action_client.wait_for_server(rospy.Duration(TIMEOUT))):
             rospy.logerr("DeviceWork server not available")
 
