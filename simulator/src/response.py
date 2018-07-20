@@ -80,7 +80,7 @@ class Response(object):
                     self.adapter.begin_gather()
                     self.interface.set_value("ACTIVE")
                     self.adapter.complete_gather()
-                    self.COMPLETE()
+                    self.complete()
                     
                 else:
                     self.adapter.begin_gather()
@@ -123,7 +123,6 @@ class Response(object):
                 self.adapter.begin_gather()
                 self.interface.set_value("FAIL")
                 self.adapter.complete_gather()
-                #print "FAILED!!!!!!!!!!!!!!!!!!!!!"
                 try:
                     self.parent.FAILED()
                 except:

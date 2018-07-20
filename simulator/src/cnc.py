@@ -75,7 +75,7 @@ class cnc(object):
 
             def initiate_cnc_client(self):
                 if not self.sim:
-                    self.cnc_client = hurcoClient('localhost',4503)                    
+                    self.cnc_client = hurcoClient('192.168.1.42',4503)                    
 
             def initiate_interfaces(self):
                 self.material_load_interface = MaterialLoad(self)
@@ -84,13 +84,13 @@ class cnc(object):
                 if self.sim:
                     self.open_chuck_interface = OpenChuck(self)
                     self.close_chuck_interface = CloseChuck(self)
-                    #self.open_door_interface = OpenDoor(self)
-                    #self.close_door_interface = CloseDoor(self)
+                    self.open_door_interface = OpenDoor(self)
+                    self.close_door_interface = CloseDoor(self)
                 else:
                     self.open_chuck_interface = OpenChuck(self, self.sim)
                     self.close_chuck_interface = CloseChuck(self, self.sim)
-                    #self.open_door_interface = OpenDoor(self, self.sim)
-                    #self.close_door_interface = CloseDoor(self, self.sim)
+                    self.open_door_interface = OpenDoor(self, self.sim)
+                    self.close_door_interface = CloseDoor(self, self.sim)
 
             def initiate_adapter(self, host, port):
                 
@@ -114,11 +114,11 @@ class cnc(object):
                 self.close_chuck = Event('close_chuck')
                 self.adapter.add_data_item(self.close_chuck)
 
-                #self.open_door = Event('open_door')
-                #self.adapter.add_data_item(self.open_door)
+                self.open_door = Event('open_door')
+                self.adapter.add_data_item(self.open_door)
 
-                #self.close_door = Event('close_door')
-                #self.adapter.add_data_item(self.close_door)
+                self.close_door = Event('close_door')
+                self.adapter.add_data_item(self.close_door)
 
                 self.chuck_state = Event('chuck_state')
                 self.adapter.add_data_item(self.chuck_state)
@@ -136,7 +136,7 @@ class cnc(object):
                 
                 self.adapter.begin_gather()
 
-                self.door_state.set_value("OPEN")
+                self.door_state.set_value("CLOSED")
                 self.chuck_state.set_value("OPEN")
                 self.avail1.set_value("AVAILABLE")
                 self.e1.set_value("READY")
@@ -144,8 +144,8 @@ class cnc(object):
                 self.binding_state_material.set_value("INACTIVE")
                 self.open_chuck.set_value("NOT_READY")
                 self.close_chuck.set_value("NOT_READY")
-                #self.open_door.set_value("NOT_READY")
-                #self.close_door.set_value("NOT_READY")
+                self.open_door.set_value("NOT_READY")
+                self.close_door.set_value("NOT_READY")
                 self.material_load.set_value("NOT_READY")
                 self.material_unload.set_value("NOT_READY")
 
@@ -162,6 +162,9 @@ class cnc(object):
                 thread3= Thread(target = self.start_pull,args=("http://localhost:5000","/buffer/sample?interval=100&count=1000",from_long_pull))
                 thread3.start()
 
+                thread4= Thread(target = self.start_pull,args=("http://localhost:5000","/cmm/sample?interval=100&count=1000",from_long_pull))
+                thread4.start()
+
             def start_pull(self,addr,request, func, stream = True):
 
                 response = requests.get(addr+request, stream=stream)
@@ -176,8 +179,8 @@ class cnc(object):
             def CNC_NOT_READY(self):
                 self.open_chuck_interface.superstate.DEACTIVATE()
                 self.close_chuck_interface.superstate.DEACTIVATE()
-                #self.open_door_interface.superstate.DEACTIVATE()
-                #self.close_door_interface.superstate.DEACTIVATE()
+                self.open_door_interface.superstate.DEACTIVATE()
+                self.close_door_interface.superstate.DEACTIVATE()
                 self.material_load_interface.superstate.DEACTIVATE()
                 self.material_unload_interface.superstate.DEACTIVATE()
 
@@ -198,8 +201,8 @@ class cnc(object):
             def OPERATIONAL(self):
                 self.open_chuck_interface.superstate.ACTIVATE()
                 self.close_chuck_interface.superstate.ACTIVATE()
-                #self.open_door_interface.superstate.ACTIVATE()
-                #self.close_door_interface.superstate.ACTIVATE()
+                self.open_door_interface.superstate.ACTIVATE()
+                self.close_door_interface.superstate.ACTIVATE()
                 
                 if self.has_material:
                     self.unloading()
@@ -292,6 +295,7 @@ class cnc(object):
                     else:
                         cycle_completion = self.cnc_client.load_run_pgm(tasks.cycle)
                         if cycle_completion == True:
+                            time.sleep(2)
                             func()
                         
 
@@ -348,18 +352,22 @@ class cnc(object):
                         self.collaborator.superstate.unavailable()
                         
                 elif "Response" and "chuck" in self.interfaceType:
+                    self.adapter.begin_gather()
                     if "open" in self.interfaceType:
                         self.has_material = False
-                        self.chuck_state = "OPEN"
+                        self.chuck_state.set_value("OPEN")
                     elif "close" in self.interfaceType:
                         self.has_material = True
-                        self.chuck_state = "CLOSED"
-
+                        self.chuck_state.set_value("CLOSED")
+                    self.adapter.complete_gather()
                 elif "Response" and "door" in self.interfaceType:
+                    self.adapter.begin_gather()
                     if "open" in self.interfaceType:
-                        self.door_state = "OPEN"
+                        self.door_state.set_value("OPEN")
                     elif "close" in self.interfaceType:
-                        self.door_state = "CLOSED"
+                        self.door_state.set_value("CLOSED")
+
+                    self.adapter.complete_gather()
                     
             
             def EXITING_IDLE(self):
@@ -412,7 +420,7 @@ class cnc(object):
             def event(self, source, comp, name, value, code = None, text = None):
                 
                 self.events.append([source, comp, name, value, code, text])
-
+                
                 action= value.lower()
 
                 if action == "fail":
@@ -425,6 +433,7 @@ class cnc(object):
                     self.collaborator.superstate.event(source, comp, name, value, code, text)
 
                 elif 'SubTask' in name and action!='unavailable':
+                    """ #for manually operated door
                     if 'door' in name.lower(): #add self.sim later
                         if 'open' in name.lower():
                             if self.wait_for_completion:
@@ -444,58 +453,65 @@ class cnc(object):
                                 
                             if action == 'active':
                                 self.wait_for_completion = True
-                        
-                    elif self.iscoordinator == True:
+                    """
+                    if self.iscoordinator == True:
                         self.coordinator.superstate.event(source, comp, name, value, code, text)
 
                     elif self.iscollaborator == True:
                         self.collaborator.superstate.event(source, comp, name, value, code, text)
                     
                 elif "Open" in name and action!='unavailable':
-                    """
+                    
                     if 'door' in name.lower():
-                        eval('self.open_door_interface.superstate.'+action+'()')
                         
-                        if action == 'active': #where should this be : reconsider later
+                        eval('self.open_door_interface.superstate.'+action+'()')
+                        if not self.sim and action == 'active': #where should this be : reconsider later
                             openDoor_completion = self.cnc_client.load_run_pgm(tasks.openDoor)
                             if openDoor_completion == True:
+                                time.sleep(2)
                                 eval('self.open_door_interface.superstate.complete()')
                             elif openDoor_completion == False:
+                                time.sleep(2)
                                 eval('self.open_door_interface.superstate.DEFAULT()')
-                                
-                    """
+                    
                     if 'chuck' in name.lower():
                         eval('self.open_chuck_interface.superstate.'+action+'()')
 
-                        if action == 'active': #where should this be : reconsider later
+                        if not self.sim and action == 'active': #where should this be : reconsider later
                             openChuck_completion = self.cnc_client.load_run_pgm(tasks.openChuck)
                             if openChuck_completion == True:
+                                time.sleep(2)
                                 eval('self.open_chuck_interface.superstate.complete()')
                             elif openChuck_completion == False:
+                                time.sleep(2)
                                 eval('self.open_chuck_interface.superstate.DEFAULT()')
-
+                        
                 elif "Close" in name and action!='unavailable':
-                    """
+                    
                     if 'door' in name.lower():
                         eval('self.close_door_interface.superstate.'+action+'()')
-
-                        if action == 'active': #where should this be : reconsider later
+                        
+                        if not self.sim and action == 'active': #where should this be : reconsider later
                             closeDoor_completion = self.cnc_client.load_run_pgm(tasks.closeDoor)
                             if closeDoor_completion == True:
+                                time.sleep(3)
                                 eval('self.close_door_interface.superstate.complete()')
                             elif closeDoor_completion == False:
+                                time.sleep(3)
                                 eval('self.close_door_interface.superstate.DEFAULT()')
-                    """
+                        
                     if 'chuck' in name.lower():
                         eval('self.close_chuck_interface.superstate.'+action+'()')
-
-                        if action == 'active': #where should this be : reconsider later
+                        
+                        if not self.sim and action == 'active': #where should this be : reconsider later
                             closeChuck_completion = self.cnc_client.load_run_pgm(tasks.closeChuck)
                             if closeChuck_completion == True:
+                                time.sleep(3)
                                 eval('self.close_chuck_interface.superstate.complete()')
                             elif closeChuck_completion == False:
+                                time.sleep(3)
                                 eval('self.close_chuck_interface.superstate.DEFAULT()')
-
+                        
                 elif name == "MaterialLoad" and action!='unavailable':
                     
                     try:
@@ -541,22 +557,7 @@ class cnc(object):
                             self.adapter.begin_gather()
                             self.avail1.set_value(value.upper())
                             self.adapter.complete_gather()
-
-                elif name == "ChuckState" and action!='unavailable':
-                    self.chuck_state = value.upper()
-                    if self.chuck_state == "OPEN":
-                        self.open_chuck_interface.statemachine.set_state('base:active')
-                    elif self.chuck_state == "CLOSED":
-                        self.close_chuck_interface.statemachine.set_state('base:not_ready')
-                    
-                """
-                elif name == "DoorState" and action!='unavailable':
-                    self.door_state = value.upper()
-                    if self.door_state == "OPEN":
-                        self.open_door_interface.statemachine.set_state('base:active')
-                    elif self.door_state == "CLOSED":
-                        self.close_door_interface.statemachine.set_state('base:not_ready')
-                """
+                
 
  
 
