@@ -208,7 +208,7 @@ class Robot:
             #temporary fix till task/subtask sequencing is determined
             while self.master_tasks[self.master_uuid]['collaborators'][self.deviceUuid]['state'][2] != 'COMPLETE' and 'ToolChange' not in str(self.master_tasks):
                 pass
-                
+
         def CHECK_COMPLETION_UL(self):
             #temporary fix till task/subtask sequencing is determined
             #print 'checking completion'
@@ -311,7 +311,6 @@ class Robot:
                     time.sleep(0.5)
                     print ("Error in SubTask event: sending back to the event method for a retry")
                     self.event(source, comp, name, value, code, text)
-
 
 
             elif ev.name.startswith('Material') and action!='unavailable':
