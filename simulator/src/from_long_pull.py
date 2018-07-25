@@ -20,7 +20,7 @@ def from_long_pull(self, chunk, addr = None):
 
             events = y.find('.//'+xmlns+'Events')
             for event in events:
-                try:
+                if True:
                     #THIS CLAUSE? DO WE NEED IT?
                     if 'Availability' in event.tag or 'Execution' in event.tag or 'ControllerMode' in event.tag:
                         #print "1_avail"
@@ -52,33 +52,39 @@ def from_long_pull(self, chunk, addr = None):
                                         #print "4_bind"
                                         self.event(source.lower(), "Task_Collaborator", "binding_state", event.text, self.master_uuid,  collabUuid)
 
-                                    elif 'BindingState' in event.tag and event.text == "INACTIVE" and self.binding_state_material.value() == "COMMITTED":
+                                    elif 'BindingState' in event.tag and event.text == "INACTIVE" and self.binding_state_material.value() == "COMMITTED" and self.master_uuid in self.master_tasks:
                                         #print "5 bind"
                                         if self.master_tasks[self.master_uuid]['coordinator'][self.deviceUuid]['SubTask'][collabUuid]:
                                             self.master_tasks[self.master_uuid]['coordinator'][self.deviceUuid]['SubTask'][collabUuid][1] = 'COMPLETE'
                                             self.coordinator.superstate.task.superstate.commit()
+                                        elif event.text == 'INACTIVE' and 'ToolChange' in str(self.master_tasks) and collabUuid == 'r1':
+                                            self.master_tasks[self.master_uuid]['coordinator'][self.deviceUuid]['SubTask']['cnc1'][1] = 'COMPLETE'
+                                            self.coordinator.superstate.task.superstate.success()
                                 elif self.iscollaborator:
                                     #print '\nBSEVENT:: '+event.text
                                     if self.binding_state_material.value() == "PREPARING" and event.text == 'COMMITTING':
                                         source = stream_root[1]
                                         collabUuid = stream_root[3]
                                         self.event(source.lower(), "Coordinator", "binding_state", event.text, self.master_uuid,  collabUuid)
-                                    elif self.binding_state_material.value() == "COMMITTED":
+                                    elif self.binding_state_material.value() == "COMMITTED" and self.master_uuid in self.master_tasks:
                                         event = stream_root[0]
                                         source = stream_root[1]
                                         component = stream_root[2]
                                         collabUuid = stream_root[3]
                                         #print "Collaborator event"
-                                        if self.master_tasks[self.master_uuid]['coordinator'][self.master_tasks[self.master_uuid]['coordinator'].keys()[0]]['SubTask'][self.deviceUuid] and collabUuid in self.master_tasks[self.master_uuid]['coordinator'][self.master_tasks[self.master_uuid]['coordinator'].keys()[0]]['SubTask'][self.deviceUuid][2]:
+                                        if event.text == 'INACTIVE' and 'ToolChange' in str(self.master_tasks) and collabUuid == 'r1':
+                                            self.event(source.lower(), component, 'SubTask_binding_state', event.text, self.master_uuid, collabUuid)
+                                            
+                                        elif self.master_tasks[self.master_uuid]['coordinator'][self.master_tasks[self.master_uuid]['coordinator'].keys()[0]]['SubTask'][self.deviceUuid] and collabUuid in self.master_tasks[self.master_uuid]['coordinator'][self.master_tasks[self.master_uuid]['coordinator'].keys()[0]]['SubTask'][self.deviceUuid][2]:
                                             if event.tag.split('}')[-1] in self.master_tasks[self.master_uuid]['coordinator'][self.master_tasks[self.master_uuid]['coordinator'].keys()[0]]['SubTask'][self.deviceUuid][3]:
                                                 #print "First Filter"
                                                 self.event(source.lower(), component, 'SubTask_'+event.tag.split('}')[-1], event.text, self.master_uuid, collabUuid)
                                             else:
-                                                try:
+                                                if True:
                                                     if event.tag.split('}')[-1] in str(self.master_tasks[self.master_uuid]['collaborators'][collabUuid]['SubTask'][self.collaborator.superstate.task_name]):
                                                         #print "Second Filter"
                                                         self.event(source.lower(), component, 'SubTask_'+event.tag.split('}')[-1], event.text, self.master_uuid, collabUuid)
-                                                except:
+                                                if False:
                                                     "Inavlid Trigger"
 
                                         elif self.master_tasks[self.master_uuid]['collaborators'][self.deviceUuid]['SubTask']  or self.deviceUuid in self.master_tasks[self.master_uuid]['coordinator'][self.master_tasks[self.master_uuid]['coordinator'].keys()[0]]['SubTask'][collabUuid][2]: #single robot case
@@ -90,7 +96,7 @@ def from_long_pull(self, chunk, addr = None):
                                             self.event(source.lower(), 'Coordinator', 'binding_state', event.text, self.master_uuid,  collabUuid)
                                                     
 
-                            elif self.binding_state_material.value() == "COMMITTED":
+                            elif self.binding_state_material.value() == "COMMITTED" and self.master_uuid in self.master_tasks:
                                 stream_root = [event,source,component,x.attrib['uuid']]
                                 if self.iscollaborator:
                                     event = stream_root[0]
@@ -103,11 +109,11 @@ def from_long_pull(self, chunk, addr = None):
                                             #print "First Filter"
                                             self.event(source.lower(), component, 'SubTask_'+event.tag.split('}')[-1], event.text, self.master_uuid, collabUuid)
                                         else:
-                                            try:
+                                            if True:
                                                 if event.tag.split('}')[-1] in str(self.master_tasks[self.master_uuid]['collaborators'][collabUuid]['SubTask'][self.collaborator.superstate.task_name]):
                                                     #print "Second Filter"
                                                     self.event(source.lower(), component, 'SubTask_'+event.tag.split('}')[-1], event.text, self.master_uuid, collabUuid)
-                                            except:
+                                            if False:
                                                 "Inavlid Trigger"
 
                                     elif self.master_tasks[self.master_uuid]['collaborators'][self.deviceUuid]['SubTask'] or self.deviceUuid in self.master_tasks[self.master_uuid]['coordinator'][self.master_tasks[self.master_uuid]['coordinator'].keys()[0]]['SubTask'][collabUuid][2]: #single robot case
@@ -125,7 +131,7 @@ def from_long_pull(self, chunk, addr = None):
                                                 self.event(source.lower(), component, 'SubTask_'+event.tag.split('}')[-1], event.text, self.master_uuid,  collabUuid)
 
                                                 
-                                elif self.iscoordinator:
+                                elif self.iscoordinator and self.master_uuid in self.master_tasks:
                                     #print "3_bind"
                                     event = stream_root[0]
                                     source = stream_root[1]
@@ -156,7 +162,7 @@ def from_long_pull(self, chunk, addr = None):
                             thread1= Thread(target = self.event,args=(source.lower(), component, event.tag.split('}')[-1], event.text))
                             thread1.start()
                     """
-                except:
+                if False:
                     print "Invalid Event"
     #print '\nFROM PULL END'+root[0].attrib['creationTime']+datetime.datetime.now().isoformat()
 def from_long_pull_asset(self,chunk, stream_root = None):

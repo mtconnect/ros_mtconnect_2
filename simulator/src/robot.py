@@ -10,6 +10,7 @@ from chuck import *
 from coordinator import *
 from collaborator import *
 from mtconnect_adapter import Adapter
+from robot_interface import RobotInterface
 from long_pull import LongPull
 from data_item import Event, SimpleCondition, Sample, ThreeDSample
 from archetypeToInstance import archetypeToInstance
@@ -18,10 +19,14 @@ from from_long_pull import from_long_pull, from_long_pull_asset
 from transitions.extensions import HierarchicalMachine as Machine
 from transitions.extensions.nesting import NestedState
 from threading import Timer, Thread
-import functools, time, re, datetime
-import requests, urllib2, collections
+import collections
+import functools
+import datetime
+import time
+import re
+import requests
+import urllib2
 import xml.etree.ElementTree as ET
-
 
 RobotEvent = collections.namedtuple('RobotEvent', ['source', 'component', 'name', 'value', 'code', 'text'])
 
@@ -52,12 +57,15 @@ class Robot:
             self.master_uuid = str()
 
             self.iscoordinator = False
-            
+
             self.iscollaborator = True
 
             self.fail_next = False
 
-            #self.initiate_pull_thread()
+            self.low_level_event_list = []
+
+            self.initiate_pull_thread()
+            
 
         def initiate_interfaces(self):
             self.material_load_interface = MaterialLoadResponse(self, self.sim)
@@ -66,7 +74,7 @@ class Robot:
             self.close_chuck_interface = CloseChuckRequest(self)
             self.open_door_interface = OpenDoorRequest(self)
             self.close_door_interface = CloseDoorRequest(self)
-            
+
         def initiate_adapter(self, host, port):
             self.adapter = Adapter((host,port))
 
@@ -158,16 +166,31 @@ class Robot:
             self.open_door_interface.superstate.start()
             self.close_door_interface.superstate.start()
 
+
+        def FAULT(self):
+
+            self.collaborator.superstate.unavailable()
+            self.open_chuck_interface.superstate.DEACTIVATE()
+            self.close_chuck_interface.superstate.DEACTIVATE()
+            self.open_door_interface.superstate.DEACTIVATE()
+            self.close_door_interface.superstate.DEACTIVATE()
+            self.material_load_interface.superstate.DEACTIVATE()
+            self.material_unload_interface.superstate.DEACTIVATE()
+
+
+            
         def OPERATIONAL(self):
             self.make_idle()
 
         def IDLE(self):
-            self.material_unload_interface.superstate.not_ready()
-            self.material_load_interface.superstate.not_ready()
-            self.master_tasks = {}
-            self.collaborator = collaborator(parent = self, interface = self.binding_state_material, collaborator_name = 'r1')
-            self.collaborator.create_statemachine()
-            self.collaborator.superstate.unavailable()
+            if 'ToolChange' not in str(self.master_tasks):
+                self.material_unload_interface.superstate.not_ready()
+                self.material_load_interface.superstate.not_ready()
+                self.master_tasks = {}
+                self.collaborator = collaborator(parent = self, interface = self.binding_state_material, collaborator_name = 'r1')
+                self.collaborator.create_statemachine()
+                time.sleep(0.1)
+                self.collaborator.superstate.unavailable()
 
         def LOADING(self):
             self.material_unload_interface.superstate.not_ready()
@@ -178,11 +201,12 @@ class Robot:
             self.material_unload_interface.superstate.ready()
 
         def LOADING_COMPLETE(self):
-            self.CHECK_COMPLETION()
+            #self.CHECK_COMPLETION()
+            pass
 
         def CHECK_COMPLETION(self):
             #temporary fix till task/subtask sequencing is determined
-            while self.master_tasks[self.master_uuid]['collaborators'][self.deviceUuid]['state'][2] != 'COMPLETE':
+            while self.master_tasks[self.master_uuid]['collaborators'][self.deviceUuid]['state'][2] != 'COMPLETE' and 'ToolChange' not in str(self.master_tasks):
                 pass
 
         def CHECK_COMPLETION_UL(self):
@@ -200,7 +224,7 @@ class Robot:
                             test = False
                 else:
                     test = True
-            
+
         def UNLOADING_COMPLETE(self):
             self.CHECK_COMPLETION_UL()
 
@@ -230,56 +254,67 @@ class Robot:
 
             :type ev: .event.Event
             """
-            #print "\nROBOT Event Enter",source,comp,name,value,datetime.datetime.now().isoformat()
+            print("\nROBOT Event Enter",source,comp,name,value,datetime.datetime.now().isoformat())
             ev = RobotEvent(source, comp, name, value, code, text)
 
             #print('Robot received: ', source, comp, name, value)
             self.events.append(ev)
-            
+
             action = value.lower()
 
             if action == "fail":
                 action = "failure"
 
             if "Collaborator" in comp and action!='unavailable':
-                self.coordinator.superstate.event(source, comp, name, value, code, text)
+                try:
+                    self.coordinator.superstate.event(source, comp, name, value, code, text)
+                except:
+                    time.sleep(0.2)
+                    print ("Error in Coordinator event: sending back to the event method for a retry")
+                    self.event(source, comp, name, value, code, text)
 
             elif "Coordinator" in comp and action!='unavailable':
+                try:
+                    self.collaborator.superstate.event(source, comp, name, value, code, text)
+                    if 'binding_state' in name and value.lower() == 'committed' and text == self.master_tasks[self.master_uuid]['coordinator'].keys()[0]:
+                        if self.material_state.value() == "LOADED":
+                            self.material_load_ready()
+                        else:
+                            self.material_unload_ready()
+                except:
+                    time.sleep(0.2)
+                    print ("Error in Collaborator event: sending back to the event method for a retry")
+                    self.event(source, comp, name, value, code, text)
+
                 
-                if 'binding_state' in name and value.lower() == 'committed' and text == self.master_tasks[self.master_uuid]['coordinator'].keys()[0]:
-                    if self.material_state.value() == "LOADED":
-                        self.material_load_ready()
-                    else:
-                        self.material_unload_ready()
-                self.collaborator.superstate.event(source, comp, name, value, code, text)
 
 
             elif 'SubTask' in name and action!='unavailable':
-                if comp == 'interface_initialization' and source == self.deviceUuid:
-                    if 'CloseChuck' in name:
-                        print "\n Robot has moved in!"
-                        print "\n Robot has requested CNC to Close Chuck!"
-                    elif 'CloseDoor' in name:
-                        print "\n Robot has released the Part!"
-                        print "\n Robot has moved out!"
-                        print "\n Robot has requested CNC to Close Door!"
-                    elif 'OpenChuck' in name:
-                        print "\n Robot has moved in!"
-                        print "\n Robot has grabbed the part!"
-                        print "\n Robot has requested CNC to Open Chuck!"
-                    elif 'OpenDoor' in name:
-                        print "\n Robot has requested CNC to Open Door!"
+                try:
+                    if comp == 'interface_initialization' and source == self.deviceUuid:
+                        if 'CloseChuck' in name:
+                            print ("CloseChuck Request to cnc1")
+                        elif 'CloseDoor' in name:
+                            print ("CloseDoor Request to cnc1")
+                        elif 'OpenChuck' in name:
+                            print ("OpenChuck Request to cnc1")
+                        elif 'OpenDoor' in name:
+                            print ("OpenDoor Request to cnc1")
+                            
+                    if self.iscoordinator:
+                        self.coordinator.superstate.event(source, comp, name, value, code, text)
 
-                        
-                if self.iscoordinator:
-                    self.coordinator.superstate.event(source, comp, name, value, code, text)
+                    elif self.iscollaborator:
+                        self.collaborator.superstate.event(source, comp, name, value, code, text)
 
-                elif self.iscollaborator:
-                    self.collaborator.superstate.event(source, comp, name, value, code, text)
+                except:
+                    time.sleep(0.5)
+                    print ("Error in SubTask event: sending back to the event method for a retry")
+                    self.event(source, comp, name, value, code, text)
 
 
             elif ev.name.startswith('Material') and action!='unavailable':
-                #print "in material method"
+                #print("in material method")
                 self.material_event(ev)
 
             elif comp == 'internal_event':
@@ -292,6 +327,7 @@ class Robot:
                         eval('self.open_chuck_interface.superstate.'+action+'()')
                     elif 'Close' in name:
                         eval('self.close_chuck_interface.superstate.'+action+'()')
+                        
                 elif 'Door' in name:
                     if 'Open' in name:
                         eval('self.open_door_interface.superstate.'+action+'()')
@@ -308,75 +344,102 @@ class Robot:
             else:
                 """#print('Unknown event: ' + str(ev))"""
 
-            #print "\nRobotEvent Exit",source,comp,name,value,datetime.datetime.now().isoformat()
+            #print("\nRobotEvent Exit",source,comp,name,value,datetime.datetime.now().isoformat())
 
         def internal_event(self, ev):
+            status = None
             action = ev.value.lower()
             if ev.name == "MoveIn":
-                print "Moving In " + ev.text
-                if self.sim:
-                    time.sleep(2)
-                else:
-                    self.parent.move_in(ev.text)
-                print "Moved in"
+                print ("Moving In " + ev.text)
+                
+                if ['move_in',ev.text,self.master_tasks[self.master_uuid]['part_quality']] not in self.low_level_event_list:
+                    self.low_level_event_list.append(['move_in',ev.text,self.master_tasks[self.master_uuid]['part_quality']])
+                
+                status = self.parent.move_in(ev.text, self.master_tasks[self.master_uuid]['part_quality'])
+                if status != True:
+                    self.fault()
+                print ("Moved in")
 
             elif ev.name == "MoveOut":
-                print "Moving Out From " + ev.text
-                if self.sim:
-                    time.sleep(2)
+                print ("Moving Out From " + ev.text)
+                
+                if ['move_out',ev.text,self.master_tasks[self.master_uuid]['part_quality']] not in self.low_level_event_list:
+                    self.low_level_event_list.append(['move_out',ev.text,self.master_tasks[self.master_uuid]['part_quality']])
+
+                status = self.parent.move_out(ev.text, self.master_tasks[self.master_uuid]['part_quality'])
+                if status != True:
+                    self.fault()
+                print ("Moved out")
+
+            elif ev.name == "PickUpTool":
+                print ("Picking Up Tool")
+                
+                status = self.internal_event(RobotEvent('ToolHolder', ev.component, 'MoveIn', ev.value, ev.code, 't1'))
+                if status != True:
+                    self.fault()
+                    
+                if status == True:
+                    status = self.internal_event(RobotEvent('ToolHolder', ev.component, 'GrabPart', ev.value, ev.code, 't1'))
+                if status != True:
+                    self.fault()
+
+                if status == True:
+                    status = self.internal_event(RobotEvent('ToolHolder', ev.component, 'MoveOut', ev.value, ev.code, 't1'))
+                if status != True:
+                    self.fault()
+
+            elif ev.name == "DropOffTool":
+                print ("Droping Off Tool")
+                
+                status = self.internal_event(RobotEvent('ToolHolder', ev.component, 'MoveIn', ev.value, ev.code, 't1'))
+                if status != True:
+                    self.fault()
+                    
+                if status == True:
+                    self.internal_event(RobotEvent('ToolHolder', ev.component, 'ReleasePart', ev.value, ev.code, 't1'))
+                if status != True:
+                    self.fault()
+                    
+                if status == True:
+                    self.internal_event(RobotEvent('ToolHolder', ev.component, 'MoveOut', ev.value, ev.code, 't1'))
+                if status != True:
+                    self.fault()
+
+                if status == True:
+                    self.collaborator.superstate.subTask['ToolChange'].superstate.success()
                 else:
-                    #Moveout will confirm the completion of unloading/loading tasks
-                    complete = None
-                    complete = self.parent.move_out(ev.text)
-                    if complete:
-                        self.COMPLETED()
-                print "Moved out"
+                    self.fault()
 
             elif ev.name == "ReleasePart":
-                print "Releasing the Part onto " + ev.text
-                if self.sim:
-                    time.sleep(2)
-                else:
-                    self.parent.release(ev.text)
-                print "Released"
+                print ("Releasing the Part onto " + ev.text)
+
+                if ['release',ev.text,None] not in self.low_level_event_list:
+                    self.low_level_event_list.append(['release',ev.text,None])
+                    
+                status = self.parent.release(ev.text)
+                if status != True:
+                    self.fault()
+                    
+                print ("Released")
 
             elif ev.name == "GrabPart":
-                print "Grabbing Part from " + ev.text
-                if self.sim:
-                    time.sleep(2)
-                else:
-                    self.parent.grab(ev.text)
-                print "Grabbed"
+                print ("Grabbing Part from " + ev.text)
 
-            elif ev.name == "OpenDoor":
-                eval('self.open_door_interface.superstate.'+action+'()')
-                self.open_door_interface.superstate.active()
-                print "Opening Door"
-                if self.sim:
-                    time.sleep(2)
-                else:
-                    self.parent.open_door(ev.text)
-                self.open_door_interface.superstate.complete()
-                print "Opened Door"
-                self.open_door_interface.superstate.not_ready()
+                if ['grab',ev.text,None] not in self.low_level_event_list:
+                    self.low_level_event_list.append(['grab',ev.text,None])
+                    
+                status = self.parent.grab(ev.text)
+                if status != True:
+                    self.fault()
+                print ("Grabbed")
 
-            elif ev.name == "CloseDoor":
-                eval('self.close_door_interface.superstate.'+action+'()')
-                self.close_door_interface.superstate.active()
-                print "Closing Door"
-                if self.sim:
-                    time.sleep(2)
-                else:
-                    self.parent.close_door(ev.text)
-                self.close_door_interface.superstate.complete()
-                print "Closed Door"
-                self.close_door_interface.superstate.not_ready()
+            return status
                     
         def material_event(self, ev):
             action = ev.value.lower()
             if action == "fail":
                 action = "failure"
-                
+
             if ev.name == "MaterialLoad":
                 if ev.value.lower() == 'complete':
                     self.complete()
@@ -390,23 +453,23 @@ class Robot:
                     eval('self.material_unload_interface.superstate.'+action+'()')
 
             else:
-                """#print "raise(Exception('Unknown Material event: ' + str(ev)))'"""
+                """raise(Exception('Unknown Material event: ' + str(ev)))"""
 
         def controller_event(self, ev):
             if ev.name == "ControllerMode":
                 if ev.source.lower() == 'robot':
-                    
+
                     self.adapter.begin_gather()
                     self.mode1.set_value(ev.value.upper())
                     self.adapter.complete_gather()
-                    
+
             elif ev.name == "Execution":
                 if ev.source.lower() == 'robot':
-                    
+
                     self.adapter.begin_gather()
                     self.e1.set_value(ev.value.upper())
                     self.adapter.complete_gather()
-                    
+
             else:
                 """raise(Exception('Unknown Controller event: ' + str(ev)))"""
 
@@ -414,7 +477,7 @@ class Robot:
         def device_event(self, ev):
             if ev.name == 'Availability':
                 if ev.source.lower() == 'robot':
-                    
+
                     self.adapter.begin_gather()
                     self.avail1.set_value(ev.value.upper())
                     self.adapter.complete_gather()
@@ -485,6 +548,7 @@ class Robot:
 
             ['enable', 'base', 'base:activated'],
 
+            ['fault', 'base', 'base:disabled:fault'],
             ['safety_violation', 'base', 'base:disabled:soft'],
             ['collision', 'base', 'base:disabled:fault:soft'],
             ['hard_fault', 'base', 'base:disable:fault:hard'],
@@ -531,40 +595,15 @@ class Robot:
         statemachine.on_enter('base:operational:idle','IDLE')
         statemachine.on_enter('base:operational:loading', 'LOADING')
         statemachine.on_enter('base:operational:unloading', 'UNLOADING')
+        statemachine.on_enter('base:disabled:fault', 'FAULT')
 
         return statemachine
 
 if __name__ == '__main__':
-    robot1 = Robot('localhost',7971)
-    time.sleep(1)
-    robot1.superstate.enable()
+    robot = Robot('localhost',7996,RobotInterface(), sim = True)
+    robot.superstate.material_load_interface.superstate.simulated_duration = 40
+    robot.superstate.material_unload_interface.superstate.simulated_duration = 40
+    robot.superstate.enable()
 
-    sample_mtconnect_demo = None
-    if sample_mtconnect_demo:
-        #Sample MTConnect Demo Code
-        class MTConnectDemo:
-            def __init__(self):
-                self._bridge = mtconnect_bridge.Bridge()
-                self._robot = Robot(host, port, self, False)
-
-            def move_in(self, device = None):
-                if device == 'conv':
-                    rospy.loginfo("Demo moving to 'input_conveyor'")
-                    self._bridge.do_work('move', 'input_conveyor')
-                    return True
-                elif device == 'cnc1':
-                    rospy.loginfo("Demo moving to 'cnc'")
-                    self._bridge.do_work('move', 'cnc')
-                    return True
-                else:
-                    #repeat for different devices
-                    return
-
-            def move_out(self, device = None):
-                
-                rospy.loginfo("Demo moving to 'all_zeros'")
-                self._bridge.do_work('move', 'all_zeros')
-                #This method return indicates unload/load task completion
-                return True
 
 

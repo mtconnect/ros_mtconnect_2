@@ -12,6 +12,7 @@ from data_item import Event, SimpleCondition, Sample, ThreeDSample
 from archetypeToInstance import archetypeToInstance
 from from_long_pull import from_long_pull, from_long_pull_asset
 
+from cmm_bridge import *
 from transitions.extensions import HierarchicalMachine as Machine
 from transitions.extensions.nesting import NestedState
 from threading import Timer, Thread
@@ -22,14 +23,18 @@ import xml.etree.ElementTree as ET
 
 class cmm(object):
 
-    def __init__(self,host,port):
+    def __init__(self,host,port, sim = True, cell_part = None):
 
         class statemachineModel(object):
 
-            def __init__(self,host,port):
+            def __init__(self,host,port,sim, cell_part):
                 
                 self.initiate_adapter(host,port)
                 self.adapter.start()
+
+                self.sim = sim
+                self.cell_part = cell_part
+                
                 self.initiate_dataitems()
 
                 self.initiate_interfaces()
@@ -61,8 +66,17 @@ class cmm(object):
                 self.has_material = False
                 
                 self.fail_next = False
+
+                self.part_quality = None
+
+                self.initiate_cmm_client()
                 
                 self.initiate_pull_thread()
+
+            def initiate_cmm_client(self):
+                if not self.sim:
+                    self.cmm_client = hexagonClient('192.168.1.41', 5000, 5000)
+                    self.cmm_client.connect()
 
             def initiate_interfaces(self):
                 self.material_load_interface = MaterialLoad(self)
@@ -105,7 +119,7 @@ class cmm(object):
 
             def initiate_pull_thread(self):
 
-                thread= Thread(target = self.start_pull,args=("http://localhost:5000","/conv2/sample?interval=100&count=1000",from_long_pull))
+                thread= Thread(target = self.start_pull,args=("http://localhost:5000","/conv/sample?interval=100&count=1000",from_long_pull))
                 thread.start()
 
                 thread2= Thread(target = self.start_pull,args=("http://localhost:5000","/robot/sample?interval=100&count=1000",from_long_pull))
@@ -113,6 +127,9 @@ class cmm(object):
 
                 thread3= Thread(target = self.start_pull,args=("http://localhost:5000","/buffer/sample?interval=100&count=1000",from_long_pull))
                 thread3.start()
+
+                thread4= Thread(target = self.start_pull,args=("http://localhost:5000","/cnc/sample?interval=100&count=1000",from_long_pull))
+                thread4.start()
 
             def start_pull(self,addr,request, func, stream = True):
 
@@ -152,16 +169,26 @@ class cmm(object):
 
                     self.master_uuid = self.deviceUuid+'_'+str(uuid.uuid4())
                     master_task_uuid = copy.deepcopy(self.master_uuid)
-                    self.coordinator_task = "MoveMaterial_4"
+                    
+                    if self.part_quality!= 'rework':
+                        self.part_quality = self.cell_part()
+                    elif self.part_quality:
+                        self.part_quality = 'reworked'
+                        
+                    if self.part_quality:
+                        if self.part_quality == 'rework':
+                            self.coordinator_task = "MoveMaterial_5"
+                        else:
+                            self.coordinator_task = "MoveMaterial_4"+"_"+self.part_quality
 
-                    self.master_tasks = {}
-                    
-                    self.coordinator = coordinator(parent = self, master_task_uuid = master_task_uuid, interface = self.binding_state_material , coordinator_name = self.deviceUuid)
-                    self.coordinator.create_statemachine()
-                    
-                    self.coordinator.superstate.task_name = "UnloadCmm"
-                    
-                    self.coordinator.superstate.unavailable()
+                        self.master_tasks = {}
+                        
+                        self.coordinator = coordinator(parent = self, master_task_uuid = master_task_uuid, interface = self.binding_state_material , coordinator_name = self.deviceUuid)
+                        self.coordinator.create_statemachine()
+                        
+                        self.coordinator.superstate.task_name = "UnloadCmm"
+                        
+                        self.coordinator.superstate.unavailable()
                     
                 elif self.has_material == False:
                     self.loading()
@@ -210,19 +237,47 @@ class cmm(object):
                     
                         self.master_uuid = self.deviceUuid+'_'+str(uuid.uuid4())
                         master_task_uuid = copy.deepcopy(self.master_uuid)
-                        self.coordinator_task = "MoveMaterial_4"
+                        if self.part_quality:
+                            if self.part_quality == 'rework':
+                                self.coordinator_task = "MoveMaterial_5"
+                            else:
+                                self.coordinator_task = "MoveMaterial_4"+"_"+self.part_quality
 
-                        self.master_tasks = {}
-                    
-                        self.coordinator = coordinator(parent = self, master_task_uuid = master_task_uuid, interface = self.binding_state_material , coordinator_name = self.deviceUuid)
-                        self.coordinator.create_statemachine()
-                    
-                        self.coordinator.superstate.task_name = "UnloadCmm"
-                    
-                        self.coordinator.superstate.unavailable()
-                    
-                    timer_cycling = Timer(self.cycle_time,func)
-                    timer_cycling.start()
+                            self.master_tasks = {}
+                        
+                            self.coordinator = coordinator(parent = self, master_task_uuid = master_task_uuid, interface = self.binding_state_material , coordinator_name = self.deviceUuid)
+                            self.coordinator.create_statemachine()
+                        
+                            self.coordinator.superstate.task_name = "UnloadCmm"
+                        
+                            self.coordinator.superstate.unavailable()
+
+                    if self.sim:
+                        if self.part_quality!= 'rework':
+                            self.part_quality = self.cell_part()
+                        elif self.part_quality:
+                            self.part_quality = 'reworked'
+                        timer_cycling = Timer(self.cycle_time,func)
+                        timer_cycling.start()
+                    else:
+                        if self.part_quality!= 'rework':
+                            self.part_quality = self.cell_part()
+                        elif self.part_quality:
+                            self.part_quality = 'reworked'
+
+                        if self.part_quality== 'good' or self.part_quality == 'reworked':
+                            cycle = self.cmm_client.load_run_pgm(taskcmm.startProgramA)
+                        elif self.part_quality == 'bad':
+                            cycle = self.cmm_client.load_run_pgm(taskcmm.startProgramB)
+                        elif self.part_quality == 'rework':
+                            cycle = self.cmm_client.load_run_pgm(taskcmm.startProgramC)
+                            
+                        time.sleep(4)
+                        status = (self.cmm_client.load_run_pgm(taskcmm.getStatus)).lower()
+                        while 'good' not in status and 'bad' not in status and 'rework' not in status:
+                            status = (self.cmm_client.load_run_pgm(taskcmm.getStatus)).lower()
+                        
+                        func()
                     
                     
 
@@ -278,16 +333,26 @@ class cmm(object):
 
                     self.master_uuid = self.deviceUuid+'_'+str(uuid.uuid4())
                     master_task_uuid = copy.deepcopy(self.master_uuid)
-                    self.coordinator_task = "MoveMaterial_4"
 
-                    self.master_tasks = {}
-                    
-                    self.coordinator = coordinator(parent = self, master_task_uuid = master_task_uuid, interface = self.binding_state_material , coordinator_name = self.deviceUuid)
-                    self.coordinator.create_statemachine()
-                    
-                    self.coordinator.superstate.task_name = "UnloadCmm"
-                    
-                    self.coordinator.superstate.unavailable()
+                    if self.part_quality!= 'rework':
+                        self.part_quality = self.cell_part()
+                    elif self.part_quality:
+                        self.part_quality = 'reworked'
+                            
+                    if self.part_quality:
+                        if self.part_quality == 'rework':
+                            self.coordinator_task = "MoveMaterial_5"
+                        else:
+                            self.coordinator_task = "MoveMaterial_4"+"_"+self.part_quality
+
+                        self.master_tasks = {}
+                        
+                        self.coordinator = coordinator(parent = self, master_task_uuid = master_task_uuid, interface = self.binding_state_material , coordinator_name = self.deviceUuid)
+                        self.coordinator.create_statemachine()
+                        
+                        self.coordinator.superstate.task_name = "UnloadCmm"
+                        
+                        self.coordinator.superstate.unavailable()
                     
                 else:
                     self.loading()
@@ -386,7 +451,7 @@ class cmm(object):
 
                      
 
-        self.superstate = statemachineModel(host,port)
+        self.superstate = statemachineModel(host,port, sim, cell_part)
 
     def draw(self):
         print "Creating cmm.png diagram"

@@ -2,9 +2,9 @@
 <MTConnectAssets xmlns="urn:mtconnect.org:MTConnectAssets:1.5" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="urn:mtconnect.org:MTConnectAssets:1.5 ../../MTConnectAssets_1.5.xsd" xmlns:xlink="http://www.w3.org/1999/xlink">
 	<Header version="1.5" creationTime="2018-02-02T16:16:16" instanceId="1" sender="localhost" assetBufferSize="1024" assetCount="10"/>
 	<Assets>
-		<TaskArchetype assetId="LoadCnc" timestamp="2018-02-02T16:16:16" deviceUuid="ERP">
+		<TaskArchetype assetId="ToolChange" timestamp="2018-02-02T16:16:16" deviceUuid="ERP">
 			<Priority>1</Priority>
-			<TaskType>MATERIAL_LOAD</TaskType>
+			<TaskType>TOOL_CHANGE</TaskType>
 			<Coordinator collaboratorId="cnc1">
 				<CollaboratorType>CNC</CollaboratorType>
 			</Coordinator>
@@ -14,12 +14,12 @@
 				</Collaborator>
 			</Collaborators>
 			<SubTaskRefs>
-				<SubTaskRef order="1">OpenDoor</SubTaskRef>
-				<SubTaskRef order="2">MoveIn</SubTaskRef>
-				<SubTaskRef order="3">CloseChuck</SubTaskRef>
-				<SubTaskRef order="4">ReleasePart</SubTaskRef>
-				<SubTaskRef order="5">MoveOut</SubTaskRef>
-				<SubTaskRef order="6">CloseDoor</SubTaskRef>
+				<SubTaskRef order="1">PickUpTool</SubTaskRef>
+				<SubTaskRef order="2">OpenDoor</SubTaskRef>
+				<SubTaskRef order="3">MoveIn</SubTaskRef>
+				<SubTaskRef order="4">MoveOut</SubTaskRef>
+				<SubTaskRef order="5">CloseDoor</SubTaskRef>
+				<SubTaskRef order="6">DropOffTool</SubTaskRef>
 			</SubTaskRefs>
 		</TaskArchetype>
 	</Assets>
