@@ -1,7 +1,7 @@
 """
 Sample module for implementing a robot that coordinates with a CNC and conveyors.
 """
-#from __future__ import absolute_import, division, print_function, unicode_literals
+from __future__ import absolute_import, division, print_function, unicode_literals
 __metaclass__ = type
 
 from material import *
@@ -254,7 +254,7 @@ class Robot:
 
             :type ev: .event.Event
             """
-            print("\nROBOT Event Enter",source,comp,name,value,datetime.datetime.now().isoformat())
+            #print("\nROBOT Event Enter",source,comp,name,value,datetime.datetime.now().isoformat())
             ev = RobotEvent(source, comp, name, value, code, text)
 
             #print('Robot received: ', source, comp, name, value)

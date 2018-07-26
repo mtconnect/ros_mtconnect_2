@@ -163,8 +163,8 @@ class collaborator(object):
                     self.parent.master_tasks[self.parent.master_uuid]['collaborators'][self.parent.deviceUuid]['state'][2] = 'COMPLETE'
                     self.parent.material_load_interface.superstate.complete()
                     self.completed()
-                    self.parent.master_tasks = {}
-                    self.parent.IDLE()
+                    #self.parent.master_tasks = {}
+                    #self.parent.IDLE()
                     
                 else:
                     self.committed(self.parent.master_tasks[self.parent.master_uuid],self.parent.master_uuid, self.parent.master_tasks[self.parent.master_uuid]['coordinator'].keys()[0])

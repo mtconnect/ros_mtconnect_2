@@ -191,7 +191,7 @@ def from_long_pull_asset(self,chunk, stream_root = None):
 
                 self.master_uuid = main_task_uuid
 
-                if self.master_uuid not in self.master_tasks:
+                if self.master_uuid not in self.master_tasks and value == "PREPARING":
                     self.master_tasks[main_task_uuid] = archetypeToInstance(main_task_archetype,"uuid", main_task_deviceUuid, main_task_uuid).jsonInstance()
 
                 if self.binding_state_material.value() == "INACTIVE": #was PREPARING BEFORE THE CHANGE IN COLLAB
