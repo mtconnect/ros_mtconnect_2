@@ -163,8 +163,8 @@ class collaborator(object):
                     self.parent.master_tasks[self.parent.master_uuid]['collaborators'][self.parent.deviceUuid]['state'][2] = 'COMPLETE'
                     self.parent.material_load_interface.superstate.complete()
                     self.completed()
-                    #self.parent.master_tasks = {}
-                    #self.parent.IDLE()
+                    self.parent.master_tasks = {}
+                    self.parent.IDLE()
                     
                 else:
                     self.committed(self.parent.master_tasks[self.parent.master_uuid],self.parent.master_uuid, self.parent.master_tasks[self.parent.master_uuid]['coordinator'].keys()[0])
@@ -172,87 +172,98 @@ class collaborator(object):
 
             def event(self, source, comp, name, value, code = None, text = None):
 
-                #print "\nCollabkEvent Enter",source,comp,name,value,datetime.datetime.now().isoformat()
-                if name == 'binding_state' and value.lower() == 'inactive' and self.parent.binding_state_material.value().lower() == 'committed' and self.currentSubTask:
-                    self.subTask[self.currentSubTask].superstate.success()
-                    time.sleep(0.1)
-                    self.completed()
-                    
-                elif comp == 'Coordinator' and name == 'binding_state' and value.lower() == 'preparing':
-                    self.parent.master_tasks[code[0]] = code[1]
-                    self.task_created()
-
-                elif comp == 'Coordinator' and  name == 'binding_state':
-                    if value.lower() == 'committing':
-                        if self.parent.deviceUuid != 'r1':
-                            if self.task_name != self.parent.master_tasks[code]['coordinator'][text]['SubTask'][self.parent.deviceUuid][0]:
-                                self.concurrent_task = self.task_name
-                                self.task_name = self.parent.master_tasks[code]['coordinator'][text]['SubTask'][self.parent.deviceUuid][0]
-                                self.concurrent_collaborator =True
-                        self.commit()
-
-                    elif value.lower() == 'committed' and text in self.parent.master_tasks[code]['coordinator']:
-                        self.parent.master_tasks[code]['coordinator'][text]['state'][2] = value
-
-                        t1= Thread(target = self.commited_init)
-                        t1.start()
-
-                elif 'SubTask' in name:
-                    
-                    if 'binding_state' in name and 'ToolChange' in str(self.parent.master_tasks) and value.lower() == 'inactive' and self.parent.binding_state_material.value().lower()=='committed' and text == 'r1':
+		if True:
+                    #print "\nCollabkEvent Enter",source,comp,name,value,datetime.datetime.now().isoformat()
+                    if name == 'binding_state' and value.lower() == 'inactive' and self.parent.binding_state_material.value().lower() == 'committed' and self.currentSubTask:
                         self.subTask[self.currentSubTask].superstate.success()
                         time.sleep(0.1)
                         self.completed()
+                    
+                    elif comp == 'Coordinator' and name == 'binding_state' and value.lower() == 'preparing':
+                        self.parent.master_tasks[code[0]] = code[1]
+                        self.task_created()
 
-                    elif self.currentSubTask and self.currentSubTask in name:
-                        try:
-                            self.subTask[self.currentSubTask].superstate.event(source, comp, name, value, code, text)
-                            if not self.currentSubTaskState and name.split('_')[1] in self.parent.master_tasks[self.parent.master_uuid]['collaborators'][self.parent.deviceUuid]['SubTask']:
-                                self.currentSubTaskState = value.lower()
+                    elif comp == 'Coordinator' and  name == 'binding_state':
+                        if value.lower() == 'committing':
+                            if self.parent.deviceUuid != 'r1':
+                                if self.task_name != self.parent.master_tasks[code]['coordinator'][text]['SubTask'][self.parent.deviceUuid][0]:
+                                    self.concurrent_task = self.task_name
+                                    self.task_name = self.parent.master_tasks[code]['coordinator'][text]['SubTask'][self.parent.deviceUuid][0]
+                                    self.concurrent_collaborator =True
+                            self.commit()
 
-                        except:
-                            time.sleep(0.500)
-                            self.parent.event(source, comp, name, value, code, text)
-                            if not self.currentSubTaskState and name.split('_')[1] in self.parent.master_tasks[self.parent.master_uuid]['collaborators'][self.parent.deviceUuid]['SubTask']:
-                                self.currentSubTaskState = value.lower()
-                                
-                    elif self.subTask:
-                        
-                        for k,v in self.parent.master_tasks[self.parent.master_uuid]['coordinator'][self.parent.master_tasks[self.parent.master_uuid]['coordinator'].keys()[0]]['SubTask'].iteritems():
-                            
-                            if v and name.split('_')[-1] in v[3] and v[0] in self.subTask:
-                                try:
-                                    self.subTask[v[0]].superstate.event(source, comp, name, value, code, text)
+                        elif value.lower() == 'committed' and text in self.parent.master_tasks[code]['coordinator']:
+                            self.parent.master_tasks[code]['coordinator'][text]['state'][2] = value
+
+                            t1= Thread(target = self.commited_init)
+                            t1.start()
+
+                    elif 'SubTask' in name:
+                    
+                        if 'binding_state' in name and 'ToolChange' in str(self.parent.master_tasks) and value.lower() == 'inactive' and self.parent.binding_state_material.value().lower()=='committed' and text == 'r1':
+                            self.subTask[self.currentSubTask].superstate.success()
+                            time.sleep(0.1)
+                            self.completed()
+
+                        elif self.currentSubTask and self.currentSubTask in name:
+                            try:
+                                self.subTask[self.currentSubTask].superstate.event(source, comp, name, value, code, text)
+                                if not self.currentSubTaskState and name.split('_')[1] in self.parent.master_tasks[self.parent.master_uuid]['collaborators'][self.parent.deviceUuid]['SubTask']:
                                     self.currentSubTaskState = value.lower()
-                                except:
-                                    time.sleep(0.5)
-                                    self.parent.event(source, comp, name, value, code, text)
-                                    self.currentSubTaskState = value.lower()
-                                    
-                            elif v and name.split('_')[-1] in v[3] and v[0] not in self.subTask:
+
+                            except Exception as e:
+				print (e)
+				print ("Retrying in 0.500 sec")
                                 time.sleep(0.500)
-                                self.parent.event(source, comp, name.split('_')[-1], value, code, text)
-                                self.currentSubTaskState = value.lower()
-                            else:
-                                collab = None
-                                if k == self.parent.deviceUuid:
-                                    if v: collab = v[2]
+                                self.parent.event(source, comp, name, value, code, text)
+                                if not self.currentSubTaskState and name.split('_')[1] in self.parent.master_tasks[self.parent.master_uuid]['collaborators'][self.parent.deviceUuid]['SubTask']:
+                                    self.currentSubTaskState = value.lower()
+                                
+                        elif self.subTask:
+                        
+                            for k,v in self.parent.master_tasks[self.parent.master_uuid]['coordinator'][self.parent.master_tasks[self.parent.master_uuid]['coordinator'].keys()[0]]['SubTask'].iteritems():
+                            
+                                if v and name.split('_')[-1] in v[3] and v[0] in self.subTask:
+                                    try:
+                                        self.subTask[v[0]].superstate.event(source, comp, name, value, code, text)
+                                        self.currentSubTaskState = value.lower()
+                                    except Exception as e:
+					print (e)
+					print ("Retrying in 0.5 sec")
+                                        time.sleep(0.5)
+                                        self.parent.event(source, comp, name, value, code, text)
+                                        self.currentSubTaskState = value.lower()
                                     
-                                if collab and self.parent.master_tasks[self.parent.master_uuid]['collaborators'][collab]['SubTask'][self.task_name]:
-                                    for t in self.parent.master_tasks[self.parent.master_uuid]['collaborators'][collab]['SubTask'][self.task_name]:
-                                        if name.split('_')[-1] == t[1]:
-                                            self.parent.event(source, comp, name.split('_')[-1], value, code, text)
-                                            break
+                                elif v and name.split('_')[-1] in v[3] and v[0] not in self.subTask:
+                                    time.sleep(0.500)
+                                    self.parent.event(source, comp, name.split('_')[-1], value, code, text)
+                                    self.currentSubTaskState = value.lower()
+                                else:
+                                    collab = None
+                                    if k == self.parent.deviceUuid:
+                                        if v: collab = v[2]
+                                    
+                                    if collab and self.parent.master_tasks[self.parent.master_uuid]['collaborators'][collab]['SubTask'][self.task_name]:
+                                        for t in self.parent.master_tasks[self.parent.master_uuid]['collaborators'][collab]['SubTask'][self.task_name]:
+                                            if name.split('_')[-1] == t[1]:
+                                                self.parent.event(source, comp, name.split('_')[-1], value, code, text)
+                                                break
+                        else:
+                            "Not a valid SubTask"
                     else:
-                        "Not a valid SubTask"
-                else:
 
-                    if value.lower() == 'complete' and None:
+                        if value.lower() == 'complete' and None:
                         
-                        self.parent.adapter.begin_gather()
-                        self.interface.set_value("INACTIVE")
-                        self.parent.adapter.complete_gather()
-                        
+                            self.parent.adapter.begin_gather()
+                            self.interface.set_value("INACTIVE")
+                            self.parent.adapter.complete_gather()
+
+		if False:
+                    print ("Error processing collaborator event:")
+                    print (e)
+                    print ("Retrying in 1 sec")
+                    time.sleep(1)
+                    #self.parent.event(source, comp, name, value, code, text)
                     
         self.superstate = statemachineModel(parent = parent, interface = interface, collaborator_name = collaborator_name)
 

@@ -268,9 +268,10 @@ class Robot:
             if "Collaborator" in comp and action!='unavailable':
                 try:
                     self.coordinator.superstate.event(source, comp, name, value, code, text)
-                except:
+                except Exception as e:
                     time.sleep(0.2)
                     print ("Error in Coordinator event: sending back to the event method for a retry")
+		    print(e)
                     self.event(source, comp, name, value, code, text)
 
             elif "Coordinator" in comp and action!='unavailable':
@@ -281,9 +282,10 @@ class Robot:
                             self.material_load_ready()
                         else:
                             self.material_unload_ready()
-                except:
+                except Exception as e:
                     time.sleep(0.2)
                     print ("Error in Collaborator event: sending back to the event method for a retry")
+		    print (e)
                     self.event(source, comp, name, value, code, text)
 
                 
