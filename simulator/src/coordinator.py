@@ -76,41 +76,54 @@ class coordinator(object):
 
                 
             def event(self, source, comp, name, value, code = None, text = None):
-                #samplevent('robot_r1','collaborator','subtask_address',["open_door",'COMMITTED'],execution_lines, 'execute')
-                
-                if comp == 'Task_Collaborator':
-                    if 'binding_state' in name and value.lower() != 'inactive':
-                        self.parent.master_tasks[code]['collaborators'][text]['state'][2] = value
-                        if value.lower() == 'preparing':
-                            self.task.superstate.prepare()
+		if True:
+                    #samplevent('robot_r1','collaborator','subtask_address',["open_door",'COMMITTED'],execution_lines, 'execute')
+                    if comp == 'Task_Collaborator':
+                        if 'binding_state' in name and value.lower() != 'inactive':
+                            try:
+				self.parent.master_tasks[code]['collaborators'][text]['state'][2] = value
+			    except Exception as e:
+				print (e)
+				time.sleep(0.5)
+				print ("Master Task: "+str(self.parent.master_tasks))
+				print (code+text+self.parent.master_uuid)
+				self.parent.master_tasks[code]['collaborators'][text]['state'][2] = value
+                            if value.lower() == 'preparing':
+                                self.task.superstate.prepare()
 
-                elif 'SubTask' in name:
-                    def commit_task():
-                        if value.lower() == 'fail' or value.lower() == 'complete':
-                            for key,val in self.parent.master_tasks[code]['coordinator'][self.coordinator_name]['SubTask'].iteritems():
-                                if val and (key == text or text in val[2]) and name.split('_')[-1] == val[3]:
-                                    self.parent.master_tasks[code]['coordinator'][self.coordinator_name]['SubTask'][key][1] = value
-                                    self.task.superstate.commit()
+                    elif 'SubTask' in name:
+                        def commit_task():
+                            if value.lower() == 'fail' or value.lower() == 'complete':
+                                for key,val in self.parent.master_tasks[code]['coordinator'][self.coordinator_name]['SubTask'].iteritems():
+                                    if val and (key == text or text in val[2]) and name.split('_')[-1] == val[3]:
+                                        self.parent.master_tasks[code]['coordinator'][self.coordinator_name]['SubTask'][key][1] = value
+                                        self.task.superstate.commit()
                                     
 
-                    t = Thread(target = commit_task)
-                    t.start()
-                    
-                    coordinator_task = None
-                    
-                    if self.parent.master_tasks[code]['coordinator'][self.coordinator_name]['SubTask'][self.coordinator_name][3] in name and text in self.parent.master_tasks[code]['coordinator'][self.coordinator_name]['SubTask'][self.coordinator_name][2]:
-                        coordinator_task = True
+                        t = Thread(target = commit_task)
+                        t.start()
                         
-                    else: #done only for one collaborator at a time
-                        
-                        coordinator_task = self.event_validity_check(source, comp, name, value, code, text)
-                            
-                    if coordinator_task:
-                        self.task.superstate.event(source, comp, name, value, code, text)
-                else:
-                    #print "\nEVENT\n IN\n COORD\n ",source, comp, name, value, code, text
-                    self.parent.event(source, comp, name, value, code, text)
-             
+                        coordinator_task = None
+                    
+                        if self.parent.master_tasks[code]['coordinator'][self.coordinator_name]['SubTask'][self.coordinator_name][3] in name and text in self.parent.master_tasks[code]['coordinator'][self.coordinator_name]['SubTask'][self.coordinator_name][2]:
+                            coordinator_task = True
+                                
+                        else: #done only for one collaborator at a time
+                                
+                            coordinator_task = self.event_validity_check(source, comp, name, value, code, text)
+                                
+                        if coordinator_task:
+                            self.task.superstate.event(source, comp, name, value, code, text)
+                    else:
+                        #print "\nEVENT\n IN\n COORD\n ",source, comp, name, value, code, text
+                        self.parent.event(source, comp, name, value, code, text)
+		if False:
+		    print ("Error processing coordinator event:")
+		    print (e)
+		    print ("Retrying in 1 sec")
+		    time.sleep(1)
+		    #self.parent.event(source, comp, name, value, code, text)
+
         self.superstate = statemachineModel(parent = parent, interface = interface, master_task_uuid = master_task_uuid, coordinator_name =coordinator_name)
 
     def create_statemachine(self):

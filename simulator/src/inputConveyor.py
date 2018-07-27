@@ -156,7 +156,6 @@ class inputConveyor(object):
 
 
             def OPERATIONAL(self):
-
                 if False not in self.internal_buffer.values() and self.current_part:
                     self.unloading()
                     
@@ -206,7 +205,7 @@ class inputConveyor(object):
                 
                 self.internal_buffer[self.current_part] = True
                 if self.current_part == 'good':
-                    self.current_part = None
+                    self.current_part = 'bad'
                 elif self.current_part == 'bad':
                     self.current_part = 'rework'
                 elif self.current_part == 'rework':
@@ -370,8 +369,8 @@ class inputConveyor(object):
                       
                       ['failed', 'base:operational:loading', 'base:operational:idle'],
                       ['failed', 'base:operational:unloading', 'base:operational:idle'],
-                      {'trigger':'complete', 'source':'base:operational:unloading', 'dest':'base:operational', 'before':'EXIT_UNLOADING', 'after':'OPERATIONAL'},
-                      {'trigger':'complete', 'source':'base:operational:loading', 'dest':'base:operational', 'before':'EXIT_LOADING','after':'OPERATIONAL'},
+                      {'trigger':'complete', 'source':'base:operational:unloading', 'dest':'base:operational', 'before':'EXIT_UNLOADING'},
+                      {'trigger':'complete', 'source':'base:operational:loading', 'dest':'base:operational', 'before':'EXIT_LOADING'},
                       
                       ['start', 'base:operational', 'base:operational:idle'],
                       {'trigger':'robot_material_unload_ready','source':'base:operational:idle','dest':'base:operational', 'after':'EXITING_IDLE'},
