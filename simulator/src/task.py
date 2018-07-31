@@ -164,7 +164,11 @@ class task(object):
                     for key, value in self.parent.master_tasks[self.master_task_uuid]['coordinator'][self.coordinator.coordinator_name]['SubTask'].iteritems():
                         if value:
                             if value[1] == 'COMPLETE' or value[1] == 'FAIL' or value[1] == '':
-                                success = True
+                                if key == self.parent.deviceUuid or self.parent.master_tasks[self.master_task_uuid]['collaborators'][key]['state'][2] == 'INACTIVE':
+                                    success = True
+                                else:
+                                    success = False
+                                    break
                             else:
                                 success = False
                                 break
@@ -175,12 +179,12 @@ class task(object):
             def COMPLETE(self):
                 #time.sleep(0.1)
                 
+                self.taskIns = assetUpdate(self.taskIns, "State", "INACTIVE")
+                self.parent.adapter.addAsset('Task', self.master_task_uuid, self.taskIns)
+
                 self.parent.adapter.begin_gather()
                 self.interface.set_value("INACTIVE")
                 self.parent.adapter.complete_gather()
-
-                self.taskIns = assetUpdate(self.taskIns, "State", "INACTIVE")
-                self.parent.adapter.addAsset('Task', self.master_task_uuid, self.taskIns)
 
                 self.parent.adapter.removeAsset(self.master_task_uuid)
 
@@ -189,13 +193,13 @@ class task(object):
             def FAIL(self):
                 #time.sleep(0.1)
 
-                self.parent.adapter.begin_gather()
-                self.interface.set_value("INACTIVE")
-                self.parent.adapter.complete_gather()
-
                 self.taskIns = assetUpdate(self.taskIns, "State", "INACTIVE")
                 self.parent.adapter.addAsset('Task', self.master_task_uuid, self.taskIns)
                 self.parent.adapter.removeAsset(self.master_task_uuid)
+
+                self.parent.adapter.begin_gather()
+                self.interface.set_value("INACTIVE")
+                self.parent.adapter.complete_gather()
                 
                 self.default()
 
