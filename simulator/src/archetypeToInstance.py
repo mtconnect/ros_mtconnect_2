@@ -57,7 +57,7 @@ class archetypeToInstance(object):
             assetArchRef.attrib["assetId"] = str(self.taskArch)
 
             priority = ET.SubElement(taskIns, "Priority")
-            priority.text = str(1) #to be updated later
+            priority.text = self.root.findall('.//'+self.root.tag.split('}')[0]+'}Priority')[0].text
 
             """
             if self.parentRef!="None":
@@ -119,11 +119,12 @@ class archetypeToInstance(object):
             return jsonSubTaskModel
 
         
-    #very much work in progress 
+    #very much work in progress
     def jsonInstance(self):
         jsonModel = {}
         jsonModel['coordinator']={}
         jsonModel['collaborators']={}
+	jsonModel['priority'] = self.root.findall('.//'+self.root.tag.split('}')[0]+'}Priority')[0].text
         part_quality = self.taskArch.split('_')[-1]
         if part_quality in ['good', 'bad', 'rework']:
             jsonModel['part_quality']=part_quality

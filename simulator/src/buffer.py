@@ -164,19 +164,25 @@ class Buffer(object):
                 if self.binding_state_material.value() == "COMMITTED":
                     self.wait_for_task_completion()
                 else:
+                    """
                     if len(self.buffer)<99:
                         self.iscollaborator = True
                     else:
                         self.iscollaborator = False
+                    """
                     if self.has_material:
                         self.iscoordinator = True
+                        self.iscollaborator = False
+                        self.material_load_interface.superstate.DEACTIVATE()
                     else:
                         self.iscoordinator = False
+                        self.iscollaborator = True
+                        self.material_unload_interface.superstate.DEACTIVATE()
+                        
 
                     
-                    if len(self.buffer)<self.buffer_size and self.binding_state_material.value() != "COMMITTED":
+                    if not self.has_material and self.binding_state_material.value() != "COMMITTED":
                         #self.loading()
-                        self.iscollaborator = True
                         self.collaborator = collaborator(parent = self, interface = self.binding_state_material, collaborator_name = self.deviceUuid)
                         self.collaborator.create_statemachine()
                         self.collaborator.superstate.task_name = "LoadBuffer"
@@ -185,7 +191,6 @@ class Buffer(object):
                    
                     if self.has_material and self.binding_state_material.value() != "COMMITTED":
                         #self.unloading()
-                        self.iscoordinator = True
                         self.master_uuid = self.deviceUuid+'_'+str(uuid.uuid4())
                         master_task_uuid = copy.deepcopy(self.master_uuid)
                         self.coordinator_task = "MoveMaterial_3"
@@ -246,6 +251,7 @@ class Buffer(object):
                     while self.binding_state_material.value() == "COMMITTED":
                         pass
                     if self.binding_state_material.value() != "COMMITTED":
+                        time.sleep(0.500)
                         self.IDLE()
                 
                 thread = Thread(target = check)
@@ -254,6 +260,7 @@ class Buffer(object):
 
             def UNLOADED(self):
                 self.buffer_pop()
+                time.sleep(0.1)
 
             def FAILED(self):
                 if "Request" in self.interfaceType:
@@ -282,13 +289,13 @@ class Buffer(object):
                     if self.collaborator.superstate.state == 'base:preparing':
                         self.iscoordinator = False
                         self.iscollaborator = True
-                        self.coordinator.superstate.task.superstate.default()
+                        #self.coordinator.superstate.task.superstate.default()
                         self.material_unload_interface.superstate.DEACTIVATE()
                         
                     elif self.coordinator.superstate.task.superstate.state == 'base:committing':
                         self.iscollaborator = False
                         self.iscoordinator = True
-                        self.collaborator.superstate.default()
+                        #self.collaborator.superstate.default()
                         self.material_load_interface.superstate.DEACTIVATE()
                     
 
@@ -302,6 +309,7 @@ class Buffer(object):
                     
                 
                 if comp == "Task_Collaborator" and self.iscoordinator == True:
+                    """
                     if value.lower() == 'preparing':
                         def timer_out():
                             pass
@@ -310,17 +318,18 @@ class Buffer(object):
                         while timer_check.isAlive():
                             if self.collaborator.superstate.state == 'base:preparing':
                                 self.iscoordinator = False
-                                self.coordinator.superstate.task.superstate.default()
+                                #self.coordinator.superstate.task.superstate.default()
                                 self.material_unload_interface.superstate.DEACTIVATE()
                                 
                                 timer_check.cancel()
                         self.coordinator.superstate.event(source, comp, name, value, code, text)
                     else:
-                        self.coordinator.superstate.event(source, comp, name, value, code, text)
+                    """
+                    self.coordinator.superstate.event(source, comp, name, value, code, text)
 
 
                 elif comp == "Coordinator" and self.iscollaborator == True:
-                    if self.iscoordinator: self.iscoordinator = False
+                    #if self.iscoordinator: self.iscoordinator = False
                     self.collaborator.superstate.event(source, comp, name, value, code, text)
                     
 
@@ -336,16 +345,18 @@ class Buffer(object):
                         if value.lower() == 'ready' and self.state == 'base:operational:idle':
                             eval('self.robot_material_load_ready()')
                         eval('self.material_load_interface.superstate.'+action+'()')
-                    except:
-                        """#print 'incorrect material load event'"""
+                    except Exception as e:
+			print ("Incorrect Event")
+			print (e)
 
                 elif name == "MaterialUnload":
                     try:
                         if value.lower() == 'ready' and self.state == 'base:operational:idle':
                             eval('self.robot_material_unload_ready()')
                         eval('self.material_unload_interface.superstate.'+action+'()')
-                    except:
-                        """#print 'incorrect material unload event'"""
+                    except Exception as e:
+                        print ("Incorrect Event")
+			print (e)
 
                 elif comp == "Controller":
                     

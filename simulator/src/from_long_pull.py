@@ -51,15 +51,16 @@ def from_long_pull(self, chunk, addr = None):
                                     if 'BindingState' in event.tag and event.text != "INACTIVE":
                                         #print "4_bind"
                                         self.event(source.lower(), "Task_Collaborator", "binding_state", event.text, self.master_uuid,  collabUuid)
-
                                     elif 'BindingState' in event.tag and event.text == "INACTIVE" and self.binding_state_material.value() == "COMMITTED" and self.master_uuid in self.master_tasks:
                                         #print "5 bind"
                                         if self.master_tasks[self.master_uuid]['coordinator'][self.deviceUuid]['SubTask'][collabUuid]:
                                             self.master_tasks[self.master_uuid]['coordinator'][self.deviceUuid]['SubTask'][collabUuid][1] = 'COMPLETE'
+                                            self.master_tasks[self.master_uuid]['collaborators'][collabUuid]['state'][2] = 'INACTIVE'
                                             self.coordinator.superstate.task.superstate.commit()
-                                        elif event.text == 'INACTIVE' and 'ToolChange' in str(self.master_tasks) and collabUuid == 'r1':
+                                        elif 'ToolChange' in str(self.master_tasks) and collabUuid == 'r1':
                                             self.master_tasks[self.master_uuid]['coordinator'][self.deviceUuid]['SubTask']['cnc1'][1] = 'COMPLETE'
                                             self.coordinator.superstate.task.superstate.success()
+                                            
                                 elif self.iscollaborator:
                                     #print '\nBSEVENT:: '+event.text
                                     if self.binding_state_material.value() == "PREPARING" and event.text == 'COMMITTING':

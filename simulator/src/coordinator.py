@@ -36,7 +36,7 @@ class coordinator(object):
                 
                 if self.initialize:
                     time.sleep(2.0)
-                    self.task = task.task(parent = self.parent, interface = interface, master_task_uuid = self.master_task_uuid, coordinator = self)
+                    self.task = task.task(parent = self.parent, interface = self.interface, master_task_uuid = self.master_task_uuid, coordinator = self)
                     self.task.create_statemachine()
                     self.task.superstate.create()
 
@@ -79,7 +79,7 @@ class coordinator(object):
 		if True:
                     #samplevent('robot_r1','collaborator','subtask_address',["open_door",'COMMITTED'],execution_lines, 'execute')
                     if comp == 'Task_Collaborator':
-                        if 'binding_state' in name and value.lower() != 'inactive':
+                        if 'binding_state' in name and value.lower() != 'inactive' and code == self.parent.master_uuid and code in self.parent.master_tasks:
                             try:
 				self.parent.master_tasks[code]['collaborators'][text]['state'][2] = value
 			    except Exception as e:
@@ -90,6 +90,7 @@ class coordinator(object):
 				self.parent.master_tasks[code]['collaborators'][text]['state'][2] = value
                             if value.lower() == 'preparing':
                                 self.task.superstate.prepare()
+
 
                     elif 'SubTask' in name:
                         def commit_task():

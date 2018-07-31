@@ -518,16 +518,18 @@ class cnc(object):
                         if action=='ready' and self.state =='base:operational:idle':
                             eval('self.robot_material_load_ready()')
                         eval('self.material_load_interface.superstate.'+action+'()')
-                    except:
-                        "Incorrect event"
+                    except Exception as e:
+                        print ("Incorrect event")
+			print (e)
 
                 elif name == "MaterialUnload" and action!='unavailable':
                     try:
                         if action =='ready' and self.state =='base:operational:idle':
                             eval('self.robot_material_unload_ready()')
                         eval('self.material_unload_interface.superstate.'+action+'()')
-                    except:
-                        "incorrect event"
+                    except Exception as e:
+                        print ("incorrect event")
+			print (e)
 
                 elif comp == "Controller":
                     

@@ -40,7 +40,7 @@ class cell(object):
         self.initiate_buffer('localhost',7696)
         self.initiate_cmm('localhost',7596)
         self.initiate_inputConveyor('localhost',7796)
-        self.initiate_outputConveyor('localhost',7496)
+        #self.initiate_outputConveyor('localhost',7496)
 
     def cell_part(self, value = None):
         if value: self.cell_part_quality = value
