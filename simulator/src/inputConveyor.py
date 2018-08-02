@@ -214,7 +214,7 @@ class inputConveyor(object):
                     print ("Number of cycles completed: "+ str(self.cycle_count)+ " !")
 
                 self.material_load_interface.superstate.DEACTIVATE()
-                while self.binding_state_material.value().lower() != 'inactive':
+                while self.binding_state_material.value().lower() != 'inactive' and self.collaborator.superstate.state != 'base:inactive':
                     pass
                 time.sleep(1)
 
@@ -222,7 +222,7 @@ class inputConveyor(object):
                 self.has_material = False #look into it later
                 self.material_unload_interface.superstate.DEACTIVATE()
                 self.internal_buffer[self.current_part] = False
-                while self.binding_state_material.value().lower() != 'inactive':
+                while self.binding_state_material.value().lower() != 'inactive' and self.coordinator.superstate.state != 'base:inactive':
                     pass
                 
                 print (self.cell_part(self.current_part))
