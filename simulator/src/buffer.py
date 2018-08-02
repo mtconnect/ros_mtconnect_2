@@ -191,7 +191,7 @@ class Buffer(object):
                    
                     if self.has_material and self.binding_state_material.value() != "COMMITTED":
                         #self.unloading()
-			while self.collaborator.superstate.state != 'base:inactive' and self.binding_state_material.value().lower() != 'inactive':
+			while self.collaborator.superstate.state != 'base:inactive' or self.binding_state_material.value().lower() != 'inactive':
 			    pass
                         self.master_uuid = self.deviceUuid+'_'+str(uuid.uuid4())
                         master_task_uuid = copy.deepcopy(self.master_uuid)

@@ -401,7 +401,7 @@ class cnc(object):
               
             def LOADED(self):
                 self.has_material = True
-                while self.collaborator.superstate.state != 'base:inactive' and self.binding_state_material.value().lower() != 'inactive':
+                while self.collaborator.superstate.state != 'base:inactive' or self.binding_state_material.value().lower() != 'inactive':
 		    pass
 
             def UNLOADED(self):
