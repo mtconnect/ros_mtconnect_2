@@ -214,7 +214,7 @@ class inputConveyor(object):
                     print ("Number of cycles completed: "+ str(self.cycle_count)+ " !")
 
                 self.material_load_interface.superstate.DEACTIVATE()
-                while self.binding_state_material.value().lower() != 'inactive':
+                while self.binding_state_material.value().lower() != 'inactive' or self.collaborator.superstate.state != 'base:inactive':
                     pass
                 time.sleep(1)
 

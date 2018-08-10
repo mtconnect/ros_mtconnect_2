@@ -203,8 +203,8 @@ class Buffer(object):
                         self.coordinator.superstate.unavailable()
                         self.material_unload_interface.superstate.IDLE()
                         
-                        thread = Thread(target = self.collaborator_check)
-                        thread.start()
+                        #thread = Thread(target = self.collaborator_check)
+                        #thread.start()
 
 
             def LOADING(self):
@@ -245,13 +245,16 @@ class Buffer(object):
               
             def LOADED(self):
                 self.buffer_append()
+		while self.collaborator.superstate.state != 'base:inactive' or self.binding_state_material.value().lower() != 'inactive':
+		    pass
+		time.sleep(1)
 
             def wait_for_task_completion(self):
                 def check():
                     while self.binding_state_material.value() == "COMMITTED":
                         pass
                     if self.binding_state_material.value() != "COMMITTED":
-                        time.sleep(0.500)
+                        time.sleep(1)
                         self.IDLE()
                 
                 thread = Thread(target = check)

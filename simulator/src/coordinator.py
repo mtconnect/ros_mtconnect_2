@@ -79,7 +79,7 @@ class coordinator(object):
 		if True:
                     #samplevent('robot_r1','collaborator','subtask_address',["open_door",'COMMITTED'],execution_lines, 'execute')
                     if comp == 'Task_Collaborator':
-                        if 'binding_state' in name and value.lower() != 'inactive' and code == self.parent.master_uuid and code in self.parent.master_tasks:
+                        if 'binding_state' in name and value.lower() != 'inactive' and code == self.parent.master_uuid and code in self.parent.master_tasks and text in self.parent.master_tasks[code]['collaborators']:
                             try:
 				self.parent.master_tasks[code]['collaborators'][text]['state'][2] = value
 			    except Exception as e:
