@@ -191,8 +191,6 @@ class Buffer(object):
                    
                     if self.has_material and self.binding_state_material.value() != "COMMITTED":
                         #self.unloading()
-			while self.collaborator.superstate.state != 'base:inactive' or self.binding_state_material.value().lower() != 'inactive':
-			    pass
                         self.master_uuid = self.deviceUuid+'_'+str(uuid.uuid4())
                         master_task_uuid = copy.deepcopy(self.master_uuid)
                         self.coordinator_task = "MoveMaterial_3"
@@ -247,6 +245,9 @@ class Buffer(object):
               
             def LOADED(self):
                 self.buffer_append()
+		while self.collaborator.superstate.state != 'base:inactive' or self.binding_state_material.value().lower() != 'inactive':
+		    pass
+		time.sleep(1)
 
             def wait_for_task_completion(self):
                 def check():
