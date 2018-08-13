@@ -1,5 +1,5 @@
 import os, sys
-sys.path.insert(0,os.getcwd()+'\\utils')
+sys.path.insert(0,os.getcwd()+'\\configFiles')
 
 from material import *
 from door import *
@@ -17,7 +17,7 @@ from transitions.extensions import HierarchicalMachine as Machine
 from transitions.extensions.nesting import NestedState
 from threading import Timer, Thread
 import functools, time, re, copy, uuid
-import requests, urllib2
+import requests, urllib2, json
 import xml.etree.ElementTree as ET
         
 
@@ -75,7 +75,9 @@ class cmm(object):
 
             def initiate_cmm_client(self):
                 if not self.sim:
-                    self.cmm_client = hexagonClient('192.168.1.41', 5000, 5000)
+		    configFile = open('configFiles/clients.cfg','r')
+		    device = json.loads(configFile.read())['devices'][self.deviceUuid]
+                    self.cmm_client = hexagonClient(str(device['host']), int(device['port']),int(device['port']))
                     self.cmm_client.connect()
 
             def initiate_interfaces(self):

@@ -18,7 +18,7 @@ from transitions.extensions import HierarchicalMachine as Machine
 from transitions.extensions.nesting import NestedState
 from threading import Timer, Thread
 import functools, time, re, copy, uuid
-import requests, urllib2
+import requests, urllib2, json
 import xml.etree.ElementTree as ET
 
 
@@ -75,7 +75,9 @@ class cnc(object):
 
             def initiate_cnc_client(self):
                 if not self.sim:
-                    self.cnc_client = hurcoClient('192.168.1.42',4503)                    
+		    configFile = open('configFiles/clients.cfg','r')
+                    device = json.loads(configFile.read())['devices'][self.deviceUuid]
+                    self.cnc_client = hurcoClient(str(device['host']),int(device['port']))
 
             def initiate_interfaces(self):
                 self.material_load_interface = MaterialLoad(self)
