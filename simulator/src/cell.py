@@ -36,16 +36,26 @@ class cell(object):
         self.cell_part_quality = None
 
         self.initiate_cnc('localhost',7896)
-        #self.initiate_robot('localhost',7996)
+        self.initiate_robot('localhost',7996)
         self.initiate_buffer('localhost',7696)
         self.initiate_cmm('localhost',7596)
         self.initiate_inputConveyor('localhost',7796)
         #self.initiate_outputConveyor('localhost',7496)
 
-    def cell_part(self, value = None):
-        if value: self.cell_part_quality = value
-
-        return self.cell_part_quality
+    def cell_part(self, value = None, current_part = None):
+        if value:
+            self.cell_part_quality = value
+            return self.cell_part_quality
+        
+        elif current_part == True:
+            return self.current_part
+        
+        elif current_part:
+            self.current_part = current_part
+            return self.current_part
+        
+        else:
+            return self.cell_part_quality
 
     def part_arrival(self):
         self.inputConveyor.superstate.enable()

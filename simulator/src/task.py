@@ -29,7 +29,7 @@ class task(object):
 
                 self.interface = interface
                 self.parent = parent
-                self.commit_time_limit = 60.0
+                self.commit_time_limit = 120.0
                 self.master_task_uuid = master_task_uuid
                 self.coordinator = coordinator
                 self.subTask = {}

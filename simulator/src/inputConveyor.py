@@ -8,6 +8,7 @@ from coordinator import *
 
 from mtconnect_adapter import Adapter
 from long_pull import LongPull
+from priority import priority
 from data_item import Event, SimpleCondition, Sample, ThreeDSample
 from archetypeToInstance import archetypeToInstance
 from from_long_pull import from_long_pull, from_long_pull_asset
@@ -63,13 +64,25 @@ class inputConveyor(object):
 
                 self.internal_buffer = {}
 
-                self.current_part = 'good'
+                self.current_part = None
 
                 self.cycle_count = 0
+
+                self.initial_execution_state()
+
+                self.priority = priority(self,self.conv1_binding)
 
                 self.initiate_internal_buffer()
 
                 self.initiate_pull_thread()
+                
+            def initial_execution_state(self):
+                self.execution = {}
+                self.execution['cnc1'] = None
+                self.execution['cmm1'] = None
+                self.execution['b1'] = None
+                self.execution['conv1'] = None
+                self.execution['r1'] = None
 
             def initiate_interfaces(self):
                 self.material_load_interface = MaterialLoad(self)
@@ -95,6 +108,9 @@ class inputConveyor(object):
 
                 self.binding_state_material = Event('binding_state_material')
                 self.adapter.add_data_item(self.binding_state_material)
+
+                self.conv1_binding = Event('conv1_binding')
+                self.adapter.add_data_item(self.conv1_binding)
 
                 self.material_load = Event('material_load')
                 self.adapter.add_data_item(self.material_load)
@@ -154,19 +170,67 @@ class inputConveyor(object):
                     
                     self.faulted()
 
+            def part_order(self):
+                #scripted sequence of part order tasks
+                part_quality_list = [self.internal_buffer['good'], self.internal_buffer['bad'], self.internal_buffer['rework']]
 
+                if part_quality_list == [True,True,True] and self.current_part == None:
+                    self.current_part = 'good'
+                    return "coordinator"
+                elif part_quality_list == [False,True,True] and self.current_part == 'good':
+                    self.current_part = 'bad'
+                    return "coordinator"
+                elif part_quality_list == [False,False,True] and self.current_part == 'bad':
+                    self.current_part = 'good'
+                    return "collaborator"
+                elif part_quality_list == [True,False,True] and self.current_part == 'good':
+                    self.current_part = 'bad'
+                    return "collaborator"
+                elif part_quality_list == [True,True,True] and self.current_part == 'bad':
+                    self.current_part = 'rework'
+                    return "coordinator"
+                elif part_quality_list == [True,True,False] and self.current_part == 'rework':
+                    self.current_part = 'good'
+                    return "coordinator"
+                elif part_quality_list == [False,True,False] and self.current_part == 'good':
+                    self.current_part = 'good'
+                    return "collaborator"
+                elif part_quality_list == [True,True,False] and self.current_part == 'good':
+                    self.current_part = 'rework'
+                    return "collaborator"
+                elif part_quality_list == [True,True,True] and self.current_part == 'rework':
+                    self.current_part = 'good'
+                    time.sleep(2)
+                    print ("Cycle completed!")
+                    return "coordinator"
+                else:
+                    return None
+
+                
             def OPERATIONAL(self):
-                if False not in self.internal_buffer.values() and self.current_part:
+                part_order = self.part_order()
+                    
+                if part_order == "coordinator":
+                    print (self.current_part)
                     self.unloading()
                     
                     self.iscoordinator = True
                     self.iscollaborator = False
+
+                    if self.master_uuid in self.master_tasks:
+                        del self.master_tasks[self.master_uuid]
                 
                     self.master_uuid = self.deviceUuid+'_'+str(uuid.uuid4())
                     master_task_uuid = copy.deepcopy(self.master_uuid)
+
+
+                    time.sleep(0.2)
+                    self.adapter.begin_gather()
+                    self.conv1_binding.set_value(self.master_uuid)
+                    self.adapter.complete_gather()
+                            
                     self.coordinator_task = "MoveMaterial_1"+"_"+self.current_part
                     
-                    self.master_tasks = {}
                     self.coordinator = coordinator(parent = self, master_task_uuid = master_task_uuid, interface = self.binding_state_material , coordinator_name = self.deviceUuid)
                     self.coordinator.create_statemachine()
 
@@ -174,16 +238,19 @@ class inputConveyor(object):
 
                     self.coordinator.superstate.unavailable()
 
-                elif False in self.internal_buffer.values() and True in self.internal_buffer.values() and self.current_part:
+                elif part_order == "collaborator":
+                    print (self.current_part)
                     self.loading()
                     
                     self.iscoordinator = False
                     self.iscollaborator = True
-                    self.master_tasks = {}
                     self.collaborator = collaborator(parent = self, interface = self.binding_state_material, collaborator_name = self.deviceUuid)
                     self.collaborator.create_statemachine()
                     self.collaborator.superstate.task_name = "LoadConv"
                     self.collaborator.superstate.unavailable()
+                    self.priority.collab_check()
+
+                self.cell_part(current_part = self.current_part)
 
             def IDLE(self):
                 if False not in self.internal_buffer.values():
@@ -193,23 +260,16 @@ class inputConveyor(object):
                     self.material_unload_interface.superstate.DEACTIVATE()
 
             def LOADING(self):
-                if False in self.internal_buffer.values() and True in self.internal_buffer.values():
-                    self.material_load_interface.superstate.IDLE()
+                self.material_load_interface.superstate.IDLE()
 
             def UNLOADING(self):
-                if False not in self.internal_buffer.values():
-                    self.material_unload_interface.superstate.IDLE()
+                self.material_unload_interface.superstate.IDLE()
 
             def EXIT_LOADING(self):
                 self.has_material = True
-                
+
                 self.internal_buffer[self.current_part] = True
-                if self.current_part == 'good':
-                    self.current_part = 'bad'
-                elif self.current_part == 'bad':
-                    self.current_part = 'rework'
-                elif self.current_part == 'rework':
-                    self.current_part = 'good'
+                if self.current_part == 'rework':
                     self.cycle_count = self.cycle_count + 1
                     print ("Number of cycles completed: "+ str(self.cycle_count)+ " !")
 
@@ -224,7 +284,8 @@ class inputConveyor(object):
                 self.internal_buffer[self.current_part] = False
                 while self.binding_state_material.value().lower() != 'inactive':
                     pass
-                
+
+                time.sleep(1)
                 print (self.cell_part(self.current_part))
 
             def load_time_limit(self, limit):
@@ -274,11 +335,15 @@ class inputConveyor(object):
                 if action == "fail":
                     action = "failure"
 
-                elif comp == "Task_Collaborator" and action!= 'unavailable':
+                if comp == "Coordinator" and value.lower() == 'preparing':
+                    self.priority.event_list([source, comp, name, value, code, text])
+
+                if comp == "Task_Collaborator" and action!= 'unavailable':
                     self.coordinator.superstate.event(source, comp, name, value, code, text)
 
                 elif comp == "Coordinator" and action!= 'unavailable':
-                    self.collaborator.superstate.event(source, comp, name, value, code, text)
+                    if value.lower() != 'preparing':
+                        self.collaborator.superstate.event(source, comp, name, value, code, text)
 
                 elif 'SubTask' in name and action!= 'unavailable':
                     if self.iscoordinator == True:
@@ -313,6 +378,10 @@ class inputConveyor(object):
                             self.adapter.begin_gather()
                             self.e1.set_value(value.upper())
                             self.adapter.complete_gather()
+
+                        elif text in self.execution:
+                            self.execution[text]  = value.lower()
+                            
 
                 elif comp == "Device":
 
@@ -369,8 +438,8 @@ class inputConveyor(object):
                       
                       ['failed', 'base:operational:loading', 'base:operational:idle'],
                       ['failed', 'base:operational:unloading', 'base:operational:idle'],
-                      {'trigger':'complete', 'source':'base:operational:unloading', 'dest':'base:operational', 'before':'EXIT_UNLOADING'},
-                      {'trigger':'complete', 'source':'base:operational:loading', 'dest':'base:operational', 'before':'EXIT_LOADING'},
+                      {'trigger':'complete', 'source':'base:operational:unloading', 'dest':'base:operational', 'before':'EXIT_UNLOADING', 'after':'OPERATIONAL'},
+                      {'trigger':'complete', 'source':'base:operational:loading', 'dest':'base:operational', 'before':'EXIT_LOADING', 'after':'OPERATIONAL'},
                       
                       ['start', 'base:operational', 'base:operational:idle'],
                       {'trigger':'robot_material_unload_ready','source':'base:operational:idle','dest':'base:operational', 'after':'EXITING_IDLE'},

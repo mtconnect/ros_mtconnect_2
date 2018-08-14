@@ -124,7 +124,7 @@ class archetypeToInstance(object):
         jsonModel = {}
         jsonModel['coordinator']={}
         jsonModel['collaborators']={}
-	jsonModel['priority'] = self.root.findall('.//'+self.root.tag.split('}')[0]+'}Priority')[0].text
+        jsonModel['priority'] = self.root.findall('.//'+self.root.tag.split('}')[0]+'}Priority')[0].text
         part_quality = self.taskArch.split('_')[-1]
         if part_quality in ['good', 'bad', 'rework']:
             jsonModel['part_quality']=part_quality
@@ -207,7 +207,7 @@ def update(taskIns, dataitem, value):
 if __name__ == "__main__":
     #print archetypeToInstance("MoveMaterial_2","xyz","cnc1").jsonInstance()
     print datetime.datetime.now().isoformat()
-    a2i = archetypeToInstance("MoveMaterial_4_bad","xyz","b1")
+    a2i = archetypeToInstance("MoveMaterial_4_good","xyz","b1")
     a2i.jsonInstance()
     print a2i.jsonModel
     print datetime.datetime.now().isoformat()

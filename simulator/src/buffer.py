@@ -8,6 +8,7 @@ from coordinator import *
 
 from mtconnect_adapter import Adapter
 from long_pull import LongPull
+from priority import priority
 from data_item import Event, SimpleCondition, Sample, ThreeDSample
 from archetypeToInstance import archetypeToInstance
 from from_long_pull import from_long_pull, from_long_pull_asset
@@ -66,7 +67,19 @@ class Buffer(object):
 
                 self.timer_check = str()
 
+                self.initial_execution_state()
+
+                self.priority = priority(self, self.buffer_binding)
+
                 self.initiate_pull_thread()
+
+            def initial_execution_state(self):
+                self.execution = {}
+                self.execution['cnc1'] = None
+                self.execution['cmm1'] = None
+                self.execution['b1'] = None
+                self.execution['conv1'] = None
+                self.execution['r1'] = None
 
             def initiate_interfaces(self):
                 self.material_load_interface = MaterialLoad(self)
@@ -87,6 +100,9 @@ class Buffer(object):
 
                 self.binding_state_material = Event('binding_state_material')
                 self.adapter.add_data_item(self.binding_state_material)
+
+                self.buffer_binding = Event('buffer_binding')
+                self.adapter.add_data_item(self.buffer_binding)
 
                 self.material_load = Event('material_load')
                 self.adapter.add_data_item(self.material_load)
@@ -188,16 +204,21 @@ class Buffer(object):
                         self.collaborator.superstate.task_name = "LoadBuffer"
                         self.collaborator.superstate.unavailable()
                         self.material_load_interface.superstate.IDLE()
+                        self.priority.collab_check()
                    
                     if self.has_material and self.binding_state_material.value() != "COMMITTED":
                         #self.unloading()
-			while self.collaborator.superstate.state != 'base:inactive' or self.binding_state_material.value().lower() != 'inactive':
-			    pass
+                        if self.master_uuid in self.master_tasks:
+                            del self.master_tasks[self.master_uuid]
+                            
                         self.master_uuid = self.deviceUuid+'_'+str(uuid.uuid4())
                         master_task_uuid = copy.deepcopy(self.master_uuid)
                         self.coordinator_task = "MoveMaterial_3"
 
-                        self.master_tasks = {}
+                        time.sleep(0.2)
+                        self.adapter.begin_gather()
+                        self.buffer_binding.set_value(master_task_uuid)
+                        self.adapter.complete_gather()
                         
                         self.coordinator = coordinator(parent = self, master_task_uuid = master_task_uuid, interface = self.binding_state_material , coordinator_name = self.deviceUuid)
                         self.coordinator.create_statemachine()
@@ -247,6 +268,8 @@ class Buffer(object):
               
             def LOADED(self):
                 self.buffer_append()
+		while self.collaborator.superstate.state != 'base:inactive' or self.binding_state_material.value().lower() != 'inactive':
+                    pass
 
             def wait_for_task_completion(self):
                 def check():
@@ -308,6 +331,9 @@ class Buffer(object):
                 
                 if action == "fail":
                     action = "failure"
+
+                if comp == "Coordinator" and value.lower() == 'preparing':
+                    self.priority.event_list([source, comp, name, value, code, text])
                     
                 
                 if comp == "Task_Collaborator" and self.iscoordinator == True:
@@ -332,7 +358,8 @@ class Buffer(object):
 
                 elif comp == "Coordinator" and self.iscollaborator == True:
                     #if self.iscoordinator: self.iscoordinator = False
-                    self.collaborator.superstate.event(source, comp, name, value, code, text)
+                    if value.lower() != 'preparing':
+                        self.collaborator.superstate.event(source, comp, name, value, code, text)
                     
 
                 elif 'SubTask' in name:
@@ -373,6 +400,9 @@ class Buffer(object):
                             self.adapter.begin_gather()
                             self.e1.set_value(value.upper())
                             self.adapter.complete_gather()
+
+                        elif text in self.execution:
+                            self.execution[text]  = value.lower()
 
                 elif comp == "Device":
 
