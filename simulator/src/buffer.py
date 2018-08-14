@@ -268,7 +268,7 @@ class Buffer(object):
               
             def LOADED(self):
                 self.buffer_append()
-        		while self.collaborator.superstate.state != 'base:inactive' or self.binding_state_material.value().lower() != 'inactive':
+                while self.collaborator.superstate.state != 'base:inactive' or self.binding_state_material.value().lower() != 'inactive':
                     pass
                 time.sleep(1)
 
