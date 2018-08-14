@@ -76,7 +76,8 @@ class subTask(object):
 
                     elif self.state == 'base:committed' and value.lower() == 'not_ready': #door/chuck response states.. update later
                         #print "not_ready_success"
-                        self.success()
+                        if 'material' not in comp.lower():
+                            self.success()
                         self.parent.event(source, comp, name.split('_')[1], value, code , text)
 
                     else:

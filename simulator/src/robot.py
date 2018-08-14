@@ -11,6 +11,7 @@ from coordinator import *
 from collaborator import *
 from mtconnect_adapter import Adapter
 from robot_interface import RobotInterface
+from priority import priority
 from long_pull import LongPull
 from data_item import Event, SimpleCondition, Sample, ThreeDSample
 from archetypeToInstance import archetypeToInstance
@@ -62,9 +63,21 @@ class Robot:
 
             self.fail_next = False
 
+            self.initial_execution_state()
+
+            self.priority = priority(self, self.robot_binding)
+
             self.low_level_event_list = []
 
             self.initiate_pull_thread()
+
+        def initial_execution_state(self):
+            self.execution = {}
+            self.execution['cnc1'] = None
+            self.execution['cmm1'] = None
+            self.execution['b1'] = None
+            self.execution['conv1'] = None
+            self.execution['r1'] = None
             
 
         def initiate_interfaces(self):
@@ -89,6 +102,9 @@ class Robot:
 
             self.binding_state_material = Event('binding_state_material')
             self.adapter.add_data_item(self.binding_state_material)
+
+            self.robot_binding = Event('robot_binding')
+            self.adapter.add_data_item(self.robot_binding)
 
             self.open_chuck = Event('open_chuck')
             self.adapter.add_data_item(self.open_chuck)
@@ -142,9 +158,6 @@ class Robot:
             thread4= Thread(target = self.start_pull,args=("http://localhost:5000","/cmm/sample?interval=100&count=1000",from_long_pull))
             thread4.start()
 
-            thread5= Thread(target = self.start_pull,args=("http://localhost:5000","/conv2/sample?interval=100&count=1000",from_long_pull))
-            thread5.start()
-
         def interface_type(self, value = None, subtype = None):
             self.interfaceType = value
 
@@ -183,14 +196,34 @@ class Robot:
             self.make_idle()
 
         def IDLE(self):
-            if 'ToolChange' not in str(self.master_tasks):
+            if self.master_uuid and 'ToolChange' not in str(self.master_tasks[self.master_uuid]):
                 self.material_unload_interface.superstate.not_ready()
                 self.material_load_interface.superstate.not_ready()
-                self.master_tasks = {}
                 self.collaborator = collaborator(parent = self, interface = self.binding_state_material, collaborator_name = 'r1')
                 self.collaborator.create_statemachine()
                 time.sleep(0.1)
                 self.collaborator.superstate.unavailable()
+
+                thread= Thread(target = self.collaboration_task_check)
+                thread.start()
+                
+            elif not self.master_uuid:
+                self.material_unload_interface.superstate.not_ready()
+                self.material_load_interface.superstate.not_ready()
+                self.collaborator = collaborator(parent = self, interface = self.binding_state_material, collaborator_name = 'r1')
+                self.collaborator.create_statemachine()
+                time.sleep(0.1)
+                self.collaborator.superstate.unavailable()
+
+                thread= Thread(target = self.collaboration_task_check)
+                thread.start()
+
+
+        def collaboration_task_check(self):
+            while self.binding_state_material.value().lower() == 'inactive':
+                self.priority.collab_check()
+                time.sleep(4)
+
 
         def LOADING(self):
             self.material_unload_interface.superstate.not_ready()
@@ -202,7 +235,11 @@ class Robot:
 
         def LOADING_COMPLETE(self):
             #self.CHECK_COMPLETION()
-            pass
+            coordinator = self.master_tasks[self.master_uuid]['coordinator'].keys()[0]
+            for k,v in self.master_tasks[self.master_uuid]['coordinator'][coordinator]['SubTask'].iteritems():
+                if 'MaterialLoad' in v:
+                    self.priority.binding_state(k,has_material = True)
+                    break
 
         def CHECK_COMPLETION(self):
             #temporary fix till task/subtask sequencing is determined
@@ -227,6 +264,7 @@ class Robot:
 
         def UNLOADING_COMPLETE(self):
             self.CHECK_COMPLETION_UL()
+            self.priority.binding_state(self.master_tasks[self.master_uuid]['coordinator'].keys()[0],has_material = False)
 
         def LOAD_READY(self):
             """Function triggered when the CNC is ready to be loaded"""
@@ -262,6 +300,9 @@ class Robot:
 
             action = value.lower()
 
+            if comp == "Coordinator" and value.lower() == 'preparing':
+                self.priority.event_list([source, comp, name, value, code, text])
+
             if action == "fail":
                 action = "failure"
 
@@ -276,7 +317,9 @@ class Robot:
 
             elif "Coordinator" in comp and action!='unavailable':
                 try:
-                    self.collaborator.superstate.event(source, comp, name, value, code, text)
+                    if value.lower() != 'preparing':
+                        self.collaborator.superstate.event(source, comp, name, value, code, text)
+                        
                     if 'binding_state' in name and value.lower() == 'committed' and text == self.master_tasks[self.master_uuid]['coordinator'].keys()[0]:
                         if self.material_state.value() == "LOADED":
                             self.material_load_ready()
@@ -337,8 +380,8 @@ class Robot:
                         eval('self.close_door_interface.superstate.'+action+'()')
 
 
-            #elif ev.component.startswith('Controller'):
-                #self.controller_event(ev)
+            elif ev.component.startswith('Controller'):
+                self.controller_event(ev)
 
             #elif ev.component.startswith('Device'):
                 #self.device_event(ev)
@@ -471,6 +514,9 @@ class Robot:
                     self.adapter.begin_gather()
                     self.e1.set_value(ev.value.upper())
                     self.adapter.complete_gather()
+
+                elif ev.text in self.execution:
+                    self.execution[ev.text] = ev.value.lower()
 
             else:
                 """raise(Exception('Unknown Controller event: ' + str(ev)))"""
