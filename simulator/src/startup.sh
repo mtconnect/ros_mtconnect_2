@@ -18,5 +18,4 @@ xterm -e roslaunch ceccrebot_demo mtconnect.launch &
 
 sleep 3
 #Starting the cell.py
-source ~/catkin_workspace/src/ceccrebot/simulator/src/
 xterm -e pipenv run python cell.py 
