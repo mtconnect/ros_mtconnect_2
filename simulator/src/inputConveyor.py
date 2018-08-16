@@ -205,7 +205,7 @@ class inputConveyor(object):
                 
                 self.internal_buffer[self.current_part] = True
                 if self.current_part == 'good':
-                    self.current_part = 'bad'
+                    self.current_part = 'good'   # switch to bad part. Toolchange happens when a bad part enters
                 elif self.current_part == 'bad':
                     self.current_part = 'rework'
                 elif self.current_part == 'rework':
