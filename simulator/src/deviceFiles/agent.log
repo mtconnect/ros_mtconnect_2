@@ -7145,3 +7145,1535 @@
 2018-08-10T17:46:01.204630Z: DEBUG [2] input.connector: Connecting to data source: localhost on port: 7596
 2018-08-10T17:46:01.204983Z: WARN  [2] input.connector: (Port:34287)connect: Socket exception: unable to connect to 'localhost:7596'
 2018-08-10T17:46:01.205056Z: INFO  [2] input.adapter: Will try to reconnect in 10000 milliseconds
+2018-08-16T15:16:02.565154Z: DEBUG [0] init.config: Checking for Devices XML configuration file: /home/etc_demo/catkin_ws/src/ceccrebot/simulator/src/deviceFiles/combined.xml
+2018-08-16T15:16:02.565336Z: DEBUG [0] init.config:   Stat returned: 0
+2018-08-16T15:16:02.565428Z: INFO  [0] init.config: Starting agent on port 5000
+2018-08-16T15:16:02.574021Z: INFO  [0] init.config: Adding adapter for buffer on localhost:7696
+2018-08-16T15:16:02.574148Z: INFO  [0] init.config: Adding adapter for cmm on localhost:7596
+2018-08-16T15:16:02.574230Z: INFO  [0] init.config: Adding adapter for cnc on localhost:7896
+2018-08-16T15:16:02.574304Z: INFO  [0] init.config: Adding adapter for conv on localhost:7796
+2018-08-16T15:16:02.574372Z: INFO  [0] init.config: Adding adapter for conv2 on localhost:7496
+2018-08-16T15:16:02.574431Z: INFO  [0] init.config: Adding adapter for robot on localhost:7996
+2018-08-16T15:16:02.574572Z: DEBUG [0] agent: registerFile: Path ./schemas/ is not a directory: Unable to find directory ./schemas/, trying as a file
+2018-08-16T15:16:02.574635Z: ERROR [0] agent: Cannot register file: ./schemas/: Unable to find file ./schemas/
+2018-08-16T15:16:02.574899Z: DEBUG [1] input.connector: Connecting to data source: localhost on port: 7696
+2018-08-16T15:16:02.575125Z: DEBUG [2] input.connector: Connecting to data source: localhost on port: 7596
+2018-08-16T15:16:02.575323Z: DEBUG [3] input.connector: Connecting to data source: localhost on port: 7896
+2018-08-16T15:16:02.575457Z: DEBUG [4] input.connector: Connecting to data source: localhost on port: 7796
+2018-08-16T15:16:02.575542Z: WARN  [1] input.connector: (Port:0)connect: Socket exception: unable to connect to 'localhost:7696'
+2018-08-16T15:16:02.575616Z: INFO  [1] input.adapter: Will try to reconnect in 10000 milliseconds
+2018-08-16T15:16:02.575706Z: DEBUG [5] input.connector: Connecting to data source: localhost on port: 7996
+2018-08-16T15:16:02.575792Z: WARN  [2] input.connector: (Port:1701336096)connect: Socket exception: unable to connect to 'localhost:7596'
+2018-08-16T15:16:02.575852Z: INFO  [2] input.adapter: Will try to reconnect in 10000 milliseconds
+2018-08-16T15:16:02.575930Z: DEBUG [6] input.connector: Connecting to data source: localhost on port: 7496
+2018-08-16T15:16:02.576002Z: WARN  [4] input.connector: (Port:0)connect: Socket exception: unable to connect to 'localhost:7796'
+2018-08-16T15:16:02.576074Z: INFO  [4] input.adapter: Will try to reconnect in 10000 milliseconds
+2018-08-16T15:16:02.576135Z: WARN  [5] input.connector: (Port:0)connect: Socket exception: unable to connect to 'localhost:7996'
+2018-08-16T15:16:02.576192Z: INFO  [5] input.adapter: Will try to reconnect in 10000 milliseconds
+2018-08-16T15:16:02.576246Z: WARN  [6] input.connector: (Port:0)connect: Socket exception: unable to connect to 'localhost:7496'
+2018-08-16T15:16:02.576301Z: INFO  [6] input.adapter: Will try to reconnect in 10000 milliseconds
+2018-08-16T15:16:02.576403Z: WARN  [3] input.connector: (Port:0)connect: Socket exception: unable to connect to 'localhost:7896'
+2018-08-16T15:16:02.576467Z: INFO  [3] input.adapter: Will try to reconnect in 10000 milliseconds
+2018-08-16T15:16:12.575757Z: DEBUG [1] input.connector: Connecting to data source: localhost on port: 7696
+2018-08-16T15:16:12.575982Z: DEBUG [2] input.connector: Connecting to data source: localhost on port: 7596
+2018-08-16T15:16:12.576214Z: DEBUG [4] input.connector: Connecting to data source: localhost on port: 7796
+2018-08-16T15:16:12.576355Z: WARN  [1] input.connector: (Port:0)connect: Socket exception: unable to connect to 'localhost:7696'
+2018-08-16T15:16:12.576475Z: INFO  [1] input.adapter: Will try to reconnect in 10000 milliseconds
+2018-08-16T15:16:12.576578Z: DEBUG [6] input.connector: Connecting to data source: localhost on port: 7496
+2018-08-16T15:16:12.576695Z: DEBUG [5] input.connector: Connecting to data source: localhost on port: 7996
+2018-08-16T15:16:12.576811Z: DEBUG [3] input.connector: Connecting to data source: localhost on port: 7896
+2018-08-16T15:16:12.576925Z: WARN  [6] input.connector: (Port:0)connect: Socket exception: unable to connect to 'localhost:7496'
+2018-08-16T15:16:12.577005Z: INFO  [6] input.adapter: Will try to reconnect in 10000 milliseconds
+2018-08-16T15:16:12.577101Z: WARN  [2] input.connector: (Port:1701336096)connect: Socket exception: unable to connect to 'localhost:7596'
+2018-08-16T15:16:12.577231Z: INFO  [2] input.adapter: Will try to reconnect in 10000 milliseconds
+2018-08-16T15:16:12.577335Z: WARN  [5] input.connector: (Port:0)connect: Socket exception: unable to connect to 'localhost:7996'
+2018-08-16T15:16:12.577479Z: INFO  [5] input.adapter: Will try to reconnect in 10000 milliseconds
+2018-08-16T15:16:12.577578Z: WARN  [4] input.connector: (Port:0)connect: Socket exception: unable to connect to 'localhost:7796'
+2018-08-16T15:16:12.577671Z: INFO  [4] input.adapter: Will try to reconnect in 10000 milliseconds
+2018-08-16T15:16:12.577752Z: WARN  [3] input.connector: (Port:0)connect: Socket exception: unable to connect to 'localhost:7896'
+2018-08-16T15:16:12.577836Z: INFO  [3] input.adapter: Will try to reconnect in 10000 milliseconds
+2018-08-16T15:16:22.576692Z: DEBUG [1] input.connector: Connecting to data source: localhost on port: 7696
+2018-08-16T15:16:22.577158Z: DEBUG [6] input.connector: Connecting to data source: localhost on port: 7496
+2018-08-16T15:16:22.577276Z: WARN  [1] input.connector: (Port:0)connect: Socket exception: unable to connect to 'localhost:7696'
+2018-08-16T15:16:22.577430Z: INFO  [1] input.adapter: Will try to reconnect in 10000 milliseconds
+2018-08-16T15:16:22.577550Z: DEBUG [2] input.connector: Connecting to data source: localhost on port: 7596
+2018-08-16T15:16:22.577710Z: WARN  [6] input.connector: (Port:0)connect: Socket exception: unable to connect to 'localhost:7496'
+2018-08-16T15:16:22.577830Z: DEBUG [5] input.connector: Connecting to data source: localhost on port: 7996
+2018-08-16T15:16:22.577967Z: INFO  [6] input.adapter: Will try to reconnect in 10000 milliseconds
+2018-08-16T15:16:22.578085Z: DEBUG [4] input.connector: Connecting to data source: localhost on port: 7796
+2018-08-16T15:16:22.578235Z: WARN  [2] input.connector: (Port:1701336096)connect: Socket exception: unable to connect to 'localhost:7596'
+2018-08-16T15:16:22.578351Z: INFO  [2] input.adapter: Will try to reconnect in 10000 milliseconds
+2018-08-16T15:16:22.578471Z: WARN  [5] input.connector: (Port:0)connect: Socket exception: unable to connect to 'localhost:7996'
+2018-08-16T15:16:22.578577Z: INFO  [5] input.adapter: Will try to reconnect in 10000 milliseconds
+2018-08-16T15:16:22.578695Z: DEBUG [3] input.connector: Connecting to data source: localhost on port: 7896
+2018-08-16T15:16:22.578843Z: WARN  [4] input.connector: (Port:0)connect: Socket exception: unable to connect to 'localhost:7796'
+2018-08-16T15:16:22.578940Z: INFO  [4] input.adapter: Will try to reconnect in 10000 milliseconds
+2018-08-16T15:16:22.579020Z: WARN  [3] input.connector: (Port:0)connect: Socket exception: unable to connect to 'localhost:7896'
+2018-08-16T15:16:22.579093Z: INFO  [3] input.adapter: Will try to reconnect in 10000 milliseconds
+2018-08-16T15:16:30.678080Z: DEBUG [7] agent: Request: GET /cnc/sample?interval=100&count=1000 from 127.0.0.1:37482
+2018-08-16T15:16:30.694168Z: DEBUG [8] agent: Request: GET /conv/sample?interval=100&count=1000 from 127.0.0.1:37484
+2018-08-16T15:16:30.702905Z: DEBUG [9] agent: Request: GET /buffer/sample?interval=100&count=1000 from 127.0.0.1:37486
+2018-08-16T15:16:30.706774Z: DEBUG [10] agent: Request: GET /conv2/sample?interval=100&count=1000 from 127.0.0.1:37488
+2018-08-16T15:16:30.707903Z: DEBUG [11] agent: Request: GET /cmm/sample?interval=100&count=1000 from 127.0.0.1:37490
+2018-08-16T15:16:32.577568Z: DEBUG [1] input.connector: Connecting to data source: localhost on port: 7696
+2018-08-16T15:16:32.577730Z: WARN  [1] input.connector: (Port:0)connect: Socket exception: unable to connect to 'localhost:7696'
+2018-08-16T15:16:32.577757Z: INFO  [1] input.adapter: Will try to reconnect in 10000 milliseconds
+2018-08-16T15:16:32.578140Z: DEBUG [6] input.connector: Connecting to data source: localhost on port: 7496
+2018-08-16T15:16:32.578231Z: WARN  [6] input.connector: (Port:0)connect: Socket exception: unable to connect to 'localhost:7496'
+2018-08-16T15:16:32.578258Z: INFO  [6] input.adapter: Will try to reconnect in 10000 milliseconds
+2018-08-16T15:16:32.578490Z: DEBUG [2] input.connector: Connecting to data source: localhost on port: 7596
+2018-08-16T15:16:32.578721Z: DEBUG [5] input.connector: Connecting to data source: localhost on port: 7996
+2018-08-16T15:16:32.578787Z: WARN  [2] input.connector: (Port:1701336096)connect: Socket exception: unable to connect to 'localhost:7596'
+2018-08-16T15:16:32.578820Z: INFO  [2] input.adapter: Will try to reconnect in 10000 milliseconds
+2018-08-16T15:16:32.578920Z: DEBUG [5] input.connector: (Port:60571)Sending initial PING
+2018-08-16T15:16:32.579054Z: DEBUG [4] input.connector: Connecting to data source: localhost on port: 7796
+2018-08-16T15:16:32.579228Z: WARN  [4] input.connector: (Port:0)connect: Socket exception: unable to connect to 'localhost:7796'
+2018-08-16T15:16:32.579277Z: INFO  [4] input.adapter: Will try to reconnect in 10000 milliseconds
+2018-08-16T15:16:32.579324Z: DEBUG [3] input.connector: Connecting to data source: localhost on port: 7896
+2018-08-16T15:16:32.579489Z: WARN  [3] input.connector: (Port:0)connect: Socket exception: unable to connect to 'localhost:7896'
+2018-08-16T15:16:32.579523Z: INFO  [3] input.adapter: Will try to reconnect in 10000 milliseconds
+2018-08-16T15:16:32.579578Z: DEBUG [5] input.connector: (Port:60571)Received a PONG for localhost on port 7996
+2018-08-16T15:16:32.579627Z: DEBUG [5] input.connector: (Port:60571)    Time since last heartbeat: 0ms
+2018-08-16T15:16:32.579666Z: DEBUG [5] input.connector: (Port:60571)Received PONG, starting heartbeats every 10000ms
+2018-08-16T15:16:42.577884Z: DEBUG [1] input.connector: Connecting to data source: localhost on port: 7696
+2018-08-16T15:16:42.578164Z: WARN  [1] input.connector: (Port:0)connect: Socket exception: unable to connect to 'localhost:7696'
+2018-08-16T15:16:42.578216Z: INFO  [1] input.adapter: Will try to reconnect in 10000 milliseconds
+2018-08-16T15:16:42.578348Z: DEBUG [6] input.connector: Connecting to data source: localhost on port: 7496
+2018-08-16T15:16:42.578506Z: WARN  [6] input.connector: (Port:0)connect: Socket exception: unable to connect to 'localhost:7496'
+2018-08-16T15:16:42.578551Z: INFO  [6] input.adapter: Will try to reconnect in 10000 milliseconds
+2018-08-16T15:16:42.578944Z: DEBUG [2] input.connector: Connecting to data source: localhost on port: 7596
+2018-08-16T15:16:42.579165Z: WARN  [2] input.connector: (Port:1701336096)connect: Socket exception: unable to connect to 'localhost:7596'
+2018-08-16T15:16:42.579224Z: INFO  [2] input.adapter: Will try to reconnect in 10000 milliseconds
+2018-08-16T15:16:42.579398Z: DEBUG [4] input.connector: Connecting to data source: localhost on port: 7796
+2018-08-16T15:16:42.579581Z: WARN  [4] input.connector: (Port:0)connect: Socket exception: unable to connect to 'localhost:7796'
+2018-08-16T15:16:42.579639Z: INFO  [4] input.adapter: Will try to reconnect in 10000 milliseconds
+2018-08-16T15:16:42.579696Z: DEBUG [3] input.connector: Connecting to data source: localhost on port: 7896
+2018-08-16T15:16:42.579866Z: WARN  [3] input.connector: (Port:0)connect: Socket exception: unable to connect to 'localhost:7896'
+2018-08-16T15:16:42.579913Z: INFO  [3] input.adapter: Will try to reconnect in 10000 milliseconds
+2018-08-16T15:16:42.580471Z: DEBUG [5] input.connector: (Port:60571)Sending a PING for localhost on port 7996
+2018-08-16T15:16:42.580686Z: DEBUG [5] input.connector: (Port:60571)Received a PONG for localhost on port 7996
+2018-08-16T15:16:42.580750Z: DEBUG [5] input.connector: (Port:60571)    Time since last heartbeat: 10001ms
+2018-08-16T15:16:49.601141Z: DEBUG [12] agent: Request: GET /conv/sample?interval=100&count=1000 from 127.0.0.1:37496
+2018-08-16T15:16:49.605950Z: DEBUG [13] agent: Request: GET /cmm/sample?interval=100&count=1000 from 127.0.0.1:37498
+2018-08-16T15:16:49.606638Z: DEBUG [14] agent: Request: GET /robot/sample?interval=100&count=1000 from 127.0.0.1:37500
+2018-08-16T15:16:49.610381Z: DEBUG [15] agent: Request: GET /buffer/sample?interval=100&count=1000 from 127.0.0.1:37502
+2018-08-16T15:16:49.640439Z: DEBUG [16] agent: Request: GET /cnc/sample?interval=100&count=1000 from 127.0.0.1:37504
+2018-08-16T15:16:49.652712Z: DEBUG [17] agent: Request: GET /cmm/sample?interval=100&count=1000 from 127.0.0.1:37508
+2018-08-16T15:16:49.652809Z: DEBUG [18] agent: Request: GET /robot/sample?interval=100&count=1000 from 127.0.0.1:37506
+2018-08-16T15:16:49.660365Z: DEBUG [19] agent: Request: GET /conv/sample?interval=100&count=1000 from 127.0.0.1:37510
+2018-08-16T15:16:49.666350Z: DEBUG [20] agent: Request: GET /robot/sample?interval=100&count=1000 from 127.0.0.1:37512
+2018-08-16T15:16:49.675698Z: DEBUG [21] agent: Request: GET /buffer/sample?interval=100&count=1000 from 127.0.0.1:37514
+2018-08-16T15:16:49.680829Z: DEBUG [22] agent: Request: GET /cnc/sample?interval=100&count=1000 from 127.0.0.1:37516
+2018-08-16T15:16:49.688969Z: DEBUG [23] agent: Request: GET /robot/sample?interval=100&count=1000 from 127.0.0.1:37518
+2018-08-16T15:16:49.689743Z: DEBUG [24] agent: Request: GET /cnc/sample?interval=100&count=1000 from 127.0.0.1:37520
+2018-08-16T15:16:49.695598Z: DEBUG [25] agent: Request: GET /cmm/sample?interval=100&count=1000 from 127.0.0.1:37522
+2018-08-16T15:16:52.578359Z: DEBUG [1] input.connector: Connecting to data source: localhost on port: 7696
+2018-08-16T15:16:52.578608Z: DEBUG [1] input.connector: (Port:45217)Sending initial PING
+2018-08-16T15:16:52.578687Z: DEBUG [6] input.connector: Connecting to data source: localhost on port: 7496
+2018-08-16T15:16:52.578905Z: WARN  [6] input.connector: (Port:0)connect: Socket exception: unable to connect to 'localhost:7496'
+2018-08-16T15:16:52.578959Z: INFO  [6] input.adapter: Will try to reconnect in 10000 milliseconds
+2018-08-16T15:16:52.579261Z: DEBUG [1] input.connector: (Port:45217)Received a PONG for localhost on port 7696
+2018-08-16T15:16:52.579343Z: DEBUG [1] input.connector: (Port:45217)    Time since last heartbeat: 0ms
+2018-08-16T15:16:52.579399Z: DEBUG [2] input.connector: Connecting to data source: localhost on port: 7596
+2018-08-16T15:16:52.579462Z: DEBUG [1] input.connector: (Port:45217)Received PONG, starting heartbeats every 10000ms
+2018-08-16T15:16:52.579676Z: DEBUG [2] input.connector: (Port:33335)Sending initial PING
+2018-08-16T15:16:52.579758Z: DEBUG [4] input.connector: Connecting to data source: localhost on port: 7796
+2018-08-16T15:16:52.580007Z: DEBUG [4] input.connector: (Port:40981)Sending initial PING
+2018-08-16T15:16:52.580074Z: DEBUG [3] input.connector: Connecting to data source: localhost on port: 7896
+2018-08-16T15:16:52.580278Z: DEBUG [3] input.connector: (Port:54421)Sending initial PING
+2018-08-16T15:16:52.583199Z: DEBUG [4] input.connector: (Port:40981)Received a PONG for localhost on port 7796
+2018-08-16T15:16:52.583326Z: DEBUG [4] input.connector: (Port:40981)    Time since last heartbeat: 3ms
+2018-08-16T15:16:52.583365Z: DEBUG [4] input.connector: (Port:40981)Received PONG, starting heartbeats every 10000ms
+2018-08-16T15:16:52.583409Z: DEBUG [2] input.connector: (Port:33335)Received a PONG for localhost on port 7596
+2018-08-16T15:16:52.583465Z: DEBUG [2] input.connector: (Port:33335)    Time since last heartbeat: 3ms
+2018-08-16T15:16:52.583501Z: DEBUG [2] input.connector: (Port:33335)Received PONG, starting heartbeats every 10000ms
+2018-08-16T15:16:52.588999Z: DEBUG [3] input.connector: (Port:54421)Received a PONG for localhost on port 7896
+2018-08-16T15:16:52.589070Z: DEBUG [3] input.connector: (Port:54421)    Time since last heartbeat: 8ms
+2018-08-16T15:16:52.589120Z: DEBUG [3] input.connector: (Port:54421)Received PONG, starting heartbeats every 10000ms
+2018-08-16T15:16:52.590848Z: DEBUG [5] input.connector: (Port:60571)Sending a PING for localhost on port 7996
+2018-08-16T15:16:52.591188Z: DEBUG [5] input.connector: (Port:60571)Received a PONG for localhost on port 7996
+2018-08-16T15:16:52.591274Z: DEBUG [5] input.connector: (Port:60571)    Time since last heartbeat: 10010ms
+2018-08-16T15:17:01.721546Z: DEBUG [26] agent: Request: GET /asset/ from 127.0.0.1:37524
+2018-08-16T15:17:01.727297Z: DEBUG [27] agent: Request: GET /asset/ from 127.0.0.1:37526
+2018-08-16T15:17:01.727415Z: DEBUG [28] agent: Request: GET /asset/ from 127.0.0.1:37528
+2018-08-16T15:17:01.819648Z: DEBUG [29] agent: Request: GET /asset/ from 127.0.0.1:37530
+2018-08-16T15:17:01.819963Z: DEBUG [30] agent: Request: GET /asset/ from 127.0.0.1:37532
+2018-08-16T15:17:01.920041Z: DEBUG [31] agent: Request: GET /asset/ from 127.0.0.1:37534
+2018-08-16T15:17:01.920764Z: DEBUG [32] agent: Request: GET /asset/ from 127.0.0.1:37536
+2018-08-16T15:17:01.924626Z: DEBUG [33] agent: Request: GET /asset/ from 127.0.0.1:37538
+2018-08-16T15:17:01.927331Z: DEBUG [34] agent: Request: GET /asset/ from 127.0.0.1:37540
+2018-08-16T15:17:01.951826Z: DEBUG [35] agent: Request: GET /asset/ from 127.0.0.1:37542
+2018-08-16T15:17:01.953433Z: DEBUG [36] agent: Request: GET /asset/ from 127.0.0.1:37544
+2018-08-16T15:17:01.954727Z: DEBUG [37] agent: Request: GET /asset/ from 127.0.0.1:37546
+2018-08-16T15:17:01.955088Z: DEBUG [38] agent: Request: GET /asset/ from 127.0.0.1:37548
+2018-08-16T15:17:01.958579Z: DEBUG [39] agent: Request: GET /asset/ from 127.0.0.1:37550
+2018-08-16T15:17:01.958883Z: DEBUG [40] agent: Request: GET /asset/ from 127.0.0.1:37552
+2018-08-16T15:17:02.579067Z: DEBUG [6] input.connector: Connecting to data source: localhost on port: 7496
+2018-08-16T15:17:02.579231Z: WARN  [6] input.connector: (Port:0)connect: Socket exception: unable to connect to 'localhost:7496'
+2018-08-16T15:17:02.579257Z: INFO  [6] input.adapter: Will try to reconnect in 10000 milliseconds
+2018-08-16T15:17:02.580779Z: DEBUG [4] input.connector: (Port:40981)Sending a PING for localhost on port 7796
+2018-08-16T15:17:02.581298Z: DEBUG [3] input.connector: (Port:54421)Sending a PING for localhost on port 7896
+2018-08-16T15:17:02.581394Z: DEBUG [3] input.connector: (Port:54421)Received a PONG for localhost on port 7896
+2018-08-16T15:17:02.581422Z: DEBUG [3] input.connector: (Port:54421)    Time since last heartbeat: 10001ms
+2018-08-16T15:17:02.581449Z: DEBUG [4] input.connector: (Port:40981)Received a PONG for localhost on port 7796
+2018-08-16T15:17:02.581473Z: DEBUG [4] input.connector: (Port:40981)    Time since last heartbeat: 10001ms
+2018-08-16T15:17:02.589377Z: DEBUG [1] input.connector: (Port:45217)Sending a PING for localhost on port 7696
+2018-08-16T15:17:02.589413Z: DEBUG [2] input.connector: (Port:33335)Sending a PING for localhost on port 7596
+2018-08-16T15:17:02.589483Z: DEBUG [2] input.connector: (Port:33335)Received a PONG for localhost on port 7596
+2018-08-16T15:17:02.589515Z: DEBUG [2] input.connector: (Port:33335)    Time since last heartbeat: 10009ms
+2018-08-16T15:17:02.589593Z: DEBUG [1] input.connector: (Port:45217)Received a PONG for localhost on port 7696
+2018-08-16T15:17:02.589618Z: DEBUG [1] input.connector: (Port:45217)    Time since last heartbeat: 10010ms
+2018-08-16T15:17:02.591566Z: DEBUG [5] input.connector: (Port:60571)Sending a PING for localhost on port 7996
+2018-08-16T15:17:02.591768Z: DEBUG [5] input.connector: (Port:60571)Received a PONG for localhost on port 7996
+2018-08-16T15:17:02.591792Z: DEBUG [5] input.connector: (Port:60571)    Time since last heartbeat: 10000ms
+2018-08-16T15:17:12.579368Z: DEBUG [6] input.connector: Connecting to data source: localhost on port: 7496
+2018-08-16T15:17:12.579594Z: WARN  [6] input.connector: (Port:0)connect: Socket exception: unable to connect to 'localhost:7496'
+2018-08-16T15:17:12.579622Z: INFO  [6] input.adapter: Will try to reconnect in 10000 milliseconds
+2018-08-16T15:17:12.586938Z: DEBUG [4] input.connector: (Port:40981)Sending a PING for localhost on port 7796
+2018-08-16T15:17:12.588025Z: DEBUG [4] input.connector: (Port:40981)Received a PONG for localhost on port 7796
+2018-08-16T15:17:12.588049Z: DEBUG [4] input.connector: (Port:40981)    Time since last heartbeat: 10006ms
+2018-08-16T15:17:12.589381Z: DEBUG [3] input.connector: (Port:54421)Sending a PING for localhost on port 7896
+2018-08-16T15:17:12.589459Z: DEBUG [3] input.connector: (Port:54421)Received a PONG for localhost on port 7896
+2018-08-16T15:17:12.589484Z: DEBUG [3] input.connector: (Port:54421)    Time since last heartbeat: 10008ms
+2018-08-16T15:17:12.597978Z: DEBUG [1] input.connector: (Port:45217)Sending a PING for localhost on port 7696
+2018-08-16T15:17:12.598015Z: DEBUG [5] input.connector: (Port:60571)Sending a PING for localhost on port 7996
+2018-08-16T15:17:12.598051Z: DEBUG [2] input.connector: (Port:33335)Sending a PING for localhost on port 7596
+2018-08-16T15:17:12.598122Z: DEBUG [5] input.connector: (Port:60571)Received a PONG for localhost on port 7996
+2018-08-16T15:17:12.598149Z: DEBUG [5] input.connector: (Port:60571)    Time since last heartbeat: 10006ms
+2018-08-16T15:17:12.598176Z: DEBUG [2] input.connector: (Port:33335)Received a PONG for localhost on port 7596
+2018-08-16T15:17:12.598209Z: DEBUG [2] input.connector: (Port:33335)    Time since last heartbeat: 10008ms
+2018-08-16T15:17:12.598237Z: DEBUG [1] input.connector: (Port:45217)Received a PONG for localhost on port 7696
+2018-08-16T15:17:12.598258Z: DEBUG [1] input.connector: (Port:45217)    Time since last heartbeat: 10008ms
+2018-08-16T15:17:14.495237Z: DEBUG [41] agent: Request: GET /asset/ from 127.0.0.1:37558
+2018-08-16T15:17:14.495385Z: DEBUG [42] agent: Request: GET /asset/ from 127.0.0.1:37560
+2018-08-16T15:17:14.497397Z: DEBUG [43] agent: Request: GET /asset/ from 127.0.0.1:37562
+2018-08-16T15:17:14.501585Z: DEBUG [44] agent: Request: GET /asset/ from 127.0.0.1:37564
+2018-08-16T15:17:14.503585Z: DEBUG [45] agent: Request: GET /asset/ from 127.0.0.1:37566
+2018-08-16T15:17:14.505932Z: DEBUG [46] agent: Request: GET /asset/ from 127.0.0.1:37568
+2018-08-16T15:17:14.514129Z: DEBUG [47] agent: Request: GET /asset/ from 127.0.0.1:37570
+2018-08-16T15:17:22.579711Z: DEBUG [6] input.connector: Connecting to data source: localhost on port: 7496
+2018-08-16T15:17:22.579874Z: WARN  [6] input.connector: (Port:0)connect: Socket exception: unable to connect to 'localhost:7496'
+2018-08-16T15:17:22.579901Z: INFO  [6] input.adapter: Will try to reconnect in 10000 milliseconds
+2018-08-16T15:17:22.594488Z: DEBUG [4] input.connector: (Port:40981)Sending a PING for localhost on port 7796
+2018-08-16T15:17:22.594726Z: DEBUG [4] input.connector: (Port:40981)Received a PONG for localhost on port 7796
+2018-08-16T15:17:22.594773Z: DEBUG [4] input.connector: (Port:40981)    Time since last heartbeat: 10006ms
+2018-08-16T15:17:22.597472Z: DEBUG [3] input.connector: (Port:54421)Sending a PING for localhost on port 7896
+2018-08-16T15:17:22.597801Z: DEBUG [3] input.connector: (Port:54421)Received a PONG for localhost on port 7896
+2018-08-16T15:17:22.597840Z: DEBUG [3] input.connector: (Port:54421)    Time since last heartbeat: 10008ms
+2018-08-16T15:17:22.601771Z: DEBUG [2] input.connector: (Port:33335)Sending a PING for localhost on port 7596
+2018-08-16T15:17:22.603267Z: DEBUG [2] input.connector: (Port:33335)Received a PONG for localhost on port 7596
+2018-08-16T15:17:22.603356Z: DEBUG [2] input.connector: (Port:33335)    Time since last heartbeat: 10005ms
+2018-08-16T15:17:22.603574Z: DEBUG [1] input.connector: (Port:45217)Sending a PING for localhost on port 7696
+2018-08-16T15:17:22.603725Z: DEBUG [1] input.connector: (Port:45217)Received a PONG for localhost on port 7696
+2018-08-16T15:17:22.603760Z: DEBUG [1] input.connector: (Port:45217)    Time since last heartbeat: 10005ms
+2018-08-16T15:17:22.606080Z: DEBUG [5] input.connector: (Port:60571)Sending a PING for localhost on port 7996
+2018-08-16T15:17:22.608623Z: DEBUG [5] input.connector: (Port:60571)Received a PONG for localhost on port 7996
+2018-08-16T15:17:22.608645Z: DEBUG [5] input.connector: (Port:60571)    Time since last heartbeat: 10010ms
+2018-08-16T15:17:24.317623Z: DEBUG [48] agent: Request: GET /asset/ from 127.0.0.1:38052
+2018-08-16T15:17:24.317672Z: DEBUG [49] agent: Request: GET /asset/ from 127.0.0.1:38054
+2018-08-16T15:17:32.579998Z: DEBUG [6] input.connector: Connecting to data source: localhost on port: 7496
+2018-08-16T15:17:32.580215Z: WARN  [6] input.connector: (Port:0)connect: Socket exception: unable to connect to 'localhost:7496'
+2018-08-16T15:17:32.580244Z: INFO  [6] input.adapter: Will try to reconnect in 10000 milliseconds
+2018-08-16T15:17:32.601399Z: DEBUG [4] input.connector: (Port:40981)Sending a PING for localhost on port 7796
+2018-08-16T15:17:32.601532Z: DEBUG [4] input.connector: (Port:40981)Received a PONG for localhost on port 7796
+2018-08-16T15:17:32.601566Z: DEBUG [4] input.connector: (Port:40981)    Time since last heartbeat: 10006ms
+2018-08-16T15:17:32.605388Z: DEBUG [3] input.connector: (Port:54421)Sending a PING for localhost on port 7896
+2018-08-16T15:17:32.608889Z: DEBUG [3] input.connector: (Port:54421)Received a PONG for localhost on port 7896
+2018-08-16T15:17:32.608939Z: DEBUG [3] input.connector: (Port:54421)    Time since last heartbeat: 10011ms
+2018-08-16T15:17:32.609388Z: DEBUG [2] input.connector: (Port:33335)Sending a PING for localhost on port 7596
+2018-08-16T15:17:32.612929Z: DEBUG [2] input.connector: (Port:33335)Received a PONG for localhost on port 7596
+2018-08-16T15:17:32.613035Z: DEBUG [2] input.connector: (Port:33335)    Time since last heartbeat: 10009ms
+2018-08-16T15:17:32.613441Z: DEBUG [1] input.connector: (Port:45217)Sending a PING for localhost on port 7696
+2018-08-16T15:17:32.613863Z: DEBUG [1] input.connector: (Port:45217)Received a PONG for localhost on port 7696
+2018-08-16T15:17:32.613932Z: DEBUG [1] input.connector: (Port:45217)    Time since last heartbeat: 10010ms
+2018-08-16T15:17:32.615117Z: DEBUG [5] input.connector: (Port:60571)Sending a PING for localhost on port 7996
+2018-08-16T15:17:32.615426Z: DEBUG [5] input.connector: (Port:60571)Received a PONG for localhost on port 7996
+2018-08-16T15:17:32.615478Z: DEBUG [5] input.connector: (Port:60571)    Time since last heartbeat: 10006ms
+2018-08-16T15:17:42.580341Z: DEBUG [6] input.connector: Connecting to data source: localhost on port: 7496
+2018-08-16T15:17:42.580525Z: WARN  [6] input.connector: (Port:0)connect: Socket exception: unable to connect to 'localhost:7496'
+2018-08-16T15:17:42.580554Z: INFO  [6] input.adapter: Will try to reconnect in 10000 milliseconds
+2018-08-16T15:17:42.611372Z: DEBUG [4] input.connector: (Port:40981)Sending a PING for localhost on port 7796
+2018-08-16T15:17:42.611490Z: DEBUG [4] input.connector: (Port:40981)Received a PONG for localhost on port 7796
+2018-08-16T15:17:42.611515Z: DEBUG [4] input.connector: (Port:40981)    Time since last heartbeat: 10009ms
+2018-08-16T15:17:42.613380Z: DEBUG [3] input.connector: (Port:54421)Sending a PING for localhost on port 7896
+2018-08-16T15:17:42.613778Z: DEBUG [3] input.connector: (Port:54421)Received a PONG for localhost on port 7896
+2018-08-16T15:17:42.613806Z: DEBUG [3] input.connector: (Port:54421)    Time since last heartbeat: 10004ms
+2018-08-16T15:17:42.617382Z: DEBUG [2] input.connector: (Port:33335)Sending a PING for localhost on port 7596
+2018-08-16T15:17:42.620587Z: DEBUG [2] input.connector: (Port:33335)Received a PONG for localhost on port 7596
+2018-08-16T15:17:42.620614Z: DEBUG [2] input.connector: (Port:33335)    Time since last heartbeat: 10007ms
+2018-08-16T15:17:42.623872Z: DEBUG [1] input.connector: (Port:45217)Sending a PING for localhost on port 7696
+2018-08-16T15:17:42.625584Z: DEBUG [5] input.connector: (Port:60571)Sending a PING for localhost on port 7996
+2018-08-16T15:17:42.627018Z: DEBUG [5] input.connector: (Port:60571)Received a PONG for localhost on port 7996
+2018-08-16T15:17:42.627101Z: DEBUG [5] input.connector: (Port:60571)    Time since last heartbeat: 10011ms
+2018-08-16T15:17:42.627815Z: DEBUG [1] input.connector: (Port:45217)Received a PONG for localhost on port 7696
+2018-08-16T15:17:42.627867Z: DEBUG [1] input.connector: (Port:45217)    Time since last heartbeat: 10013ms
+2018-08-16T15:17:48.296228Z: DEBUG [50] agent: Request: GET /asset/ from 127.0.0.1:38062
+2018-08-16T15:17:48.298036Z: DEBUG [51] agent: Request: GET /asset/ from 127.0.0.1:38064
+2018-08-16T15:17:48.396547Z: DEBUG [52] agent: Request: GET /asset/ from 127.0.0.1:38066
+2018-08-16T15:17:48.400934Z: DEBUG [53] agent: Request: GET /asset/ from 127.0.0.1:38070
+2018-08-16T15:17:48.403063Z: DEBUG [54] agent: Request: GET /asset/ from 127.0.0.1:38068
+2018-08-16T15:17:48.403747Z: DEBUG [55] agent: Request: GET /asset/ from 127.0.0.1:38072
+2018-08-16T15:17:52.580653Z: DEBUG [6] input.connector: Connecting to data source: localhost on port: 7496
+2018-08-16T15:17:52.580885Z: WARN  [6] input.connector: (Port:0)connect: Socket exception: unable to connect to 'localhost:7496'
+2018-08-16T15:17:52.580918Z: INFO  [6] input.adapter: Will try to reconnect in 10000 milliseconds
+2018-08-16T15:17:52.617440Z: DEBUG [3] input.connector: (Port:54421)Sending a PING for localhost on port 7896
+2018-08-16T15:17:52.617673Z: DEBUG [3] input.connector: (Port:54421)Received a PONG for localhost on port 7896
+2018-08-16T15:17:52.617715Z: DEBUG [3] input.connector: (Port:54421)    Time since last heartbeat: 10003ms
+2018-08-16T15:17:52.621454Z: DEBUG [4] input.connector: (Port:40981)Sending a PING for localhost on port 7796
+2018-08-16T15:17:52.624163Z: DEBUG [4] input.connector: (Port:40981)Received a PONG for localhost on port 7796
+2018-08-16T15:17:52.624213Z: DEBUG [4] input.connector: (Port:40981)    Time since last heartbeat: 10012ms
+2018-08-16T15:17:52.625393Z: DEBUG [2] input.connector: (Port:33335)Sending a PING for localhost on port 7596
+2018-08-16T15:17:52.625490Z: DEBUG [2] input.connector: (Port:33335)Received a PONG for localhost on port 7596
+2018-08-16T15:17:52.625516Z: DEBUG [2] input.connector: (Port:33335)    Time since last heartbeat: 10004ms
+2018-08-16T15:17:52.629391Z: DEBUG [5] input.connector: (Port:60571)Sending a PING for localhost on port 7996
+2018-08-16T15:17:52.629570Z: DEBUG [5] input.connector: (Port:60571)Received a PONG for localhost on port 7996
+2018-08-16T15:17:52.629608Z: DEBUG [5] input.connector: (Port:60571)    Time since last heartbeat: 10002ms
+2018-08-16T15:17:52.633395Z: DEBUG [1] input.connector: (Port:45217)Sending a PING for localhost on port 7696
+2018-08-16T15:17:52.638972Z: DEBUG [1] input.connector: (Port:45217)Received a PONG for localhost on port 7696
+2018-08-16T15:17:52.639018Z: DEBUG [1] input.connector: (Port:45217)    Time since last heartbeat: 10011ms
+2018-08-16T15:17:59.230782Z: DEBUG [56] agent: Request: GET /asset/ from 127.0.0.1:38672
+2018-08-16T15:17:59.230978Z: DEBUG [57] agent: Request: GET /asset/ from 127.0.0.1:38674
+2018-08-16T15:18:02.581011Z: DEBUG [6] input.connector: Connecting to data source: localhost on port: 7496
+2018-08-16T15:18:02.581185Z: WARN  [6] input.connector: (Port:0)connect: Socket exception: unable to connect to 'localhost:7496'
+2018-08-16T15:18:02.581216Z: INFO  [6] input.adapter: Will try to reconnect in 10000 milliseconds
+2018-08-16T15:18:02.621227Z: DEBUG [3] input.connector: (Port:54421)Sending a PING for localhost on port 7896
+2018-08-16T15:18:02.622237Z: DEBUG [3] input.connector: (Port:54421)Received a PONG for localhost on port 7896
+2018-08-16T15:18:02.622274Z: DEBUG [3] input.connector: (Port:54421)    Time since last heartbeat: 10004ms
+2018-08-16T15:18:02.629451Z: DEBUG [4] input.connector: (Port:40981)Sending a PING for localhost on port 7796
+2018-08-16T15:18:02.630901Z: DEBUG [4] input.connector: (Port:40981)Received a PONG for localhost on port 7796
+2018-08-16T15:18:02.630980Z: DEBUG [4] input.connector: (Port:40981)    Time since last heartbeat: 10006ms
+2018-08-16T15:18:02.633247Z: DEBUG [5] input.connector: (Port:60571)Sending a PING for localhost on port 7996
+2018-08-16T15:18:02.633967Z: DEBUG [5] input.connector: (Port:60571)Received a PONG for localhost on port 7996
+2018-08-16T15:18:02.634118Z: DEBUG [5] input.connector: (Port:60571)    Time since last heartbeat: 10004ms
+2018-08-16T15:18:02.634171Z: DEBUG [2] input.connector: (Port:33335)Sending a PING for localhost on port 7596
+2018-08-16T15:18:02.634361Z: DEBUG [2] input.connector: (Port:33335)Received a PONG for localhost on port 7596
+2018-08-16T15:18:02.634399Z: DEBUG [2] input.connector: (Port:33335)    Time since last heartbeat: 10008ms
+2018-08-16T15:18:02.641400Z: DEBUG [1] input.connector: (Port:45217)Sending a PING for localhost on port 7696
+2018-08-16T15:18:02.641531Z: DEBUG [1] input.connector: (Port:45217)Received a PONG for localhost on port 7696
+2018-08-16T15:18:02.641563Z: DEBUG [1] input.connector: (Port:45217)    Time since last heartbeat: 10002ms
+2018-08-16T15:18:12.581344Z: DEBUG [6] input.connector: Connecting to data source: localhost on port: 7496
+2018-08-16T15:18:12.581661Z: WARN  [6] input.connector: (Port:0)connect: Socket exception: unable to connect to 'localhost:7496'
+2018-08-16T15:18:12.581715Z: INFO  [6] input.adapter: Will try to reconnect in 10000 milliseconds
+2018-08-16T15:18:12.629392Z: DEBUG [3] input.connector: (Port:54421)Sending a PING for localhost on port 7896
+2018-08-16T15:18:12.629658Z: DEBUG [3] input.connector: (Port:54421)Received a PONG for localhost on port 7896
+2018-08-16T15:18:12.629684Z: DEBUG [3] input.connector: (Port:54421)    Time since last heartbeat: 10007ms
+2018-08-16T15:18:12.637957Z: DEBUG [4] input.connector: (Port:40981)Sending a PING for localhost on port 7796
+2018-08-16T15:18:12.639101Z: DEBUG [4] input.connector: (Port:40981)Received a PONG for localhost on port 7796
+2018-08-16T15:18:12.639127Z: DEBUG [4] input.connector: (Port:40981)    Time since last heartbeat: 10008ms
+2018-08-16T15:18:12.641397Z: DEBUG [2] input.connector: (Port:33335)Sending a PING for localhost on port 7596
+2018-08-16T15:18:12.641478Z: DEBUG [5] input.connector: (Port:60571)Sending a PING for localhost on port 7996
+2018-08-16T15:18:12.641613Z: DEBUG [5] input.connector: (Port:60571)Received a PONG for localhost on port 7996
+2018-08-16T15:18:12.641645Z: DEBUG [5] input.connector: (Port:60571)    Time since last heartbeat: 10007ms
+2018-08-16T15:18:12.641701Z: DEBUG [2] input.connector: (Port:33335)Received a PONG for localhost on port 7596
+2018-08-16T15:18:12.641729Z: DEBUG [2] input.connector: (Port:33335)    Time since last heartbeat: 10007ms
+2018-08-16T15:18:12.649925Z: DEBUG [1] input.connector: (Port:45217)Sending a PING for localhost on port 7696
+2018-08-16T15:18:12.652781Z: DEBUG [1] input.connector: (Port:45217)Received a PONG for localhost on port 7696
+2018-08-16T15:18:12.652827Z: DEBUG [1] input.connector: (Port:45217)    Time since last heartbeat: 10011ms
+2018-08-16T15:18:14.709444Z: DEBUG [58] agent: Request: GET /asset/ from 127.0.0.1:38680
+2018-08-16T15:18:14.711324Z: DEBUG [59] agent: Request: GET /asset/ from 127.0.0.1:38682
+2018-08-16T15:18:22.581808Z: DEBUG [6] input.connector: Connecting to data source: localhost on port: 7496
+2018-08-16T15:18:22.581956Z: WARN  [6] input.connector: (Port:0)connect: Socket exception: unable to connect to 'localhost:7496'
+2018-08-16T15:18:22.581978Z: INFO  [6] input.adapter: Will try to reconnect in 10000 milliseconds
+2018-08-16T15:18:22.634549Z: DEBUG [3] input.connector: (Port:54421)Sending a PING for localhost on port 7896
+2018-08-16T15:18:22.638589Z: DEBUG [3] input.connector: (Port:54421)Received a PONG for localhost on port 7896
+2018-08-16T15:18:22.638637Z: DEBUG [3] input.connector: (Port:54421)    Time since last heartbeat: 10008ms
+2018-08-16T15:18:22.643365Z: DEBUG [4] input.connector: (Port:40981)Sending a PING for localhost on port 7796
+2018-08-16T15:18:22.643459Z: DEBUG [4] input.connector: (Port:40981)Received a PONG for localhost on port 7796
+2018-08-16T15:18:22.643477Z: DEBUG [4] input.connector: (Port:40981)    Time since last heartbeat: 10004ms
+2018-08-16T15:18:22.649394Z: DEBUG [2] input.connector: (Port:33335)Sending a PING for localhost on port 7596
+2018-08-16T15:18:22.649447Z: DEBUG [5] input.connector: (Port:60571)Sending a PING for localhost on port 7996
+2018-08-16T15:18:22.649533Z: DEBUG [2] input.connector: (Port:33335)Received a PONG for localhost on port 7596
+2018-08-16T15:18:22.649560Z: DEBUG [2] input.connector: (Port:33335)    Time since last heartbeat: 10007ms
+2018-08-16T15:18:22.649585Z: DEBUG [5] input.connector: (Port:60571)Received a PONG for localhost on port 7996
+2018-08-16T15:18:22.649609Z: DEBUG [5] input.connector: (Port:60571)    Time since last heartbeat: 10007ms
+2018-08-16T15:18:22.657398Z: DEBUG [1] input.connector: (Port:45217)Sending a PING for localhost on port 7696
+2018-08-16T15:18:22.660319Z: DEBUG [1] input.connector: (Port:45217)Received a PONG for localhost on port 7696
+2018-08-16T15:18:22.660397Z: DEBUG [1] input.connector: (Port:45217)    Time since last heartbeat: 10007ms
+2018-08-16T15:18:32.582099Z: DEBUG [6] input.connector: Connecting to data source: localhost on port: 7496
+2018-08-16T15:18:32.582472Z: WARN  [6] input.connector: (Port:0)connect: Socket exception: unable to connect to 'localhost:7496'
+2018-08-16T15:18:32.582516Z: INFO  [6] input.adapter: Will try to reconnect in 10000 milliseconds
+2018-08-16T15:18:32.641389Z: DEBUG [3] input.connector: (Port:54421)Sending a PING for localhost on port 7896
+2018-08-16T15:18:32.641500Z: DEBUG [3] input.connector: (Port:54421)Received a PONG for localhost on port 7896
+2018-08-16T15:18:32.641522Z: DEBUG [3] input.connector: (Port:54421)    Time since last heartbeat: 10002ms
+2018-08-16T15:18:32.653026Z: DEBUG [4] input.connector: (Port:40981)Sending a PING for localhost on port 7796
+2018-08-16T15:18:32.654605Z: DEBUG [5] input.connector: (Port:60571)Sending a PING for localhost on port 7996
+2018-08-16T15:18:32.654702Z: DEBUG [5] input.connector: (Port:60571)Received a PONG for localhost on port 7996
+2018-08-16T15:18:32.654723Z: DEBUG [5] input.connector: (Port:60571)    Time since last heartbeat: 10005ms
+2018-08-16T15:18:32.659597Z: DEBUG [2] input.connector: (Port:33335)Sending a PING for localhost on port 7596
+2018-08-16T15:18:32.661461Z: DEBUG [4] input.connector: (Port:40981)Received a PONG for localhost on port 7796
+2018-08-16T15:18:32.661499Z: DEBUG [4] input.connector: (Port:40981)    Time since last heartbeat: 10018ms
+2018-08-16T15:18:32.662536Z: DEBUG [2] input.connector: (Port:33335)Received a PONG for localhost on port 7596
+2018-08-16T15:18:32.662564Z: DEBUG [2] input.connector: (Port:33335)    Time since last heartbeat: 10012ms
+2018-08-16T15:18:32.665384Z: DEBUG [1] input.connector: (Port:45217)Sending a PING for localhost on port 7696
+2018-08-16T15:18:32.668281Z: DEBUG [1] input.connector: (Port:45217)Received a PONG for localhost on port 7696
+2018-08-16T15:18:32.668302Z: DEBUG [1] input.connector: (Port:45217)    Time since last heartbeat: 10007ms
+2018-08-16T15:18:42.582632Z: DEBUG [6] input.connector: Connecting to data source: localhost on port: 7496
+2018-08-16T15:18:42.582773Z: WARN  [6] input.connector: (Port:0)connect: Socket exception: unable to connect to 'localhost:7496'
+2018-08-16T15:18:42.582794Z: INFO  [6] input.adapter: Will try to reconnect in 10000 milliseconds
+2018-08-16T15:18:42.650256Z: DEBUG [3] input.connector: (Port:54421)Sending a PING for localhost on port 7896
+2018-08-16T15:18:42.650419Z: DEBUG [3] input.connector: (Port:54421)Received a PONG for localhost on port 7896
+2018-08-16T15:18:42.650445Z: DEBUG [3] input.connector: (Port:54421)    Time since last heartbeat: 10008ms
+2018-08-16T15:18:42.657836Z: DEBUG [4] input.connector: (Port:40981)Sending a PING for localhost on port 7796
+2018-08-16T15:18:42.658899Z: DEBUG [4] input.connector: (Port:40981)Received a PONG for localhost on port 7796
+2018-08-16T15:18:42.658940Z: DEBUG [4] input.connector: (Port:40981)    Time since last heartbeat: 9997ms
+2018-08-16T15:18:42.663709Z: DEBUG [5] input.connector: (Port:60571)Sending a PING for localhost on port 7996
+2018-08-16T15:18:42.663969Z: DEBUG [5] input.connector: (Port:60571)Received a PONG for localhost on port 7996
+2018-08-16T15:18:42.664009Z: DEBUG [5] input.connector: (Port:60571)    Time since last heartbeat: 10009ms
+2018-08-16T15:18:42.670605Z: DEBUG [2] input.connector: (Port:33335)Sending a PING for localhost on port 7596
+2018-08-16T15:18:42.671271Z: DEBUG [2] input.connector: (Port:33335)Received a PONG for localhost on port 7596
+2018-08-16T15:18:42.671299Z: DEBUG [2] input.connector: (Port:33335)    Time since last heartbeat: 10008ms
+2018-08-16T15:18:42.673391Z: DEBUG [1] input.connector: (Port:45217)Sending a PING for localhost on port 7696
+2018-08-16T15:18:42.673511Z: DEBUG [1] input.connector: (Port:45217)Received a PONG for localhost on port 7696
+2018-08-16T15:18:42.673541Z: DEBUG [1] input.connector: (Port:45217)    Time since last heartbeat: 10005ms
+2018-08-16T15:18:52.582897Z: DEBUG [6] input.connector: Connecting to data source: localhost on port: 7496
+2018-08-16T15:18:52.583189Z: WARN  [6] input.connector: (Port:0)connect: Socket exception: unable to connect to 'localhost:7496'
+2018-08-16T15:18:52.583244Z: INFO  [6] input.adapter: Will try to reconnect in 10000 milliseconds
+2018-08-16T15:18:52.658426Z: DEBUG [3] input.connector: (Port:54421)Sending a PING for localhost on port 7896
+2018-08-16T15:18:52.661215Z: DEBUG [3] input.connector: (Port:54421)Received a PONG for localhost on port 7896
+2018-08-16T15:18:52.661263Z: DEBUG [3] input.connector: (Port:54421)    Time since last heartbeat: 10010ms
+2018-08-16T15:18:52.662339Z: DEBUG [4] input.connector: (Port:40981)Sending a PING for localhost on port 7796
+2018-08-16T15:18:52.662425Z: DEBUG [4] input.connector: (Port:40981)Received a PONG for localhost on port 7796
+2018-08-16T15:18:52.662444Z: DEBUG [4] input.connector: (Port:40981)    Time since last heartbeat: 10003ms
+2018-08-16T15:18:52.673732Z: DEBUG [5] input.connector: (Port:60571)Sending a PING for localhost on port 7996
+2018-08-16T15:18:52.673879Z: DEBUG [5] input.connector: (Port:60571)Received a PONG for localhost on port 7996
+2018-08-16T15:18:52.673921Z: DEBUG [5] input.connector: (Port:60571)    Time since last heartbeat: 10009ms
+2018-08-16T15:18:52.681068Z: DEBUG [2] input.connector: (Port:33335)Sending a PING for localhost on port 7596
+2018-08-16T15:18:52.681406Z: DEBUG [1] input.connector: (Port:45217)Sending a PING for localhost on port 7696
+2018-08-16T15:18:52.683029Z: DEBUG [2] input.connector: (Port:33335)Received a PONG for localhost on port 7596
+2018-08-16T15:18:52.683092Z: DEBUG [2] input.connector: (Port:33335)    Time since last heartbeat: 10011ms
+2018-08-16T15:18:52.683127Z: DEBUG [1] input.connector: (Port:45217)Received a PONG for localhost on port 7696
+2018-08-16T15:18:52.683171Z: DEBUG [1] input.connector: (Port:45217)    Time since last heartbeat: 10009ms
+2018-08-16T15:19:02.583340Z: DEBUG [6] input.connector: Connecting to data source: localhost on port: 7496
+2018-08-16T15:19:02.583530Z: WARN  [6] input.connector: (Port:0)connect: Socket exception: unable to connect to 'localhost:7496'
+2018-08-16T15:19:02.583562Z: INFO  [6] input.adapter: Will try to reconnect in 10000 milliseconds
+2018-08-16T15:19:02.665426Z: DEBUG [3] input.connector: (Port:54421)Sending a PING for localhost on port 7896
+2018-08-16T15:19:02.665852Z: DEBUG [3] input.connector: (Port:54421)Received a PONG for localhost on port 7896
+2018-08-16T15:19:02.665927Z: DEBUG [3] input.connector: (Port:54421)    Time since last heartbeat: 10004ms
+2018-08-16T15:19:02.672486Z: DEBUG [4] input.connector: (Port:40981)Sending a PING for localhost on port 7796
+2018-08-16T15:19:02.672602Z: DEBUG [4] input.connector: (Port:40981)Received a PONG for localhost on port 7796
+2018-08-16T15:19:02.672627Z: DEBUG [4] input.connector: (Port:40981)    Time since last heartbeat: 10010ms
+2018-08-16T15:19:02.681373Z: DEBUG [5] input.connector: (Port:60571)Sending a PING for localhost on port 7996
+2018-08-16T15:19:02.681448Z: DEBUG [5] input.connector: (Port:60571)Received a PONG for localhost on port 7996
+2018-08-16T15:19:02.681472Z: DEBUG [5] input.connector: (Port:60571)    Time since last heartbeat: 10007ms
+2018-08-16T15:19:02.687702Z: DEBUG [2] input.connector: (Port:33335)Sending a PING for localhost on port 7596
+2018-08-16T15:19:02.689434Z: DEBUG [2] input.connector: (Port:33335)Received a PONG for localhost on port 7596
+2018-08-16T15:19:02.689463Z: DEBUG [2] input.connector: (Port:33335)    Time since last heartbeat: 10006ms
+2018-08-16T15:19:02.691862Z: DEBUG [1] input.connector: (Port:45217)Sending a PING for localhost on port 7696
+2018-08-16T15:19:02.691999Z: DEBUG [1] input.connector: (Port:45217)Received a PONG for localhost on port 7696
+2018-08-16T15:19:02.692028Z: DEBUG [1] input.connector: (Port:45217)    Time since last heartbeat: 10008ms
+2018-08-16T15:19:12.583685Z: DEBUG [6] input.connector: Connecting to data source: localhost on port: 7496
+2018-08-16T15:19:12.583992Z: WARN  [6] input.connector: (Port:0)connect: Socket exception: unable to connect to 'localhost:7496'
+2018-08-16T15:19:12.584037Z: INFO  [6] input.adapter: Will try to reconnect in 10000 milliseconds
+2018-08-16T15:19:12.673395Z: DEBUG [3] input.connector: (Port:54421)Sending a PING for localhost on port 7896
+2018-08-16T15:19:12.678123Z: DEBUG [3] input.connector: (Port:54421)Received a PONG for localhost on port 7896
+2018-08-16T15:19:12.678202Z: DEBUG [3] input.connector: (Port:54421)    Time since last heartbeat: 10012ms
+2018-08-16T15:19:12.681449Z: DEBUG [4] input.connector: (Port:40981)Sending a PING for localhost on port 7796
+2018-08-16T15:19:12.682085Z: DEBUG [4] input.connector: (Port:40981)Received a PONG for localhost on port 7796
+2018-08-16T15:19:12.682165Z: DEBUG [4] input.connector: (Port:40981)    Time since last heartbeat: 10009ms
+2018-08-16T15:19:12.686274Z: DEBUG [5] input.connector: (Port:60571)Sending a PING for localhost on port 7996
+2018-08-16T15:19:12.686538Z: DEBUG [5] input.connector: (Port:60571)Received a PONG for localhost on port 7996
+2018-08-16T15:19:12.686582Z: DEBUG [5] input.connector: (Port:60571)    Time since last heartbeat: 10005ms
+2018-08-16T15:19:12.697393Z: DEBUG [2] input.connector: (Port:33335)Sending a PING for localhost on port 7596
+2018-08-16T15:19:12.700078Z: DEBUG [2] input.connector: (Port:33335)Received a PONG for localhost on port 7596
+2018-08-16T15:19:12.700109Z: DEBUG [2] input.connector: (Port:33335)    Time since last heartbeat: 10010ms
+2018-08-16T15:19:12.701389Z: DEBUG [1] input.connector: (Port:45217)Sending a PING for localhost on port 7696
+2018-08-16T15:19:12.701603Z: DEBUG [1] input.connector: (Port:45217)Received a PONG for localhost on port 7696
+2018-08-16T15:19:12.701632Z: DEBUG [1] input.connector: (Port:45217)    Time since last heartbeat: 10009ms
+2018-08-16T15:19:22.584128Z: DEBUG [6] input.connector: Connecting to data source: localhost on port: 7496
+2018-08-16T15:19:22.584290Z: WARN  [6] input.connector: (Port:0)connect: Socket exception: unable to connect to 'localhost:7496'
+2018-08-16T15:19:22.584315Z: INFO  [6] input.adapter: Will try to reconnect in 10000 milliseconds
+2018-08-16T15:19:22.681387Z: DEBUG [3] input.connector: (Port:54421)Sending a PING for localhost on port 7896
+2018-08-16T15:19:22.682940Z: DEBUG [3] input.connector: (Port:54421)Received a PONG for localhost on port 7896
+2018-08-16T15:19:22.682965Z: DEBUG [3] input.connector: (Port:54421)    Time since last heartbeat: 10004ms
+2018-08-16T15:19:22.691862Z: DEBUG [4] input.connector: (Port:40981)Sending a PING for localhost on port 7796
+2018-08-16T15:19:22.692050Z: DEBUG [4] input.connector: (Port:40981)Received a PONG for localhost on port 7796
+2018-08-16T15:19:22.692090Z: DEBUG [4] input.connector: (Port:40981)    Time since last heartbeat: 10009ms
+2018-08-16T15:19:22.696051Z: DEBUG [5] input.connector: (Port:60571)Sending a PING for localhost on port 7996
+2018-08-16T15:19:22.696333Z: DEBUG [5] input.connector: (Port:60571)Received a PONG for localhost on port 7996
+2018-08-16T15:19:22.696404Z: DEBUG [5] input.connector: (Port:60571)    Time since last heartbeat: 10009ms
+2018-08-16T15:19:22.705397Z: DEBUG [2] input.connector: (Port:33335)Sending a PING for localhost on port 7596
+2018-08-16T15:19:22.707796Z: DEBUG [2] input.connector: (Port:33335)Received a PONG for localhost on port 7596
+2018-08-16T15:19:22.707837Z: DEBUG [2] input.connector: (Port:33335)    Time since last heartbeat: 10007ms
+2018-08-16T15:19:22.709726Z: DEBUG [1] input.connector: (Port:45217)Sending a PING for localhost on port 7696
+2018-08-16T15:19:22.709837Z: DEBUG [1] input.connector: (Port:45217)Received a PONG for localhost on port 7696
+2018-08-16T15:19:22.709865Z: DEBUG [1] input.connector: (Port:45217)    Time since last heartbeat: 10008ms
+2018-08-16T15:19:32.584418Z: DEBUG [6] input.connector: Connecting to data source: localhost on port: 7496
+2018-08-16T15:19:32.584677Z: WARN  [6] input.connector: (Port:0)connect: Socket exception: unable to connect to 'localhost:7496'
+2018-08-16T15:19:32.584712Z: INFO  [6] input.adapter: Will try to reconnect in 10000 milliseconds
+2018-08-16T15:19:32.689391Z: DEBUG [3] input.connector: (Port:54421)Sending a PING for localhost on port 7896
+2018-08-16T15:19:32.689881Z: DEBUG [3] input.connector: (Port:54421)Received a PONG for localhost on port 7896
+2018-08-16T15:19:32.689920Z: DEBUG [3] input.connector: (Port:54421)    Time since last heartbeat: 10006ms
+2018-08-16T15:19:32.698317Z: DEBUG [4] input.connector: (Port:40981)Sending a PING for localhost on port 7796
+2018-08-16T15:19:32.698546Z: DEBUG [4] input.connector: (Port:40981)Received a PONG for localhost on port 7796
+2018-08-16T15:19:32.698588Z: DEBUG [4] input.connector: (Port:40981)    Time since last heartbeat: 10006ms
+2018-08-16T15:19:32.705391Z: DEBUG [5] input.connector: (Port:60571)Sending a PING for localhost on port 7996
+2018-08-16T15:19:32.705513Z: DEBUG [5] input.connector: (Port:60571)Received a PONG for localhost on port 7996
+2018-08-16T15:19:32.705540Z: DEBUG [5] input.connector: (Port:60571)    Time since last heartbeat: 10009ms
+2018-08-16T15:19:32.713442Z: DEBUG [2] input.connector: (Port:33335)Sending a PING for localhost on port 7596
+2018-08-16T15:19:32.715044Z: DEBUG [2] input.connector: (Port:33335)Received a PONG for localhost on port 7596
+2018-08-16T15:19:32.715152Z: DEBUG [2] input.connector: (Port:33335)    Time since last heartbeat: 10007ms
+2018-08-16T15:19:32.717404Z: DEBUG [1] input.connector: (Port:45217)Sending a PING for localhost on port 7696
+2018-08-16T15:19:32.717564Z: DEBUG [1] input.connector: (Port:45217)Received a PONG for localhost on port 7696
+2018-08-16T15:19:32.717598Z: DEBUG [1] input.connector: (Port:45217)    Time since last heartbeat: 10007ms
+2018-08-16T15:19:42.584810Z: DEBUG [6] input.connector: Connecting to data source: localhost on port: 7496
+2018-08-16T15:19:42.585001Z: WARN  [6] input.connector: (Port:0)connect: Socket exception: unable to connect to 'localhost:7496'
+2018-08-16T15:19:42.585032Z: INFO  [6] input.adapter: Will try to reconnect in 10000 milliseconds
+2018-08-16T15:19:42.698778Z: DEBUG [3] input.connector: (Port:54421)Sending a PING for localhost on port 7896
+2018-08-16T15:19:42.699082Z: DEBUG [3] input.connector: (Port:54421)Received a PONG for localhost on port 7896
+2018-08-16T15:19:42.699150Z: DEBUG [3] input.connector: (Port:54421)    Time since last heartbeat: 10009ms
+2018-08-16T15:19:42.705399Z: DEBUG [4] input.connector: (Port:40981)Sending a PING for localhost on port 7796
+2018-08-16T15:19:42.705559Z: DEBUG [4] input.connector: (Port:40981)Received a PONG for localhost on port 7796
+2018-08-16T15:19:42.705597Z: DEBUG [4] input.connector: (Port:40981)    Time since last heartbeat: 10006ms
+2018-08-16T15:19:42.714204Z: DEBUG [5] input.connector: (Port:60571)Sending a PING for localhost on port 7996
+2018-08-16T15:19:42.714463Z: DEBUG [5] input.connector: (Port:60571)Received a PONG for localhost on port 7996
+2018-08-16T15:19:42.714508Z: DEBUG [5] input.connector: (Port:60571)    Time since last heartbeat: 10008ms
+2018-08-16T15:19:42.722068Z: DEBUG [2] input.connector: (Port:33335)Sending a PING for localhost on port 7596
+2018-08-16T15:19:42.722223Z: DEBUG [2] input.connector: (Port:33335)Received a PONG for localhost on port 7596
+2018-08-16T15:19:42.722262Z: DEBUG [2] input.connector: (Port:33335)    Time since last heartbeat: 10007ms
+2018-08-16T15:19:42.725456Z: DEBUG [1] input.connector: (Port:45217)Sending a PING for localhost on port 7696
+2018-08-16T15:19:42.725851Z: DEBUG [1] input.connector: (Port:45217)Received a PONG for localhost on port 7696
+2018-08-16T15:19:42.725946Z: DEBUG [1] input.connector: (Port:45217)    Time since last heartbeat: 10008ms
+2018-08-16T15:19:52.585174Z: DEBUG [6] input.connector: Connecting to data source: localhost on port: 7496
+2018-08-16T15:19:52.585604Z: WARN  [6] input.connector: (Port:0)connect: Socket exception: unable to connect to 'localhost:7496'
+2018-08-16T15:19:52.585640Z: INFO  [6] input.adapter: Will try to reconnect in 10000 milliseconds
+2018-08-16T15:19:52.709263Z: DEBUG [3] input.connector: (Port:54421)Sending a PING for localhost on port 7896
+2018-08-16T15:19:52.711552Z: DEBUG [3] input.connector: (Port:54421)Received a PONG for localhost on port 7896
+2018-08-16T15:19:52.711662Z: DEBUG [3] input.connector: (Port:54421)    Time since last heartbeat: 10012ms
+2018-08-16T15:19:52.711776Z: DEBUG [4] input.connector: (Port:40981)Sending a PING for localhost on port 7796
+2018-08-16T15:19:52.712009Z: DEBUG [4] input.connector: (Port:40981)Received a PONG for localhost on port 7796
+2018-08-16T15:19:52.712070Z: DEBUG [4] input.connector: (Port:40981)    Time since last heartbeat: 10006ms
+2018-08-16T15:19:52.721392Z: DEBUG [5] input.connector: (Port:60571)Sending a PING for localhost on port 7996
+2018-08-16T15:19:52.721526Z: DEBUG [5] input.connector: (Port:60571)Received a PONG for localhost on port 7996
+2018-08-16T15:19:52.721558Z: DEBUG [5] input.connector: (Port:60571)    Time since last heartbeat: 10007ms
+2018-08-16T15:19:52.732313Z: DEBUG [2] input.connector: (Port:33335)Sending a PING for localhost on port 7596
+2018-08-16T15:19:52.732418Z: DEBUG [2] input.connector: (Port:33335)Received a PONG for localhost on port 7596
+2018-08-16T15:19:52.732443Z: DEBUG [2] input.connector: (Port:33335)    Time since last heartbeat: 10010ms
+2018-08-16T15:19:52.733391Z: DEBUG [1] input.connector: (Port:45217)Sending a PING for localhost on port 7696
+2018-08-16T15:19:52.733491Z: DEBUG [1] input.connector: (Port:45217)Received a PONG for localhost on port 7696
+2018-08-16T15:19:52.733519Z: DEBUG [1] input.connector: (Port:45217)    Time since last heartbeat: 10007ms
+2018-08-16T15:20:02.585751Z: DEBUG [6] input.connector: Connecting to data source: localhost on port: 7496
+2018-08-16T15:20:02.585944Z: WARN  [6] input.connector: (Port:0)connect: Socket exception: unable to connect to 'localhost:7496'
+2018-08-16T15:20:02.585972Z: INFO  [6] input.adapter: Will try to reconnect in 10000 milliseconds
+2018-08-16T15:20:02.715200Z: DEBUG [3] input.connector: (Port:54421)Sending a PING for localhost on port 7896
+2018-08-16T15:20:02.715313Z: DEBUG [3] input.connector: (Port:54421)Received a PONG for localhost on port 7896
+2018-08-16T15:20:02.715337Z: DEBUG [3] input.connector: (Port:54421)    Time since last heartbeat: 10003ms
+2018-08-16T15:20:02.721386Z: DEBUG [4] input.connector: (Port:40981)Sending a PING for localhost on port 7796
+2018-08-16T15:20:02.722691Z: DEBUG [4] input.connector: (Port:40981)Received a PONG for localhost on port 7796
+2018-08-16T15:20:02.722787Z: DEBUG [4] input.connector: (Port:40981)    Time since last heartbeat: 10010ms
+2018-08-16T15:20:02.731629Z: DEBUG [5] input.connector: (Port:60571)Sending a PING for localhost on port 7996
+2018-08-16T15:20:02.731850Z: DEBUG [5] input.connector: (Port:60571)Received a PONG for localhost on port 7996
+2018-08-16T15:20:02.731890Z: DEBUG [5] input.connector: (Port:60571)    Time since last heartbeat: 10010ms
+2018-08-16T15:20:02.735501Z: DEBUG [2] input.connector: (Port:33335)Sending a PING for localhost on port 7596
+2018-08-16T15:20:02.735628Z: DEBUG [2] input.connector: (Port:33335)Received a PONG for localhost on port 7596
+2018-08-16T15:20:02.735658Z: DEBUG [2] input.connector: (Port:33335)    Time since last heartbeat: 10003ms
+2018-08-16T15:20:02.741375Z: DEBUG [1] input.connector: (Port:45217)Sending a PING for localhost on port 7696
+2018-08-16T15:20:02.741505Z: DEBUG [1] input.connector: (Port:45217)Received a PONG for localhost on port 7696
+2018-08-16T15:20:02.741530Z: DEBUG [1] input.connector: (Port:45217)    Time since last heartbeat: 10007ms
+2018-08-16T15:20:12.586102Z: DEBUG [6] input.connector: Connecting to data source: localhost on port: 7496
+2018-08-16T15:20:12.586345Z: WARN  [6] input.connector: (Port:0)connect: Socket exception: unable to connect to 'localhost:7496'
+2018-08-16T15:20:12.588531Z: INFO  [6] input.adapter: Will try to reconnect in 10000 milliseconds
+2018-08-16T15:20:12.715582Z: DEBUG [3] input.connector: (Port:54421)Sending a PING for localhost on port 7896
+2018-08-16T15:20:12.715728Z: DEBUG [3] input.connector: (Port:54421)Received a PONG for localhost on port 7896
+2018-08-16T15:20:12.715758Z: DEBUG [3] input.connector: (Port:54421)    Time since last heartbeat: 10000ms
+2018-08-16T15:20:12.730966Z: DEBUG [4] input.connector: (Port:40981)Sending a PING for localhost on port 7796
+2018-08-16T15:20:12.731075Z: DEBUG [4] input.connector: (Port:40981)Received a PONG for localhost on port 7796
+2018-08-16T15:20:12.731099Z: DEBUG [4] input.connector: (Port:40981)    Time since last heartbeat: 10008ms
+2018-08-16T15:20:12.738378Z: DEBUG [5] input.connector: (Port:60571)Sending a PING for localhost on port 7996
+2018-08-16T15:20:12.738613Z: DEBUG [5] input.connector: (Port:60571)Received a PONG for localhost on port 7996
+2018-08-16T15:20:12.738643Z: DEBUG [5] input.connector: (Port:60571)    Time since last heartbeat: 10006ms
+2018-08-16T15:20:12.745510Z: DEBUG [2] input.connector: (Port:33335)Sending a PING for localhost on port 7596
+2018-08-16T15:20:12.745775Z: DEBUG [2] input.connector: (Port:33335)Received a PONG for localhost on port 7596
+2018-08-16T15:20:12.745807Z: DEBUG [2] input.connector: (Port:33335)    Time since last heartbeat: 10010ms
+2018-08-16T15:20:12.749393Z: DEBUG [1] input.connector: (Port:45217)Sending a PING for localhost on port 7696
+2018-08-16T15:20:12.749519Z: DEBUG [1] input.connector: (Port:45217)Received a PONG for localhost on port 7696
+2018-08-16T15:20:12.749562Z: DEBUG [1] input.connector: (Port:45217)    Time since last heartbeat: 10008ms
+2018-08-16T15:20:22.588636Z: DEBUG [6] input.connector: Connecting to data source: localhost on port: 7496
+2018-08-16T15:20:22.588836Z: WARN  [6] input.connector: (Port:0)connect: Socket exception: unable to connect to 'localhost:7496'
+2018-08-16T15:20:22.588867Z: INFO  [6] input.adapter: Will try to reconnect in 10000 milliseconds
+2018-08-16T15:20:22.724111Z: DEBUG [3] input.connector: (Port:54421)Sending a PING for localhost on port 7896
+2018-08-16T15:20:22.725300Z: DEBUG [3] input.connector: (Port:54421)Received a PONG for localhost on port 7896
+2018-08-16T15:20:22.725474Z: DEBUG [3] input.connector: (Port:54421)    Time since last heartbeat: 10009ms
+2018-08-16T15:20:22.739409Z: DEBUG [4] input.connector: (Port:40981)Sending a PING for localhost on port 7796
+2018-08-16T15:20:22.744295Z: DEBUG [4] input.connector: (Port:40981)Received a PONG for localhost on port 7796
+2018-08-16T15:20:22.744338Z: DEBUG [4] input.connector: (Port:40981)    Time since last heartbeat: 10013ms
+2018-08-16T15:20:22.745384Z: DEBUG [5] input.connector: (Port:60571)Sending a PING for localhost on port 7996
+2018-08-16T15:20:22.745479Z: DEBUG [5] input.connector: (Port:60571)Received a PONG for localhost on port 7996
+2018-08-16T15:20:22.745503Z: DEBUG [5] input.connector: (Port:60571)    Time since last heartbeat: 10006ms
+2018-08-16T15:20:22.753402Z: DEBUG [2] input.connector: (Port:33335)Sending a PING for localhost on port 7596
+2018-08-16T15:20:22.753524Z: DEBUG [2] input.connector: (Port:33335)Received a PONG for localhost on port 7596
+2018-08-16T15:20:22.753557Z: DEBUG [2] input.connector: (Port:33335)    Time since last heartbeat: 10007ms
+2018-08-16T15:20:22.757449Z: DEBUG [1] input.connector: (Port:45217)Sending a PING for localhost on port 7696
+2018-08-16T15:20:22.758259Z: DEBUG [1] input.connector: (Port:45217)Received a PONG for localhost on port 7696
+2018-08-16T15:20:22.758364Z: DEBUG [1] input.connector: (Port:45217)    Time since last heartbeat: 10008ms
+2018-08-16T15:20:32.588949Z: DEBUG [6] input.connector: Connecting to data source: localhost on port: 7496
+2018-08-16T15:20:32.589085Z: WARN  [6] input.connector: (Port:0)connect: Socket exception: unable to connect to 'localhost:7496'
+2018-08-16T15:20:32.589109Z: INFO  [6] input.adapter: Will try to reconnect in 10000 milliseconds
+2018-08-16T15:20:32.731021Z: DEBUG [3] input.connector: (Port:54421)Sending a PING for localhost on port 7896
+2018-08-16T15:20:32.731141Z: DEBUG [3] input.connector: (Port:54421)Received a PONG for localhost on port 7896
+2018-08-16T15:20:32.731166Z: DEBUG [3] input.connector: (Port:54421)    Time since last heartbeat: 10005ms
+2018-08-16T15:20:32.741405Z: DEBUG [4] input.connector: (Port:40981)Sending a PING for localhost on port 7796
+2018-08-16T15:20:32.741767Z: DEBUG [4] input.connector: (Port:40981)Received a PONG for localhost on port 7796
+2018-08-16T15:20:32.741847Z: DEBUG [4] input.connector: (Port:40981)    Time since last heartbeat: 9997ms
+2018-08-16T15:20:32.753389Z: DEBUG [5] input.connector: (Port:60571)Sending a PING for localhost on port 7996
+2018-08-16T15:20:32.753509Z: DEBUG [5] input.connector: (Port:60571)Received a PONG for localhost on port 7996
+2018-08-16T15:20:32.753537Z: DEBUG [5] input.connector: (Port:60571)    Time since last heartbeat: 10008ms
+2018-08-16T15:20:32.763596Z: DEBUG [2] input.connector: (Port:33335)Sending a PING for localhost on port 7596
+2018-08-16T15:20:32.765381Z: DEBUG [1] input.connector: (Port:45217)Sending a PING for localhost on port 7696
+2018-08-16T15:20:32.767648Z: DEBUG [1] input.connector: (Port:45217)Received a PONG for localhost on port 7696
+2018-08-16T15:20:32.767683Z: DEBUG [1] input.connector: (Port:45217)    Time since last heartbeat: 10009ms
+2018-08-16T15:20:32.767710Z: DEBUG [2] input.connector: (Port:33335)Received a PONG for localhost on port 7596
+2018-08-16T15:20:32.767746Z: DEBUG [2] input.connector: (Port:33335)    Time since last heartbeat: 10014ms
+2018-08-16T15:20:42.589193Z: DEBUG [6] input.connector: Connecting to data source: localhost on port: 7496
+2018-08-16T15:20:42.589357Z: WARN  [6] input.connector: (Port:0)connect: Socket exception: unable to connect to 'localhost:7496'
+2018-08-16T15:20:42.589396Z: INFO  [6] input.adapter: Will try to reconnect in 10000 milliseconds
+2018-08-16T15:20:42.738667Z: DEBUG [3] input.connector: (Port:54421)Sending a PING for localhost on port 7896
+2018-08-16T15:20:42.739910Z: DEBUG [3] input.connector: (Port:54421)Received a PONG for localhost on port 7896
+2018-08-16T15:20:42.740017Z: DEBUG [3] input.connector: (Port:54421)    Time since last heartbeat: 10008ms
+2018-08-16T15:20:42.747518Z: DEBUG [4] input.connector: (Port:40981)Sending a PING for localhost on port 7796
+2018-08-16T15:20:42.747666Z: DEBUG [4] input.connector: (Port:40981)Received a PONG for localhost on port 7796
+2018-08-16T15:20:42.747694Z: DEBUG [4] input.connector: (Port:40981)    Time since last heartbeat: 10005ms
+2018-08-16T15:20:42.761457Z: DEBUG [5] input.connector: (Port:60571)Sending a PING for localhost on port 7996
+2018-08-16T15:20:42.761700Z: DEBUG [5] input.connector: (Port:60571)Received a PONG for localhost on port 7996
+2018-08-16T15:20:42.761739Z: DEBUG [5] input.connector: (Port:60571)    Time since last heartbeat: 10008ms
+2018-08-16T15:20:42.763888Z: DEBUG [2] input.connector: (Port:33335)Sending a PING for localhost on port 7596
+2018-08-16T15:20:42.764122Z: DEBUG [2] input.connector: (Port:33335)Received a PONG for localhost on port 7596
+2018-08-16T15:20:42.764152Z: DEBUG [2] input.connector: (Port:33335)    Time since last heartbeat: 9996ms
+2018-08-16T15:20:42.773398Z: DEBUG [1] input.connector: (Port:45217)Sending a PING for localhost on port 7696
+2018-08-16T15:20:42.775962Z: DEBUG [1] input.connector: (Port:45217)Received a PONG for localhost on port 7696
+2018-08-16T15:20:42.776003Z: DEBUG [1] input.connector: (Port:45217)    Time since last heartbeat: 10008ms
+2018-08-16T15:20:52.589482Z: DEBUG [6] input.connector: Connecting to data source: localhost on port: 7496
+2018-08-16T15:20:52.589641Z: WARN  [6] input.connector: (Port:0)connect: Socket exception: unable to connect to 'localhost:7496'
+2018-08-16T15:20:52.589665Z: INFO  [6] input.adapter: Will try to reconnect in 10000 milliseconds
+2018-08-16T15:20:52.748479Z: DEBUG [3] input.connector: (Port:54421)Sending a PING for localhost on port 7896
+2018-08-16T15:20:52.748648Z: DEBUG [3] input.connector: (Port:54421)Received a PONG for localhost on port 7896
+2018-08-16T15:20:52.748674Z: DEBUG [3] input.connector: (Port:54421)    Time since last heartbeat: 10008ms
+2018-08-16T15:20:52.757378Z: DEBUG [4] input.connector: (Port:40981)Sending a PING for localhost on port 7796
+2018-08-16T15:20:52.757465Z: DEBUG [4] input.connector: (Port:40981)Received a PONG for localhost on port 7796
+2018-08-16T15:20:52.757496Z: DEBUG [4] input.connector: (Port:40981)    Time since last heartbeat: 10009ms
+2018-08-16T15:20:52.768219Z: DEBUG [5] input.connector: (Port:60571)Sending a PING for localhost on port 7996
+2018-08-16T15:20:52.768299Z: DEBUG [5] input.connector: (Port:60571)Received a PONG for localhost on port 7996
+2018-08-16T15:20:52.768320Z: DEBUG [5] input.connector: (Port:60571)    Time since last heartbeat: 10006ms
+2018-08-16T15:20:52.773461Z: DEBUG [2] input.connector: (Port:33335)Sending a PING for localhost on port 7596
+2018-08-16T15:20:52.773699Z: DEBUG [2] input.connector: (Port:33335)Received a PONG for localhost on port 7596
+2018-08-16T15:20:52.773742Z: DEBUG [2] input.connector: (Port:33335)    Time since last heartbeat: 10009ms
+2018-08-16T15:20:52.778231Z: DEBUG [1] input.connector: (Port:45217)Sending a PING for localhost on port 7696
+2018-08-16T15:20:52.782007Z: DEBUG [1] input.connector: (Port:45217)Received a PONG for localhost on port 7696
+2018-08-16T15:20:52.782060Z: DEBUG [1] input.connector: (Port:45217)    Time since last heartbeat: 10006ms
+2018-08-16T15:21:02.589752Z: DEBUG [6] input.connector: Connecting to data source: localhost on port: 7496
+2018-08-16T15:21:02.589923Z: WARN  [6] input.connector: (Port:0)connect: Socket exception: unable to connect to 'localhost:7496'
+2018-08-16T15:21:02.589950Z: INFO  [6] input.adapter: Will try to reconnect in 10000 milliseconds
+2018-08-16T15:21:02.757462Z: DEBUG [3] input.connector: (Port:54421)Sending a PING for localhost on port 7896
+2018-08-16T15:21:02.758436Z: DEBUG [3] input.connector: (Port:54421)Received a PONG for localhost on port 7896
+2018-08-16T15:21:02.758552Z: DEBUG [3] input.connector: (Port:54421)    Time since last heartbeat: 10009ms
+2018-08-16T15:21:02.765465Z: DEBUG [4] input.connector: (Port:40981)Sending a PING for localhost on port 7796
+2018-08-16T15:21:02.765780Z: DEBUG [4] input.connector: (Port:40981)Received a PONG for localhost on port 7796
+2018-08-16T15:21:02.765813Z: DEBUG [4] input.connector: (Port:40981)    Time since last heartbeat: 10008ms
+2018-08-16T15:21:02.777402Z: DEBUG [5] input.connector: (Port:60571)Sending a PING for localhost on port 7996
+2018-08-16T15:21:02.777563Z: DEBUG [5] input.connector: (Port:60571)Received a PONG for localhost on port 7996
+2018-08-16T15:21:02.777591Z: DEBUG [5] input.connector: (Port:60571)    Time since last heartbeat: 10009ms
+2018-08-16T15:21:02.781478Z: DEBUG [2] input.connector: (Port:33335)Sending a PING for localhost on port 7596
+2018-08-16T15:21:02.783256Z: DEBUG [2] input.connector: (Port:33335)Received a PONG for localhost on port 7596
+2018-08-16T15:21:02.783297Z: DEBUG [2] input.connector: (Port:33335)    Time since last heartbeat: 10009ms
+2018-08-16T15:21:02.787489Z: DEBUG [1] input.connector: (Port:45217)Sending a PING for localhost on port 7696
+2018-08-16T15:21:02.789588Z: DEBUG [1] input.connector: (Port:45217)Received a PONG for localhost on port 7696
+2018-08-16T15:21:02.789703Z: DEBUG [1] input.connector: (Port:45217)    Time since last heartbeat: 10007ms
+2018-08-16T15:21:12.590038Z: DEBUG [6] input.connector: Connecting to data source: localhost on port: 7496
+2018-08-16T15:21:12.590211Z: WARN  [6] input.connector: (Port:0)connect: Socket exception: unable to connect to 'localhost:7496'
+2018-08-16T15:21:12.590240Z: INFO  [6] input.adapter: Will try to reconnect in 10000 milliseconds
+2018-08-16T15:21:12.762376Z: DEBUG [3] input.connector: (Port:54421)Sending a PING for localhost on port 7896
+2018-08-16T15:21:12.767437Z: DEBUG [3] input.connector: (Port:54421)Received a PONG for localhost on port 7896
+2018-08-16T15:21:12.767486Z: DEBUG [3] input.connector: (Port:54421)    Time since last heartbeat: 10008ms
+2018-08-16T15:21:12.767743Z: DEBUG [4] input.connector: (Port:40981)Sending a PING for localhost on port 7796
+2018-08-16T15:21:12.768397Z: DEBUG [4] input.connector: (Port:40981)Received a PONG for localhost on port 7796
+2018-08-16T15:21:12.768422Z: DEBUG [4] input.connector: (Port:40981)    Time since last heartbeat: 10002ms
+2018-08-16T15:21:12.783887Z: DEBUG [5] input.connector: (Port:60571)Sending a PING for localhost on port 7996
+2018-08-16T15:21:12.784015Z: DEBUG [5] input.connector: (Port:60571)Received a PONG for localhost on port 7996
+2018-08-16T15:21:12.784046Z: DEBUG [5] input.connector: (Port:60571)    Time since last heartbeat: 10006ms
+2018-08-16T15:21:12.785037Z: DEBUG [2] input.connector: (Port:33335)Sending a PING for localhost on port 7596
+2018-08-16T15:21:12.785139Z: DEBUG [2] input.connector: (Port:33335)Received a PONG for localhost on port 7596
+2018-08-16T15:21:12.785170Z: DEBUG [2] input.connector: (Port:33335)    Time since last heartbeat: 10001ms
+2018-08-16T15:21:12.793853Z: DEBUG [1] input.connector: (Port:45217)Sending a PING for localhost on port 7696
+2018-08-16T15:21:12.794567Z: DEBUG [1] input.connector: (Port:45217)Received a PONG for localhost on port 7696
+2018-08-16T15:21:12.794595Z: DEBUG [1] input.connector: (Port:45217)    Time since last heartbeat: 10004ms
+2018-08-16T15:21:22.590327Z: DEBUG [6] input.connector: Connecting to data source: localhost on port: 7496
+2018-08-16T15:21:22.590476Z: WARN  [6] input.connector: (Port:0)connect: Socket exception: unable to connect to 'localhost:7496'
+2018-08-16T15:21:22.590501Z: INFO  [6] input.adapter: Will try to reconnect in 10000 milliseconds
+2018-08-16T15:21:22.770861Z: DEBUG [3] input.connector: (Port:54421)Sending a PING for localhost on port 7896
+2018-08-16T15:21:22.771048Z: DEBUG [3] input.connector: (Port:54421)Received a PONG for localhost on port 7896
+2018-08-16T15:21:22.771082Z: DEBUG [3] input.connector: (Port:54421)    Time since last heartbeat: 10003ms
+2018-08-16T15:21:22.774295Z: DEBUG [4] input.connector: (Port:40981)Sending a PING for localhost on port 7796
+2018-08-16T15:21:22.774404Z: DEBUG [4] input.connector: (Port:40981)Received a PONG for localhost on port 7796
+2018-08-16T15:21:22.774428Z: DEBUG [4] input.connector: (Port:40981)    Time since last heartbeat: 10005ms
+2018-08-16T15:21:22.793413Z: DEBUG [5] input.connector: (Port:60571)Sending a PING for localhost on port 7996
+2018-08-16T15:21:22.793579Z: DEBUG [5] input.connector: (Port:60571)Received a PONG for localhost on port 7996
+2018-08-16T15:21:22.793610Z: DEBUG [5] input.connector: (Port:60571)    Time since last heartbeat: 10009ms
+2018-08-16T15:21:22.794645Z: DEBUG [2] input.connector: (Port:33335)Sending a PING for localhost on port 7596
+2018-08-16T15:21:22.795265Z: DEBUG [1] input.connector: (Port:45217)Sending a PING for localhost on port 7696
+2018-08-16T15:21:22.795447Z: DEBUG [2] input.connector: (Port:33335)Received a PONG for localhost on port 7596
+2018-08-16T15:21:22.795491Z: DEBUG [2] input.connector: (Port:33335)    Time since last heartbeat: 10010ms
+2018-08-16T15:21:22.801450Z: DEBUG [1] input.connector: (Port:45217)Received a PONG for localhost on port 7696
+2018-08-16T15:21:22.801497Z: DEBUG [1] input.connector: (Port:45217)    Time since last heartbeat: 10006ms
+2018-08-16T15:21:32.590623Z: DEBUG [6] input.connector: Connecting to data source: localhost on port: 7496
+2018-08-16T15:21:32.590769Z: WARN  [6] input.connector: (Port:0)connect: Socket exception: unable to connect to 'localhost:7496'
+2018-08-16T15:21:32.590795Z: INFO  [6] input.adapter: Will try to reconnect in 10000 milliseconds
+2018-08-16T15:21:32.781130Z: DEBUG [3] input.connector: (Port:54421)Sending a PING for localhost on port 7896
+2018-08-16T15:21:32.781263Z: DEBUG [3] input.connector: (Port:54421)Received a PONG for localhost on port 7896
+2018-08-16T15:21:32.781288Z: DEBUG [3] input.connector: (Port:54421)    Time since last heartbeat: 10010ms
+2018-08-16T15:21:32.784466Z: DEBUG [4] input.connector: (Port:40981)Sending a PING for localhost on port 7796
+2018-08-16T15:21:32.785558Z: DEBUG [4] input.connector: (Port:40981)Received a PONG for localhost on port 7796
+2018-08-16T15:21:32.785590Z: DEBUG [4] input.connector: (Port:40981)    Time since last heartbeat: 10011ms
+2018-08-16T15:21:32.801387Z: DEBUG [5] input.connector: (Port:60571)Sending a PING for localhost on port 7996
+2018-08-16T15:21:32.801508Z: DEBUG [5] input.connector: (Port:60571)Received a PONG for localhost on port 7996
+2018-08-16T15:21:32.801537Z: DEBUG [5] input.connector: (Port:60571)    Time since last heartbeat: 10007ms
+2018-08-16T15:21:32.805410Z: DEBUG [2] input.connector: (Port:33335)Sending a PING for localhost on port 7596
+2018-08-16T15:21:32.805540Z: DEBUG [1] input.connector: (Port:45217)Sending a PING for localhost on port 7696
+2018-08-16T15:21:32.805735Z: DEBUG [2] input.connector: (Port:33335)Received a PONG for localhost on port 7596
+2018-08-16T15:21:32.805791Z: DEBUG [2] input.connector: (Port:33335)    Time since last heartbeat: 10010ms
+2018-08-16T15:21:32.806118Z: DEBUG [1] input.connector: (Port:45217)Received a PONG for localhost on port 7696
+2018-08-16T15:21:32.806170Z: DEBUG [1] input.connector: (Port:45217)    Time since last heartbeat: 10004ms
+2018-08-16T15:21:42.590876Z: DEBUG [6] input.connector: Connecting to data source: localhost on port: 7496
+2018-08-16T15:21:42.591010Z: WARN  [6] input.connector: (Port:0)connect: Socket exception: unable to connect to 'localhost:7496'
+2018-08-16T15:21:42.591031Z: INFO  [6] input.adapter: Will try to reconnect in 10000 milliseconds
+2018-08-16T15:21:42.787334Z: DEBUG [3] input.connector: (Port:54421)Sending a PING for localhost on port 7896
+2018-08-16T15:21:42.788356Z: DEBUG [3] input.connector: (Port:54421)Received a PONG for localhost on port 7896
+2018-08-16T15:21:42.788506Z: DEBUG [3] input.connector: (Port:54421)    Time since last heartbeat: 10007ms
+2018-08-16T15:21:42.793417Z: DEBUG [4] input.connector: (Port:40981)Sending a PING for localhost on port 7796
+2018-08-16T15:21:42.793930Z: DEBUG [4] input.connector: (Port:40981)Received a PONG for localhost on port 7796
+2018-08-16T15:21:42.794039Z: DEBUG [4] input.connector: (Port:40981)    Time since last heartbeat: 10008ms
+2018-08-16T15:21:42.809402Z: DEBUG [5] input.connector: (Port:60571)Sending a PING for localhost on port 7996
+2018-08-16T15:21:42.809491Z: DEBUG [2] input.connector: (Port:33335)Sending a PING for localhost on port 7596
+2018-08-16T15:21:42.809547Z: DEBUG [5] input.connector: (Port:60571)Received a PONG for localhost on port 7996
+2018-08-16T15:21:42.809581Z: DEBUG [5] input.connector: (Port:60571)    Time since last heartbeat: 10008ms
+2018-08-16T15:21:42.813391Z: DEBUG [1] input.connector: (Port:45217)Sending a PING for localhost on port 7696
+2018-08-16T15:21:42.813436Z: DEBUG [2] input.connector: (Port:33335)Received a PONG for localhost on port 7596
+2018-08-16T15:21:42.813470Z: DEBUG [2] input.connector: (Port:33335)    Time since last heartbeat: 10007ms
+2018-08-16T15:21:42.815722Z: DEBUG [1] input.connector: (Port:45217)Received a PONG for localhost on port 7696
+2018-08-16T15:21:42.815759Z: DEBUG [1] input.connector: (Port:45217)    Time since last heartbeat: 10009ms
+2018-08-16T15:21:52.591114Z: DEBUG [6] input.connector: Connecting to data source: localhost on port: 7496
+2018-08-16T15:21:52.591263Z: WARN  [6] input.connector: (Port:0)connect: Socket exception: unable to connect to 'localhost:7496'
+2018-08-16T15:21:52.591288Z: INFO  [6] input.adapter: Will try to reconnect in 10000 milliseconds
+2018-08-16T15:21:52.797391Z: DEBUG [3] input.connector: (Port:54421)Sending a PING for localhost on port 7896
+2018-08-16T15:21:52.801392Z: DEBUG [4] input.connector: (Port:40981)Sending a PING for localhost on port 7796
+2018-08-16T15:21:52.801506Z: DEBUG [4] input.connector: (Port:40981)Received a PONG for localhost on port 7796
+2018-08-16T15:21:52.801529Z: DEBUG [4] input.connector: (Port:40981)    Time since last heartbeat: 10007ms
+2018-08-16T15:21:52.802405Z: DEBUG [3] input.connector: (Port:54421)Received a PONG for localhost on port 7896
+2018-08-16T15:21:52.802499Z: DEBUG [3] input.connector: (Port:54421)    Time since last heartbeat: 10013ms
+2018-08-16T15:21:52.817388Z: DEBUG [5] input.connector: (Port:60571)Sending a PING for localhost on port 7996
+2018-08-16T15:21:52.817501Z: DEBUG [5] input.connector: (Port:60571)Received a PONG for localhost on port 7996
+2018-08-16T15:21:52.817521Z: DEBUG [5] input.connector: (Port:60571)    Time since last heartbeat: 10007ms
+2018-08-16T15:21:52.819502Z: DEBUG [2] input.connector: (Port:33335)Sending a PING for localhost on port 7596
+2018-08-16T15:21:52.819688Z: DEBUG [2] input.connector: (Port:33335)Received a PONG for localhost on port 7596
+2018-08-16T15:21:52.819716Z: DEBUG [2] input.connector: (Port:33335)    Time since last heartbeat: 10006ms
+2018-08-16T15:21:52.823791Z: DEBUG [1] input.connector: (Port:45217)Sending a PING for localhost on port 7696
+2018-08-16T15:21:52.823864Z: DEBUG [1] input.connector: (Port:45217)Received a PONG for localhost on port 7696
+2018-08-16T15:21:52.823887Z: DEBUG [1] input.connector: (Port:45217)    Time since last heartbeat: 10008ms
+2018-08-16T15:22:02.591370Z: DEBUG [6] input.connector: Connecting to data source: localhost on port: 7496
+2018-08-16T15:22:02.591515Z: WARN  [6] input.connector: (Port:0)connect: Socket exception: unable to connect to 'localhost:7496'
+2018-08-16T15:22:02.591539Z: INFO  [6] input.adapter: Will try to reconnect in 10000 milliseconds
+2018-08-16T15:22:02.805392Z: DEBUG [3] input.connector: (Port:54421)Sending a PING for localhost on port 7896
+2018-08-16T15:22:02.806263Z: DEBUG [3] input.connector: (Port:54421)Received a PONG for localhost on port 7896
+2018-08-16T15:22:02.806309Z: DEBUG [3] input.connector: (Port:54421)    Time since last heartbeat: 10003ms
+2018-08-16T15:22:02.809378Z: DEBUG [4] input.connector: (Port:40981)Sending a PING for localhost on port 7796
+2018-08-16T15:22:02.809536Z: DEBUG [4] input.connector: (Port:40981)Received a PONG for localhost on port 7796
+2018-08-16T15:22:02.809563Z: DEBUG [4] input.connector: (Port:40981)    Time since last heartbeat: 10008ms
+2018-08-16T15:22:02.825424Z: DEBUG [5] input.connector: (Port:60571)Sending a PING for localhost on port 7996
+2018-08-16T15:22:02.825645Z: DEBUG [5] input.connector: (Port:60571)Received a PONG for localhost on port 7996
+2018-08-16T15:22:02.825679Z: DEBUG [5] input.connector: (Port:60571)    Time since last heartbeat: 10008ms
+2018-08-16T15:22:02.829395Z: DEBUG [2] input.connector: (Port:33335)Sending a PING for localhost on port 7596
+2018-08-16T15:22:02.831805Z: DEBUG [2] input.connector: (Port:33335)Received a PONG for localhost on port 7596
+2018-08-16T15:22:02.831845Z: DEBUG [2] input.connector: (Port:33335)    Time since last heartbeat: 10012ms
+2018-08-16T15:22:02.833389Z: DEBUG [1] input.connector: (Port:45217)Sending a PING for localhost on port 7696
+2018-08-16T15:22:02.835618Z: DEBUG [1] input.connector: (Port:45217)Received a PONG for localhost on port 7696
+2018-08-16T15:22:02.835662Z: DEBUG [1] input.connector: (Port:45217)    Time since last heartbeat: 10011ms
+2018-08-16T15:22:12.591624Z: DEBUG [6] input.connector: Connecting to data source: localhost on port: 7496
+2018-08-16T15:22:12.591772Z: WARN  [6] input.connector: (Port:0)connect: Socket exception: unable to connect to 'localhost:7496'
+2018-08-16T15:22:12.591803Z: INFO  [6] input.adapter: Will try to reconnect in 10000 milliseconds
+2018-08-16T15:22:12.816366Z: DEBUG [3] input.connector: (Port:54421)Sending a PING for localhost on port 7896
+2018-08-16T15:22:12.817087Z: DEBUG [3] input.connector: (Port:54421)Received a PONG for localhost on port 7896
+2018-08-16T15:22:12.817116Z: DEBUG [3] input.connector: (Port:54421)    Time since last heartbeat: 10010ms
+2018-08-16T15:22:12.817375Z: DEBUG [4] input.connector: (Port:40981)Sending a PING for localhost on port 7796
+2018-08-16T15:22:12.817439Z: DEBUG [4] input.connector: (Port:40981)Received a PONG for localhost on port 7796
+2018-08-16T15:22:12.817460Z: DEBUG [4] input.connector: (Port:40981)    Time since last heartbeat: 10007ms
+2018-08-16T15:22:12.833397Z: DEBUG [5] input.connector: (Port:60571)Sending a PING for localhost on port 7996
+2018-08-16T15:22:12.833538Z: DEBUG [5] input.connector: (Port:60571)Received a PONG for localhost on port 7996
+2018-08-16T15:22:12.833569Z: DEBUG [5] input.connector: (Port:60571)    Time since last heartbeat: 10007ms
+2018-08-16T15:22:12.837461Z: DEBUG [2] input.connector: (Port:33335)Sending a PING for localhost on port 7596
+2018-08-16T15:22:12.837783Z: DEBUG [2] input.connector: (Port:33335)Received a PONG for localhost on port 7596
+2018-08-16T15:22:12.837841Z: DEBUG [2] input.connector: (Port:33335)    Time since last heartbeat: 10005ms
+2018-08-16T15:22:12.843282Z: DEBUG [1] input.connector: (Port:45217)Sending a PING for localhost on port 7696
+2018-08-16T15:22:12.858298Z: DEBUG [1] input.connector: (Port:45217)Received a PONG for localhost on port 7696
+2018-08-16T15:22:12.858390Z: DEBUG [1] input.connector: (Port:45217)    Time since last heartbeat: 10022ms
+2018-08-16T15:22:22.591890Z: DEBUG [6] input.connector: Connecting to data source: localhost on port: 7496
+2018-08-16T15:22:22.592053Z: WARN  [6] input.connector: (Port:0)connect: Socket exception: unable to connect to 'localhost:7496'
+2018-08-16T15:22:22.592079Z: INFO  [6] input.adapter: Will try to reconnect in 10000 milliseconds
+2018-08-16T15:22:22.823177Z: DEBUG [3] input.connector: (Port:54421)Sending a PING for localhost on port 7896
+2018-08-16T15:22:22.823467Z: DEBUG [3] input.connector: (Port:54421)Received a PONG for localhost on port 7896
+2018-08-16T15:22:22.823516Z: DEBUG [3] input.connector: (Port:54421)    Time since last heartbeat: 10006ms
+2018-08-16T15:22:22.827395Z: DEBUG [4] input.connector: (Port:40981)Sending a PING for localhost on port 7796
+2018-08-16T15:22:22.829433Z: DEBUG [4] input.connector: (Port:40981)Received a PONG for localhost on port 7796
+2018-08-16T15:22:22.829470Z: DEBUG [4] input.connector: (Port:40981)    Time since last heartbeat: 10011ms
+2018-08-16T15:22:22.843614Z: DEBUG [5] input.connector: (Port:60571)Sending a PING for localhost on port 7996
+2018-08-16T15:22:22.843730Z: DEBUG [5] input.connector: (Port:60571)Received a PONG for localhost on port 7996
+2018-08-16T15:22:22.843760Z: DEBUG [5] input.connector: (Port:60571)    Time since last heartbeat: 10010ms
+2018-08-16T15:22:22.847876Z: DEBUG [2] input.connector: (Port:33335)Sending a PING for localhost on port 7596
+2018-08-16T15:22:22.847986Z: DEBUG [2] input.connector: (Port:33335)Received a PONG for localhost on port 7596
+2018-08-16T15:22:22.848008Z: DEBUG [2] input.connector: (Port:33335)    Time since last heartbeat: 10010ms
+2018-08-16T15:22:22.850078Z: DEBUG [1] input.connector: (Port:45217)Sending a PING for localhost on port 7696
+2018-08-16T15:22:22.850635Z: DEBUG [1] input.connector: (Port:45217)Received a PONG for localhost on port 7696
+2018-08-16T15:22:22.850671Z: DEBUG [1] input.connector: (Port:45217)    Time since last heartbeat: 9992ms
+2018-08-16T15:22:32.592162Z: DEBUG [6] input.connector: Connecting to data source: localhost on port: 7496
+2018-08-16T15:22:32.592297Z: WARN  [6] input.connector: (Port:0)connect: Socket exception: unable to connect to 'localhost:7496'
+2018-08-16T15:22:32.592320Z: INFO  [6] input.adapter: Will try to reconnect in 10000 milliseconds
+2018-08-16T15:22:32.833388Z: DEBUG [3] input.connector: (Port:54421)Sending a PING for localhost on port 7896
+2018-08-16T15:22:32.833518Z: DEBUG [3] input.connector: (Port:54421)Received a PONG for localhost on port 7896
+2018-08-16T15:22:32.833548Z: DEBUG [3] input.connector: (Port:54421)    Time since last heartbeat: 10010ms
+2018-08-16T15:22:32.834788Z: DEBUG [4] input.connector: (Port:40981)Sending a PING for localhost on port 7796
+2018-08-16T15:22:32.835132Z: DEBUG [4] input.connector: (Port:40981)Received a PONG for localhost on port 7796
+2018-08-16T15:22:32.835210Z: DEBUG [4] input.connector: (Port:40981)    Time since last heartbeat: 10005ms
+2018-08-16T15:22:32.852779Z: DEBUG [5] input.connector: (Port:60571)Sending a PING for localhost on port 7996
+2018-08-16T15:22:32.852839Z: DEBUG [2] input.connector: (Port:33335)Sending a PING for localhost on port 7596
+2018-08-16T15:22:32.852905Z: DEBUG [5] input.connector: (Port:60571)Received a PONG for localhost on port 7996
+2018-08-16T15:22:32.852945Z: DEBUG [5] input.connector: (Port:60571)    Time since last heartbeat: 10009ms
+2018-08-16T15:22:32.852979Z: DEBUG [2] input.connector: (Port:33335)Received a PONG for localhost on port 7596
+2018-08-16T15:22:32.853017Z: DEBUG [2] input.connector: (Port:33335)    Time since last heartbeat: 10004ms
+2018-08-16T15:22:32.854068Z: DEBUG [1] input.connector: (Port:45217)Sending a PING for localhost on port 7696
+2018-08-16T15:22:32.854748Z: DEBUG [1] input.connector: (Port:45217)Received a PONG for localhost on port 7696
+2018-08-16T15:22:32.854780Z: DEBUG [1] input.connector: (Port:45217)    Time since last heartbeat: 10004ms
+2018-08-16T15:22:42.592414Z: DEBUG [6] input.connector: Connecting to data source: localhost on port: 7496
+2018-08-16T15:22:42.592599Z: WARN  [6] input.connector: (Port:0)connect: Socket exception: unable to connect to 'localhost:7496'
+2018-08-16T15:22:42.592631Z: INFO  [6] input.adapter: Will try to reconnect in 10000 milliseconds
+2018-08-16T15:22:42.842784Z: DEBUG [3] input.connector: (Port:54421)Sending a PING for localhost on port 7896
+2018-08-16T15:22:42.843044Z: DEBUG [3] input.connector: (Port:54421)Received a PONG for localhost on port 7896
+2018-08-16T15:22:42.843079Z: DEBUG [3] input.connector: (Port:54421)    Time since last heartbeat: 10009ms
+2018-08-16T15:22:42.844865Z: DEBUG [4] input.connector: (Port:40981)Sending a PING for localhost on port 7796
+2018-08-16T15:22:42.846300Z: DEBUG [4] input.connector: (Port:40981)Received a PONG for localhost on port 7796
+2018-08-16T15:22:42.846348Z: DEBUG [4] input.connector: (Port:40981)    Time since last heartbeat: 10011ms
+2018-08-16T15:22:42.861391Z: DEBUG [5] input.connector: (Port:60571)Sending a PING for localhost on port 7996
+2018-08-16T15:22:42.861452Z: DEBUG [2] input.connector: (Port:33335)Sending a PING for localhost on port 7596
+2018-08-16T15:22:42.861524Z: DEBUG [5] input.connector: (Port:60571)Received a PONG for localhost on port 7996
+2018-08-16T15:22:42.861550Z: DEBUG [5] input.connector: (Port:60571)    Time since last heartbeat: 10008ms
+2018-08-16T15:22:42.864491Z: DEBUG [1] input.connector: (Port:45217)Sending a PING for localhost on port 7696
+2018-08-16T15:22:42.864574Z: DEBUG [2] input.connector: (Port:33335)Received a PONG for localhost on port 7596
+2018-08-16T15:22:42.864605Z: DEBUG [2] input.connector: (Port:33335)    Time since last heartbeat: 10011ms
+2018-08-16T15:22:42.864636Z: DEBUG [1] input.connector: (Port:45217)Received a PONG for localhost on port 7696
+2018-08-16T15:22:42.864677Z: DEBUG [1] input.connector: (Port:45217)    Time since last heartbeat: 10009ms
+2018-08-16T15:22:52.592716Z: DEBUG [6] input.connector: Connecting to data source: localhost on port: 7496
+2018-08-16T15:22:52.592868Z: WARN  [6] input.connector: (Port:0)connect: Socket exception: unable to connect to 'localhost:7496'
+2018-08-16T15:22:52.592895Z: INFO  [6] input.adapter: Will try to reconnect in 10000 milliseconds
+2018-08-16T15:22:52.852316Z: DEBUG [3] input.connector: (Port:54421)Sending a PING for localhost on port 7896
+2018-08-16T15:22:52.852431Z: DEBUG [3] input.connector: (Port:54421)Received a PONG for localhost on port 7896
+2018-08-16T15:22:52.852452Z: DEBUG [3] input.connector: (Port:54421)    Time since last heartbeat: 10009ms
+2018-08-16T15:22:52.853748Z: DEBUG [4] input.connector: (Port:40981)Sending a PING for localhost on port 7796
+2018-08-16T15:22:52.853821Z: DEBUG [4] input.connector: (Port:40981)Received a PONG for localhost on port 7796
+2018-08-16T15:22:52.853840Z: DEBUG [4] input.connector: (Port:40981)    Time since last heartbeat: 10007ms
+2018-08-16T15:22:52.869292Z: DEBUG [5] input.connector: (Port:60571)Sending a PING for localhost on port 7996
+2018-08-16T15:22:52.869579Z: DEBUG [5] input.connector: (Port:60571)Received a PONG for localhost on port 7996
+2018-08-16T15:22:52.869617Z: DEBUG [5] input.connector: (Port:60571)    Time since last heartbeat: 10008ms
+2018-08-16T15:22:52.871550Z: DEBUG [2] input.connector: (Port:33335)Sending a PING for localhost on port 7596
+2018-08-16T15:22:52.871756Z: DEBUG [2] input.connector: (Port:33335)Received a PONG for localhost on port 7596
+2018-08-16T15:22:52.871794Z: DEBUG [2] input.connector: (Port:33335)    Time since last heartbeat: 10007ms
+2018-08-16T15:22:52.873816Z: DEBUG [1] input.connector: (Port:45217)Sending a PING for localhost on port 7696
+2018-08-16T15:22:52.874077Z: DEBUG [1] input.connector: (Port:45217)Received a PONG for localhost on port 7696
+2018-08-16T15:22:52.874166Z: DEBUG [1] input.connector: (Port:45217)    Time since last heartbeat: 10009ms
+2018-08-16T15:23:02.592980Z: DEBUG [6] input.connector: Connecting to data source: localhost on port: 7496
+2018-08-16T15:23:02.593154Z: WARN  [6] input.connector: (Port:0)connect: Socket exception: unable to connect to 'localhost:7496'
+2018-08-16T15:23:02.593179Z: INFO  [6] input.adapter: Will try to reconnect in 10000 milliseconds
+2018-08-16T15:23:02.856934Z: DEBUG [4] input.connector: (Port:40981)Sending a PING for localhost on port 7796
+2018-08-16T15:23:02.857559Z: DEBUG [4] input.connector: (Port:40981)Received a PONG for localhost on port 7796
+2018-08-16T15:23:02.857665Z: DEBUG [4] input.connector: (Port:40981)    Time since last heartbeat: 10003ms
+2018-08-16T15:23:02.862492Z: DEBUG [3] input.connector: (Port:54421)Sending a PING for localhost on port 7896
+2018-08-16T15:23:02.864008Z: DEBUG [3] input.connector: (Port:54421)Received a PONG for localhost on port 7896
+2018-08-16T15:23:02.864036Z: DEBUG [3] input.connector: (Port:54421)    Time since last heartbeat: 10011ms
+2018-08-16T15:23:02.871716Z: DEBUG [5] input.connector: (Port:60571)Sending a PING for localhost on port 7996
+2018-08-16T15:23:02.871814Z: DEBUG [5] input.connector: (Port:60571)Received a PONG for localhost on port 7996
+2018-08-16T15:23:02.871838Z: DEBUG [5] input.connector: (Port:60571)    Time since last heartbeat: 10002ms
+2018-08-16T15:23:02.879477Z: DEBUG [2] input.connector: (Port:33335)Sending a PING for localhost on port 7596
+2018-08-16T15:23:02.879552Z: DEBUG [2] input.connector: (Port:33335)Received a PONG for localhost on port 7596
+2018-08-16T15:23:02.879580Z: DEBUG [2] input.connector: (Port:33335)    Time since last heartbeat: 10007ms
+2018-08-16T15:23:02.883262Z: DEBUG [1] input.connector: (Port:45217)Sending a PING for localhost on port 7696
+2018-08-16T15:23:02.883435Z: DEBUG [1] input.connector: (Port:45217)Received a PONG for localhost on port 7696
+2018-08-16T15:23:02.883463Z: DEBUG [1] input.connector: (Port:45217)    Time since last heartbeat: 10009ms
+2018-08-16T15:23:12.593270Z: DEBUG [6] input.connector: Connecting to data source: localhost on port: 7496
+2018-08-16T15:23:12.593430Z: WARN  [6] input.connector: (Port:0)connect: Socket exception: unable to connect to 'localhost:7496'
+2018-08-16T15:23:12.593453Z: INFO  [6] input.adapter: Will try to reconnect in 10000 milliseconds
+2018-08-16T15:23:12.865385Z: DEBUG [4] input.connector: (Port:40981)Sending a PING for localhost on port 7796
+2018-08-16T15:23:12.867007Z: DEBUG [4] input.connector: (Port:40981)Received a PONG for localhost on port 7796
+2018-08-16T15:23:12.867090Z: DEBUG [4] input.connector: (Port:40981)    Time since last heartbeat: 10009ms
+2018-08-16T15:23:12.867932Z: DEBUG [3] input.connector: (Port:54421)Sending a PING for localhost on port 7896
+2018-08-16T15:23:12.868452Z: DEBUG [3] input.connector: (Port:54421)Received a PONG for localhost on port 7896
+2018-08-16T15:23:12.868542Z: DEBUG [3] input.connector: (Port:54421)    Time since last heartbeat: 10004ms
+2018-08-16T15:23:12.878183Z: DEBUG [5] input.connector: (Port:60571)Sending a PING for localhost on port 7996
+2018-08-16T15:23:12.878292Z: DEBUG [5] input.connector: (Port:60571)Received a PONG for localhost on port 7996
+2018-08-16T15:23:12.878314Z: DEBUG [5] input.connector: (Port:60571)    Time since last heartbeat: 10006ms
+2018-08-16T15:23:12.889375Z: DEBUG [2] input.connector: (Port:33335)Sending a PING for localhost on port 7596
+2018-08-16T15:23:12.889449Z: DEBUG [2] input.connector: (Port:33335)Received a PONG for localhost on port 7596
+2018-08-16T15:23:12.889472Z: DEBUG [2] input.connector: (Port:33335)    Time since last heartbeat: 10009ms
+2018-08-16T15:23:12.893374Z: DEBUG [1] input.connector: (Port:45217)Sending a PING for localhost on port 7696
+2018-08-16T15:23:12.893452Z: DEBUG [1] input.connector: (Port:45217)Received a PONG for localhost on port 7696
+2018-08-16T15:23:12.893473Z: DEBUG [1] input.connector: (Port:45217)    Time since last heartbeat: 10009ms
+2018-08-16T15:23:22.593546Z: DEBUG [6] input.connector: Connecting to data source: localhost on port: 7496
+2018-08-16T15:23:22.593730Z: WARN  [6] input.connector: (Port:0)connect: Socket exception: unable to connect to 'localhost:7496'
+2018-08-16T15:23:22.593763Z: INFO  [6] input.adapter: Will try to reconnect in 10000 milliseconds
+2018-08-16T15:23:22.876061Z: DEBUG [4] input.connector: (Port:40981)Sending a PING for localhost on port 7796
+2018-08-16T15:23:22.878549Z: DEBUG [3] input.connector: (Port:54421)Sending a PING for localhost on port 7896
+2018-08-16T15:23:22.880057Z: DEBUG [3] input.connector: (Port:54421)Received a PONG for localhost on port 7896
+2018-08-16T15:23:22.880109Z: DEBUG [3] input.connector: (Port:54421)    Time since last heartbeat: 10011ms
+2018-08-16T15:23:22.880144Z: DEBUG [4] input.connector: (Port:40981)Received a PONG for localhost on port 7796
+2018-08-16T15:23:22.880174Z: DEBUG [4] input.connector: (Port:40981)    Time since last heartbeat: 10013ms
+2018-08-16T15:23:22.885403Z: DEBUG [5] input.connector: (Port:60571)Sending a PING for localhost on port 7996
+2018-08-16T15:23:22.885558Z: DEBUG [5] input.connector: (Port:60571)Received a PONG for localhost on port 7996
+2018-08-16T15:23:22.885593Z: DEBUG [5] input.connector: (Port:60571)    Time since last heartbeat: 10007ms
+2018-08-16T15:23:22.897608Z: DEBUG [2] input.connector: (Port:33335)Sending a PING for localhost on port 7596
+2018-08-16T15:23:22.898310Z: DEBUG [2] input.connector: (Port:33335)Received a PONG for localhost on port 7596
+2018-08-16T15:23:22.898338Z: DEBUG [2] input.connector: (Port:33335)    Time since last heartbeat: 10008ms
+2018-08-16T15:23:22.901382Z: DEBUG [1] input.connector: (Port:45217)Sending a PING for localhost on port 7696
+2018-08-16T15:23:22.901473Z: DEBUG [1] input.connector: (Port:45217)Received a PONG for localhost on port 7696
+2018-08-16T15:23:22.901502Z: DEBUG [1] input.connector: (Port:45217)    Time since last heartbeat: 10008ms
+2018-08-16T15:23:32.593883Z: DEBUG [6] input.connector: Connecting to data source: localhost on port: 7496
+2018-08-16T15:23:32.594042Z: WARN  [6] input.connector: (Port:0)connect: Socket exception: unable to connect to 'localhost:7496'
+2018-08-16T15:23:32.594076Z: INFO  [6] input.adapter: Will try to reconnect in 10000 milliseconds
+2018-08-16T15:23:32.876883Z: DEBUG [4] input.connector: (Port:40981)Sending a PING for localhost on port 7796
+2018-08-16T15:23:32.877033Z: DEBUG [4] input.connector: (Port:40981)Received a PONG for localhost on port 7796
+2018-08-16T15:23:32.877064Z: DEBUG [4] input.connector: (Port:40981)    Time since last heartbeat: 9996ms
+2018-08-16T15:23:32.885385Z: DEBUG [3] input.connector: (Port:54421)Sending a PING for localhost on port 7896
+2018-08-16T15:23:32.885490Z: DEBUG [3] input.connector: (Port:54421)Received a PONG for localhost on port 7896
+2018-08-16T15:23:32.885514Z: DEBUG [3] input.connector: (Port:54421)    Time since last heartbeat: 10005ms
+2018-08-16T15:23:32.893828Z: DEBUG [5] input.connector: (Port:60571)Sending a PING for localhost on port 7996
+2018-08-16T15:23:32.893972Z: DEBUG [5] input.connector: (Port:60571)Received a PONG for localhost on port 7996
+2018-08-16T15:23:32.894007Z: DEBUG [5] input.connector: (Port:60571)    Time since last heartbeat: 10008ms
+2018-08-16T15:23:32.905436Z: DEBUG [2] input.connector: (Port:33335)Sending a PING for localhost on port 7596
+2018-08-16T15:23:32.905768Z: DEBUG [2] input.connector: (Port:33335)Received a PONG for localhost on port 7596
+2018-08-16T15:23:32.905856Z: DEBUG [2] input.connector: (Port:33335)    Time since last heartbeat: 10007ms
+2018-08-16T15:23:32.909391Z: DEBUG [1] input.connector: (Port:45217)Sending a PING for localhost on port 7696
+2018-08-16T15:23:32.910106Z: DEBUG [1] input.connector: (Port:45217)Received a PONG for localhost on port 7696
+2018-08-16T15:23:32.910137Z: DEBUG [1] input.connector: (Port:45217)    Time since last heartbeat: 10008ms
+2018-08-16T15:23:42.594176Z: DEBUG [6] input.connector: Connecting to data source: localhost on port: 7496
+2018-08-16T15:23:42.594356Z: WARN  [6] input.connector: (Port:0)connect: Socket exception: unable to connect to 'localhost:7496'
+2018-08-16T15:23:42.594381Z: INFO  [6] input.adapter: Will try to reconnect in 10000 milliseconds
+2018-08-16T15:23:42.886983Z: DEBUG [4] input.connector: (Port:40981)Sending a PING for localhost on port 7796
+2018-08-16T15:23:42.889183Z: DEBUG [4] input.connector: (Port:40981)Received a PONG for localhost on port 7796
+2018-08-16T15:23:42.889275Z: DEBUG [4] input.connector: (Port:40981)    Time since last heartbeat: 10012ms
+2018-08-16T15:23:42.892127Z: DEBUG [3] input.connector: (Port:54421)Sending a PING for localhost on port 7896
+2018-08-16T15:23:42.892252Z: DEBUG [3] input.connector: (Port:54421)Received a PONG for localhost on port 7896
+2018-08-16T15:23:42.892285Z: DEBUG [3] input.connector: (Port:54421)    Time since last heartbeat: 10006ms
+2018-08-16T15:23:42.897234Z: DEBUG [5] input.connector: (Port:60571)Sending a PING for localhost on port 7996
+2018-08-16T15:23:42.897374Z: DEBUG [5] input.connector: (Port:60571)Received a PONG for localhost on port 7996
+2018-08-16T15:23:42.897410Z: DEBUG [5] input.connector: (Port:60571)    Time since last heartbeat: 10003ms
+2018-08-16T15:23:42.911301Z: DEBUG [2] input.connector: (Port:33335)Sending a PING for localhost on port 7596
+2018-08-16T15:23:42.911577Z: DEBUG [2] input.connector: (Port:33335)Received a PONG for localhost on port 7596
+2018-08-16T15:23:42.911612Z: DEBUG [2] input.connector: (Port:33335)    Time since last heartbeat: 10005ms
+2018-08-16T15:23:42.920203Z: DEBUG [1] input.connector: (Port:45217)Sending a PING for localhost on port 7696
+2018-08-16T15:23:42.921134Z: DEBUG [1] input.connector: (Port:45217)Received a PONG for localhost on port 7696
+2018-08-16T15:23:42.921203Z: DEBUG [1] input.connector: (Port:45217)    Time since last heartbeat: 10011ms
+2018-08-16T15:23:52.594479Z: DEBUG [6] input.connector: Connecting to data source: localhost on port: 7496
+2018-08-16T15:23:52.594667Z: WARN  [6] input.connector: (Port:0)connect: Socket exception: unable to connect to 'localhost:7496'
+2018-08-16T15:23:52.594716Z: INFO  [6] input.adapter: Will try to reconnect in 10000 milliseconds
+2018-08-16T15:23:52.896215Z: DEBUG [4] input.connector: (Port:40981)Sending a PING for localhost on port 7796
+2018-08-16T15:23:52.896567Z: DEBUG [4] input.connector: (Port:40981)Received a PONG for localhost on port 7796
+2018-08-16T15:23:52.896641Z: DEBUG [4] input.connector: (Port:40981)    Time since last heartbeat: 10007ms
+2018-08-16T15:23:52.901420Z: DEBUG [3] input.connector: (Port:54421)Sending a PING for localhost on port 7896
+2018-08-16T15:23:52.901909Z: DEBUG [3] input.connector: (Port:54421)Received a PONG for localhost on port 7896
+2018-08-16T15:23:52.902030Z: DEBUG [3] input.connector: (Port:54421)    Time since last heartbeat: 10009ms
+2018-08-16T15:23:52.905415Z: DEBUG [5] input.connector: (Port:60571)Sending a PING for localhost on port 7996
+2018-08-16T15:23:52.905651Z: DEBUG [5] input.connector: (Port:60571)Received a PONG for localhost on port 7996
+2018-08-16T15:23:52.905694Z: DEBUG [5] input.connector: (Port:60571)    Time since last heartbeat: 10008ms
+2018-08-16T15:23:52.921420Z: DEBUG [2] input.connector: (Port:33335)Sending a PING for localhost on port 7596
+2018-08-16T15:23:52.921694Z: DEBUG [2] input.connector: (Port:33335)Received a PONG for localhost on port 7596
+2018-08-16T15:23:52.921734Z: DEBUG [2] input.connector: (Port:33335)    Time since last heartbeat: 10010ms
+2018-08-16T15:23:52.929394Z: DEBUG [1] input.connector: (Port:45217)Sending a PING for localhost on port 7696
+2018-08-16T15:23:52.929547Z: DEBUG [1] input.connector: (Port:45217)Received a PONG for localhost on port 7696
+2018-08-16T15:23:52.929582Z: DEBUG [1] input.connector: (Port:45217)    Time since last heartbeat: 10008ms
+2018-08-16T15:24:02.594827Z: DEBUG [6] input.connector: Connecting to data source: localhost on port: 7496
+2018-08-16T15:24:02.595125Z: WARN  [6] input.connector: (Port:0)connect: Socket exception: unable to connect to 'localhost:7496'
+2018-08-16T15:24:02.595497Z: INFO  [6] input.adapter: Will try to reconnect in 10000 milliseconds
+2018-08-16T15:24:02.905391Z: DEBUG [4] input.connector: (Port:40981)Sending a PING for localhost on port 7796
+2018-08-16T15:24:02.909377Z: DEBUG [3] input.connector: (Port:54421)Sending a PING for localhost on port 7896
+2018-08-16T15:24:02.909935Z: DEBUG [4] input.connector: (Port:40981)Received a PONG for localhost on port 7796
+2018-08-16T15:24:02.909963Z: DEBUG [4] input.connector: (Port:40981)    Time since last heartbeat: 10013ms
+2018-08-16T15:24:02.909994Z: DEBUG [3] input.connector: (Port:54421)Received a PONG for localhost on port 7896
+2018-08-16T15:24:02.910030Z: DEBUG [3] input.connector: (Port:54421)    Time since last heartbeat: 10007ms
+2018-08-16T15:24:02.915762Z: DEBUG [5] input.connector: (Port:60571)Sending a PING for localhost on port 7996
+2018-08-16T15:24:02.915992Z: DEBUG [5] input.connector: (Port:60571)Received a PONG for localhost on port 7996
+2018-08-16T15:24:02.916032Z: DEBUG [5] input.connector: (Port:60571)    Time since last heartbeat: 10010ms
+2018-08-16T15:24:02.931001Z: DEBUG [2] input.connector: (Port:33335)Sending a PING for localhost on port 7596
+2018-08-16T15:24:02.932744Z: DEBUG [2] input.connector: (Port:33335)Received a PONG for localhost on port 7596
+2018-08-16T15:24:02.932776Z: DEBUG [2] input.connector: (Port:33335)    Time since last heartbeat: 10011ms
+2018-08-16T15:24:02.939623Z: DEBUG [1] input.connector: (Port:45217)Sending a PING for localhost on port 7696
+2018-08-16T15:24:02.939734Z: DEBUG [1] input.connector: (Port:45217)Received a PONG for localhost on port 7696
+2018-08-16T15:24:02.939768Z: DEBUG [1] input.connector: (Port:45217)    Time since last heartbeat: 10010ms
+2018-08-16T15:24:12.595598Z: DEBUG [6] input.connector: Connecting to data source: localhost on port: 7496
+2018-08-16T15:24:12.595777Z: WARN  [6] input.connector: (Port:0)connect: Socket exception: unable to connect to 'localhost:7496'
+2018-08-16T15:24:12.595804Z: INFO  [6] input.adapter: Will try to reconnect in 10000 milliseconds
+2018-08-16T15:24:12.910266Z: DEBUG [3] input.connector: (Port:54421)Sending a PING for localhost on port 7896
+2018-08-16T15:24:12.910366Z: DEBUG [4] input.connector: (Port:40981)Sending a PING for localhost on port 7796
+2018-08-16T15:24:12.910468Z: DEBUG [4] input.connector: (Port:40981)Received a PONG for localhost on port 7796
+2018-08-16T15:24:12.910497Z: DEBUG [4] input.connector: (Port:40981)    Time since last heartbeat: 10000ms
+2018-08-16T15:24:12.910738Z: DEBUG [3] input.connector: (Port:54421)Received a PONG for localhost on port 7896
+2018-08-16T15:24:12.910764Z: DEBUG [3] input.connector: (Port:54421)    Time since last heartbeat: 10000ms
+2018-08-16T15:24:12.926082Z: DEBUG [5] input.connector: (Port:60571)Sending a PING for localhost on port 7996
+2018-08-16T15:24:12.926224Z: DEBUG [5] input.connector: (Port:60571)Received a PONG for localhost on port 7996
+2018-08-16T15:24:12.926257Z: DEBUG [5] input.connector: (Port:60571)    Time since last heartbeat: 10010ms
+2018-08-16T15:24:12.935628Z: DEBUG [2] input.connector: (Port:33335)Sending a PING for localhost on port 7596
+2018-08-16T15:24:12.935935Z: DEBUG [2] input.connector: (Port:33335)Received a PONG for localhost on port 7596
+2018-08-16T15:24:12.935967Z: DEBUG [2] input.connector: (Port:33335)    Time since last heartbeat: 10003ms
+2018-08-16T15:24:12.944975Z: DEBUG [1] input.connector: (Port:45217)Sending a PING for localhost on port 7696
+2018-08-16T15:24:12.945102Z: DEBUG [1] input.connector: (Port:45217)Received a PONG for localhost on port 7696
+2018-08-16T15:24:12.945137Z: DEBUG [1] input.connector: (Port:45217)    Time since last heartbeat: 10005ms
+2018-08-16T15:24:22.595938Z: DEBUG [6] input.connector: Connecting to data source: localhost on port: 7496
+2018-08-16T15:24:22.596445Z: WARN  [6] input.connector: (Port:0)connect: Socket exception: unable to connect to 'localhost:7496'
+2018-08-16T15:24:22.596528Z: INFO  [6] input.adapter: Will try to reconnect in 10000 milliseconds
+2018-08-16T15:24:22.911873Z: DEBUG [4] input.connector: (Port:40981)Sending a PING for localhost on port 7796
+2018-08-16T15:24:22.914167Z: DEBUG [4] input.connector: (Port:40981)Received a PONG for localhost on port 7796
+2018-08-16T15:24:22.914210Z: DEBUG [4] input.connector: (Port:40981)    Time since last heartbeat: 10003ms
+2018-08-16T15:24:22.917424Z: DEBUG [3] input.connector: (Port:54421)Sending a PING for localhost on port 7896
+2018-08-16T15:24:22.917876Z: DEBUG [3] input.connector: (Port:54421)Received a PONG for localhost on port 7896
+2018-08-16T15:24:22.917994Z: DEBUG [3] input.connector: (Port:54421)    Time since last heartbeat: 10007ms
+2018-08-16T15:24:22.933388Z: DEBUG [5] input.connector: (Port:60571)Sending a PING for localhost on port 7996
+2018-08-16T15:24:22.933522Z: DEBUG [5] input.connector: (Port:60571)Received a PONG for localhost on port 7996
+2018-08-16T15:24:22.933551Z: DEBUG [5] input.connector: (Port:60571)    Time since last heartbeat: 10007ms
+2018-08-16T15:24:22.945385Z: DEBUG [2] input.connector: (Port:33335)Sending a PING for localhost on port 7596
+2018-08-16T15:24:22.946016Z: DEBUG [2] input.connector: (Port:33335)Received a PONG for localhost on port 7596
+2018-08-16T15:24:22.946083Z: DEBUG [2] input.connector: (Port:33335)    Time since last heartbeat: 10010ms
+2018-08-16T15:24:22.953485Z: DEBUG [1] input.connector: (Port:45217)Sending a PING for localhost on port 7696
+2018-08-16T15:24:22.953707Z: DEBUG [1] input.connector: (Port:45217)Received a PONG for localhost on port 7696
+2018-08-16T15:24:22.953729Z: DEBUG [1] input.connector: (Port:45217)    Time since last heartbeat: 10008ms
+2018-08-16T15:24:32.596660Z: DEBUG [6] input.connector: Connecting to data source: localhost on port: 7496
+2018-08-16T15:24:32.596998Z: WARN  [6] input.connector: (Port:0)connect: Socket exception: unable to connect to 'localhost:7496'
+2018-08-16T15:24:32.597040Z: INFO  [6] input.adapter: Will try to reconnect in 10000 milliseconds
+2018-08-16T15:24:32.925304Z: DEBUG [4] input.connector: (Port:40981)Sending a PING for localhost on port 7796
+2018-08-16T15:24:32.925598Z: DEBUG [4] input.connector: (Port:40981)Received a PONG for localhost on port 7796
+2018-08-16T15:24:32.925640Z: DEBUG [4] input.connector: (Port:40981)    Time since last heartbeat: 10011ms
+2018-08-16T15:24:32.927565Z: DEBUG [3] input.connector: (Port:54421)Sending a PING for localhost on port 7896
+2018-08-16T15:24:32.930007Z: DEBUG [3] input.connector: (Port:54421)Received a PONG for localhost on port 7896
+2018-08-16T15:24:32.930059Z: DEBUG [3] input.connector: (Port:54421)    Time since last heartbeat: 10012ms
+2018-08-16T15:24:32.941492Z: DEBUG [5] input.connector: (Port:60571)Sending a PING for localhost on port 7996
+2018-08-16T15:24:32.941636Z: DEBUG [5] input.connector: (Port:60571)Received a PONG for localhost on port 7996
+2018-08-16T15:24:32.941675Z: DEBUG [5] input.connector: (Port:60571)    Time since last heartbeat: 10008ms
+2018-08-16T15:24:32.955715Z: DEBUG [2] input.connector: (Port:33335)Sending a PING for localhost on port 7596
+2018-08-16T15:24:32.961382Z: DEBUG [1] input.connector: (Port:45217)Sending a PING for localhost on port 7696
+2018-08-16T15:24:32.961550Z: DEBUG [1] input.connector: (Port:45217)Received a PONG for localhost on port 7696
+2018-08-16T15:24:32.961577Z: DEBUG [1] input.connector: (Port:45217)    Time since last heartbeat: 10007ms
+2018-08-16T15:24:32.962534Z: DEBUG [2] input.connector: (Port:33335)Received a PONG for localhost on port 7596
+2018-08-16T15:24:32.962606Z: DEBUG [2] input.connector: (Port:33335)    Time since last heartbeat: 10016ms
+2018-08-16T15:24:42.597164Z: DEBUG [6] input.connector: Connecting to data source: localhost on port: 7496
+2018-08-16T15:24:42.597569Z: WARN  [6] input.connector: (Port:0)connect: Socket exception: unable to connect to 'localhost:7496'
+2018-08-16T15:24:42.597612Z: INFO  [6] input.adapter: Will try to reconnect in 10000 milliseconds
+2018-08-16T15:24:42.933398Z: DEBUG [4] input.connector: (Port:40981)Sending a PING for localhost on port 7796
+2018-08-16T15:24:42.933557Z: DEBUG [4] input.connector: (Port:40981)Received a PONG for localhost on port 7796
+2018-08-16T15:24:42.933608Z: DEBUG [4] input.connector: (Port:40981)    Time since last heartbeat: 10007ms
+2018-08-16T15:24:42.937381Z: DEBUG [3] input.connector: (Port:54421)Sending a PING for localhost on port 7896
+2018-08-16T15:24:42.943468Z: DEBUG [3] input.connector: (Port:54421)Received a PONG for localhost on port 7896
+2018-08-16T15:24:42.943513Z: DEBUG [3] input.connector: (Port:54421)    Time since last heartbeat: 10013ms
+2018-08-16T15:24:42.949459Z: DEBUG [5] input.connector: (Port:60571)Sending a PING for localhost on port 7996
+2018-08-16T15:24:42.949729Z: DEBUG [5] input.connector: (Port:60571)Received a PONG for localhost on port 7996
+2018-08-16T15:24:42.949768Z: DEBUG [5] input.connector: (Port:60571)    Time since last heartbeat: 10008ms
+2018-08-16T15:24:42.965394Z: DEBUG [2] input.connector: (Port:33335)Sending a PING for localhost on port 7596
+2018-08-16T15:24:42.967182Z: DEBUG [2] input.connector: (Port:33335)Received a PONG for localhost on port 7596
+2018-08-16T15:24:42.967220Z: DEBUG [2] input.connector: (Port:33335)    Time since last heartbeat: 10004ms
+2018-08-16T15:24:42.969376Z: DEBUG [1] input.connector: (Port:45217)Sending a PING for localhost on port 7696
+2018-08-16T15:24:42.972727Z: DEBUG [1] input.connector: (Port:45217)Received a PONG for localhost on port 7696
+2018-08-16T15:24:42.972765Z: DEBUG [1] input.connector: (Port:45217)    Time since last heartbeat: 10011ms
+2018-08-16T15:24:52.597703Z: DEBUG [6] input.connector: Connecting to data source: localhost on port: 7496
+2018-08-16T15:24:52.597868Z: WARN  [6] input.connector: (Port:0)connect: Socket exception: unable to connect to 'localhost:7496'
+2018-08-16T15:24:52.597900Z: INFO  [6] input.adapter: Will try to reconnect in 10000 milliseconds
+2018-08-16T15:24:52.941445Z: DEBUG [4] input.connector: (Port:40981)Sending a PING for localhost on port 7796
+2018-08-16T15:24:52.944131Z: DEBUG [4] input.connector: (Port:40981)Received a PONG for localhost on port 7796
+2018-08-16T15:24:52.944176Z: DEBUG [4] input.connector: (Port:40981)    Time since last heartbeat: 10010ms
+2018-08-16T15:24:52.945378Z: DEBUG [3] input.connector: (Port:54421)Sending a PING for localhost on port 7896
+2018-08-16T15:24:52.953486Z: DEBUG [5] input.connector: (Port:60571)Sending a PING for localhost on port 7996
+2018-08-16T15:24:52.953581Z: DEBUG [5] input.connector: (Port:60571)Received a PONG for localhost on port 7996
+2018-08-16T15:24:52.953614Z: DEBUG [5] input.connector: (Port:60571)    Time since last heartbeat: 10003ms
+2018-08-16T15:24:52.956408Z: DEBUG [3] input.connector: (Port:54421)Received a PONG for localhost on port 7896
+2018-08-16T15:24:52.956436Z: DEBUG [3] input.connector: (Port:54421)    Time since last heartbeat: 10012ms
+2018-08-16T15:24:52.968728Z: DEBUG [2] input.connector: (Port:33335)Sending a PING for localhost on port 7596
+2018-08-16T15:24:52.968941Z: DEBUG [2] input.connector: (Port:33335)Received a PONG for localhost on port 7596
+2018-08-16T15:24:52.968978Z: DEBUG [2] input.connector: (Port:33335)    Time since last heartbeat: 10001ms
+2018-08-16T15:24:52.977422Z: DEBUG [1] input.connector: (Port:45217)Sending a PING for localhost on port 7696
+2018-08-16T15:24:52.977578Z: DEBUG [1] input.connector: (Port:45217)Received a PONG for localhost on port 7696
+2018-08-16T15:24:52.977620Z: DEBUG [1] input.connector: (Port:45217)    Time since last heartbeat: 10004ms
+2018-08-16T15:25:02.598002Z: DEBUG [6] input.connector: Connecting to data source: localhost on port: 7496
+2018-08-16T15:25:02.598268Z: WARN  [6] input.connector: (Port:0)connect: Socket exception: unable to connect to 'localhost:7496'
+2018-08-16T15:25:02.598298Z: INFO  [6] input.adapter: Will try to reconnect in 10000 milliseconds
+2018-08-16T15:25:02.952250Z: DEBUG [4] input.connector: (Port:40981)Sending a PING for localhost on port 7796
+2018-08-16T15:25:02.952763Z: DEBUG [4] input.connector: (Port:40981)Received a PONG for localhost on port 7796
+2018-08-16T15:25:02.952846Z: DEBUG [4] input.connector: (Port:40981)    Time since last heartbeat: 10008ms
+2018-08-16T15:25:02.953478Z: DEBUG [3] input.connector: (Port:54421)Sending a PING for localhost on port 7896
+2018-08-16T15:25:02.954261Z: DEBUG [3] input.connector: (Port:54421)Received a PONG for localhost on port 7896
+2018-08-16T15:25:02.954351Z: DEBUG [3] input.connector: (Port:54421)    Time since last heartbeat: 9997ms
+2018-08-16T15:25:02.960157Z: DEBUG [5] input.connector: (Port:60571)Sending a PING for localhost on port 7996
+2018-08-16T15:25:02.960270Z: DEBUG [5] input.connector: (Port:60571)Received a PONG for localhost on port 7996
+2018-08-16T15:25:02.960299Z: DEBUG [5] input.connector: (Port:60571)    Time since last heartbeat: 10006ms
+2018-08-16T15:25:02.979040Z: DEBUG [2] input.connector: (Port:33335)Sending a PING for localhost on port 7596
+2018-08-16T15:25:02.979233Z: DEBUG [2] input.connector: (Port:33335)Received a PONG for localhost on port 7596
+2018-08-16T15:25:02.979259Z: DEBUG [2] input.connector: (Port:33335)    Time since last heartbeat: 10010ms
+2018-08-16T15:25:02.986692Z: DEBUG [1] input.connector: (Port:45217)Sending a PING for localhost on port 7696
+2018-08-16T15:25:02.986928Z: DEBUG [1] input.connector: (Port:45217)Received a PONG for localhost on port 7696
+2018-08-16T15:25:02.986959Z: DEBUG [1] input.connector: (Port:45217)    Time since last heartbeat: 10009ms
+2018-08-16T15:25:12.598386Z: DEBUG [6] input.connector: Connecting to data source: localhost on port: 7496
+2018-08-16T15:25:12.598544Z: WARN  [6] input.connector: (Port:0)connect: Socket exception: unable to connect to 'localhost:7496'
+2018-08-16T15:25:12.598567Z: INFO  [6] input.adapter: Will try to reconnect in 10000 milliseconds
+2018-08-16T15:25:12.956165Z: DEBUG [4] input.connector: (Port:40981)Sending a PING for localhost on port 7796
+2018-08-16T15:25:12.960941Z: DEBUG [4] input.connector: (Port:40981)Received a PONG for localhost on port 7796
+2018-08-16T15:25:12.960973Z: DEBUG [4] input.connector: (Port:40981)    Time since last heartbeat: 10008ms
+2018-08-16T15:25:12.964429Z: DEBUG [3] input.connector: (Port:54421)Sending a PING for localhost on port 7896
+2018-08-16T15:25:12.965279Z: DEBUG [3] input.connector: (Port:54421)Received a PONG for localhost on port 7896
+2018-08-16T15:25:12.965341Z: DEBUG [3] input.connector: (Port:54421)    Time since last heartbeat: 10010ms
+2018-08-16T15:25:12.969420Z: DEBUG [5] input.connector: (Port:60571)Sending a PING for localhost on port 7996
+2018-08-16T15:25:12.969825Z: DEBUG [5] input.connector: (Port:60571)Received a PONG for localhost on port 7996
+2018-08-16T15:25:12.969878Z: DEBUG [5] input.connector: (Port:60571)    Time since last heartbeat: 10009ms
+2018-08-16T15:25:12.988014Z: DEBUG [2] input.connector: (Port:33335)Sending a PING for localhost on port 7596
+2018-08-16T15:25:12.988123Z: DEBUG [2] input.connector: (Port:33335)Received a PONG for localhost on port 7596
+2018-08-16T15:25:12.988150Z: DEBUG [2] input.connector: (Port:33335)    Time since last heartbeat: 10008ms
+2018-08-16T15:25:12.992059Z: DEBUG [1] input.connector: (Port:45217)Sending a PING for localhost on port 7696
+2018-08-16T15:25:12.992144Z: DEBUG [1] input.connector: (Port:45217)Received a PONG for localhost on port 7696
+2018-08-16T15:25:12.992171Z: DEBUG [1] input.connector: (Port:45217)    Time since last heartbeat: 10005ms
+2018-08-16T15:25:22.598695Z: DEBUG [6] input.connector: Connecting to data source: localhost on port: 7496
+2018-08-16T15:25:22.599009Z: WARN  [6] input.connector: (Port:0)connect: Socket exception: unable to connect to 'localhost:7496'
+2018-08-16T15:25:22.599055Z: INFO  [6] input.adapter: Will try to reconnect in 10000 milliseconds
+2018-08-16T15:25:22.965396Z: DEBUG [4] input.connector: (Port:40981)Sending a PING for localhost on port 7796
+2018-08-16T15:25:22.969448Z: DEBUG [4] input.connector: (Port:40981)Received a PONG for localhost on port 7796
+2018-08-16T15:25:22.969499Z: DEBUG [4] input.connector: (Port:40981)    Time since last heartbeat: 10008ms
+2018-08-16T15:25:22.973392Z: DEBUG [3] input.connector: (Port:54421)Sending a PING for localhost on port 7896
+2018-08-16T15:25:22.973499Z: DEBUG [3] input.connector: (Port:54421)Received a PONG for localhost on port 7896
+2018-08-16T15:25:22.973526Z: DEBUG [3] input.connector: (Port:54421)    Time since last heartbeat: 10008ms
+2018-08-16T15:25:22.977392Z: DEBUG [5] input.connector: (Port:60571)Sending a PING for localhost on port 7996
+2018-08-16T15:25:22.977522Z: DEBUG [5] input.connector: (Port:60571)Received a PONG for localhost on port 7996
+2018-08-16T15:25:22.977555Z: DEBUG [5] input.connector: (Port:60571)    Time since last heartbeat: 10007ms
+2018-08-16T15:25:22.997408Z: DEBUG [2] input.connector: (Port:33335)Sending a PING for localhost on port 7596
+2018-08-16T15:25:23.002207Z: DEBUG [1] input.connector: (Port:45217)Sending a PING for localhost on port 7696
+2018-08-16T15:25:23.002347Z: DEBUG [2] input.connector: (Port:33335)Received a PONG for localhost on port 7596
+2018-08-16T15:25:23.002385Z: DEBUG [2] input.connector: (Port:33335)    Time since last heartbeat: 10014ms
+2018-08-16T15:25:23.002433Z: DEBUG [1] input.connector: (Port:45217)Received a PONG for localhost on port 7696
+2018-08-16T15:25:23.002473Z: DEBUG [1] input.connector: (Port:45217)    Time since last heartbeat: 10010ms
+2018-08-16T15:25:32.599153Z: DEBUG [6] input.connector: Connecting to data source: localhost on port: 7496
+2018-08-16T15:25:32.599320Z: WARN  [6] input.connector: (Port:0)connect: Socket exception: unable to connect to 'localhost:7496'
+2018-08-16T15:25:32.599349Z: INFO  [6] input.adapter: Will try to reconnect in 10000 milliseconds
+2018-08-16T15:25:32.973398Z: DEBUG [4] input.connector: (Port:40981)Sending a PING for localhost on port 7796
+2018-08-16T15:25:32.973548Z: DEBUG [4] input.connector: (Port:40981)Received a PONG for localhost on port 7796
+2018-08-16T15:25:32.973586Z: DEBUG [4] input.connector: (Port:40981)    Time since last heartbeat: 10004ms
+2018-08-16T15:25:32.981392Z: DEBUG [3] input.connector: (Port:54421)Sending a PING for localhost on port 7896
+2018-08-16T15:25:32.981513Z: DEBUG [3] input.connector: (Port:54421)Received a PONG for localhost on port 7896
+2018-08-16T15:25:32.981540Z: DEBUG [3] input.connector: (Port:54421)    Time since last heartbeat: 10007ms
+2018-08-16T15:25:32.986297Z: DEBUG [5] input.connector: (Port:60571)Sending a PING for localhost on port 7996
+2018-08-16T15:25:32.986438Z: DEBUG [5] input.connector: (Port:60571)Received a PONG for localhost on port 7996
+2018-08-16T15:25:32.986468Z: DEBUG [5] input.connector: (Port:60571)    Time since last heartbeat: 10008ms
+2018-08-16T15:25:33.004479Z: DEBUG [1] input.connector: (Port:45217)Sending a PING for localhost on port 7696
+2018-08-16T15:25:33.004584Z: DEBUG [2] input.connector: (Port:33335)Sending a PING for localhost on port 7596
+2018-08-16T15:25:33.004636Z: DEBUG [1] input.connector: (Port:45217)Received a PONG for localhost on port 7696
+2018-08-16T15:25:33.004677Z: DEBUG [1] input.connector: (Port:45217)    Time since last heartbeat: 10002ms
+2018-08-16T15:25:33.004729Z: DEBUG [2] input.connector: (Port:33335)Received a PONG for localhost on port 7596
+2018-08-16T15:25:33.004759Z: DEBUG [2] input.connector: (Port:33335)    Time since last heartbeat: 10002ms
+2018-08-16T15:25:42.599487Z: DEBUG [6] input.connector: Connecting to data source: localhost on port: 7496
+2018-08-16T15:25:42.599802Z: WARN  [6] input.connector: (Port:0)connect: Socket exception: unable to connect to 'localhost:7496'
+2018-08-16T15:25:42.599850Z: INFO  [6] input.adapter: Will try to reconnect in 10000 milliseconds
+2018-08-16T15:25:42.978092Z: DEBUG [4] input.connector: (Port:40981)Sending a PING for localhost on port 7796
+2018-08-16T15:25:42.978347Z: DEBUG [4] input.connector: (Port:40981)Received a PONG for localhost on port 7796
+2018-08-16T15:25:42.978444Z: DEBUG [4] input.connector: (Port:40981)    Time since last heartbeat: 10004ms
+2018-08-16T15:25:42.990946Z: DEBUG [3] input.connector: (Port:54421)Sending a PING for localhost on port 7896
+2018-08-16T15:25:42.993377Z: DEBUG [5] input.connector: (Port:60571)Sending a PING for localhost on port 7996
+2018-08-16T15:25:42.993442Z: DEBUG [3] input.connector: (Port:54421)Received a PONG for localhost on port 7896
+2018-08-16T15:25:42.993488Z: DEBUG [3] input.connector: (Port:54421)    Time since last heartbeat: 10011ms
+2018-08-16T15:25:42.993514Z: DEBUG [5] input.connector: (Port:60571)Received a PONG for localhost on port 7996
+2018-08-16T15:25:42.993547Z: DEBUG [5] input.connector: (Port:60571)    Time since last heartbeat: 10007ms
+2018-08-16T15:25:43.013459Z: DEBUG [2] input.connector: (Port:33335)Sending a PING for localhost on port 7596
+2018-08-16T15:25:43.014510Z: DEBUG [1] input.connector: (Port:45217)Sending a PING for localhost on port 7696
+2018-08-16T15:25:43.014653Z: DEBUG [2] input.connector: (Port:33335)Received a PONG for localhost on port 7596
+2018-08-16T15:25:43.014705Z: DEBUG [2] input.connector: (Port:33335)    Time since last heartbeat: 10009ms
+2018-08-16T15:25:43.014740Z: DEBUG [1] input.connector: (Port:45217)Received a PONG for localhost on port 7696
+2018-08-16T15:25:43.014779Z: DEBUG [1] input.connector: (Port:45217)    Time since last heartbeat: 10010ms
+2018-08-16T15:25:52.599953Z: DEBUG [6] input.connector: Connecting to data source: localhost on port: 7496
+2018-08-16T15:25:52.600098Z: WARN  [6] input.connector: (Port:0)connect: Socket exception: unable to connect to 'localhost:7496'
+2018-08-16T15:25:52.600129Z: INFO  [6] input.adapter: Will try to reconnect in 10000 milliseconds
+2018-08-16T15:25:52.985385Z: DEBUG [4] input.connector: (Port:40981)Sending a PING for localhost on port 7796
+2018-08-16T15:25:52.985539Z: DEBUG [4] input.connector: (Port:40981)Received a PONG for localhost on port 7796
+2018-08-16T15:25:52.985575Z: DEBUG [4] input.connector: (Port:40981)    Time since last heartbeat: 10007ms
+2018-08-16T15:25:53.001437Z: DEBUG [3] input.connector: (Port:54421)Sending a PING for localhost on port 7896
+2018-08-16T15:25:53.001753Z: DEBUG [3] input.connector: (Port:54421)Received a PONG for localhost on port 7896
+2018-08-16T15:25:53.001796Z: DEBUG [3] input.connector: (Port:54421)    Time since last heartbeat: 10008ms
+2018-08-16T15:25:53.003596Z: DEBUG [5] input.connector: (Port:60571)Sending a PING for localhost on port 7996
+2018-08-16T15:25:53.003741Z: DEBUG [5] input.connector: (Port:60571)Received a PONG for localhost on port 7996
+2018-08-16T15:25:53.003766Z: DEBUG [5] input.connector: (Port:60571)    Time since last heartbeat: 10010ms
+2018-08-16T15:25:53.021386Z: DEBUG [2] input.connector: (Port:33335)Sending a PING for localhost on port 7596
+2018-08-16T15:25:53.021462Z: DEBUG [1] input.connector: (Port:45217)Sending a PING for localhost on port 7696
+2018-08-16T15:25:53.021552Z: DEBUG [1] input.connector: (Port:45217)Received a PONG for localhost on port 7696
+2018-08-16T15:25:53.021573Z: DEBUG [1] input.connector: (Port:45217)    Time since last heartbeat: 10006ms
+2018-08-16T15:25:53.021637Z: DEBUG [2] input.connector: (Port:33335)Received a PONG for localhost on port 7596
+2018-08-16T15:25:53.021670Z: DEBUG [2] input.connector: (Port:33335)    Time since last heartbeat: 10006ms
+2018-08-16T15:26:02.600249Z: DEBUG [6] input.connector: Connecting to data source: localhost on port: 7496
+2018-08-16T15:26:02.600602Z: WARN  [6] input.connector: (Port:0)connect: Socket exception: unable to connect to 'localhost:7496'
+2018-08-16T15:26:02.600652Z: INFO  [6] input.adapter: Will try to reconnect in 10000 milliseconds
+2018-08-16T15:26:02.995622Z: DEBUG [4] input.connector: (Port:40981)Sending a PING for localhost on port 7796
+2018-08-16T15:26:02.995773Z: DEBUG [4] input.connector: (Port:40981)Received a PONG for localhost on port 7796
+2018-08-16T15:26:02.995806Z: DEBUG [4] input.connector: (Port:40981)    Time since last heartbeat: 10010ms
+2018-08-16T15:26:03.009379Z: DEBUG [5] input.connector: (Port:60571)Sending a PING for localhost on port 7996
+2018-08-16T15:26:03.009498Z: DEBUG [5] input.connector: (Port:60571)Received a PONG for localhost on port 7996
+2018-08-16T15:26:03.009530Z: DEBUG [5] input.connector: (Port:60571)    Time since last heartbeat: 10005ms
+2018-08-16T15:26:03.009708Z: DEBUG [3] input.connector: (Port:54421)Sending a PING for localhost on port 7896
+2018-08-16T15:26:03.010035Z: DEBUG [3] input.connector: (Port:54421)Received a PONG for localhost on port 7896
+2018-08-16T15:26:03.010064Z: DEBUG [3] input.connector: (Port:54421)    Time since last heartbeat: 10008ms
+2018-08-16T15:26:03.023309Z: DEBUG [1] input.connector: (Port:45217)Sending a PING for localhost on port 7696
+2018-08-16T15:26:03.023586Z: DEBUG [1] input.connector: (Port:45217)Received a PONG for localhost on port 7696
+2018-08-16T15:26:03.023622Z: DEBUG [1] input.connector: (Port:45217)    Time since last heartbeat: 10002ms
+2018-08-16T15:26:03.026527Z: DEBUG [2] input.connector: (Port:33335)Sending a PING for localhost on port 7596
+2018-08-16T15:26:03.026602Z: DEBUG [2] input.connector: (Port:33335)Received a PONG for localhost on port 7596
+2018-08-16T15:26:03.026623Z: DEBUG [2] input.connector: (Port:33335)    Time since last heartbeat: 10004ms
+2018-08-16T15:26:12.600747Z: DEBUG [6] input.connector: Connecting to data source: localhost on port: 7496
+2018-08-16T15:26:12.600905Z: WARN  [6] input.connector: (Port:0)connect: Socket exception: unable to connect to 'localhost:7496'
+2018-08-16T15:26:12.600937Z: INFO  [6] input.adapter: Will try to reconnect in 10000 milliseconds
+2018-08-16T15:26:13.002943Z: DEBUG [4] input.connector: (Port:40981)Sending a PING for localhost on port 7796
+2018-08-16T15:26:13.003762Z: DEBUG [4] input.connector: (Port:40981)Received a PONG for localhost on port 7796
+2018-08-16T15:26:13.003819Z: DEBUG [4] input.connector: (Port:40981)    Time since last heartbeat: 10007ms
+2018-08-16T15:26:13.017387Z: DEBUG [5] input.connector: (Port:60571)Sending a PING for localhost on port 7996
+2018-08-16T15:26:13.017448Z: DEBUG [3] input.connector: (Port:54421)Sending a PING for localhost on port 7896
+2018-08-16T15:26:13.017513Z: DEBUG [5] input.connector: (Port:60571)Received a PONG for localhost on port 7996
+2018-08-16T15:26:13.017539Z: DEBUG [5] input.connector: (Port:60571)    Time since last heartbeat: 10007ms
+2018-08-16T15:26:13.018914Z: DEBUG [3] input.connector: (Port:54421)Received a PONG for localhost on port 7896
+2018-08-16T15:26:13.018945Z: DEBUG [3] input.connector: (Port:54421)    Time since last heartbeat: 10008ms
+2018-08-16T15:26:13.033412Z: DEBUG [2] input.connector: (Port:33335)Sending a PING for localhost on port 7596
+2018-08-16T15:26:13.033487Z: DEBUG [1] input.connector: (Port:45217)Sending a PING for localhost on port 7696
+2018-08-16T15:26:13.033609Z: DEBUG [1] input.connector: (Port:45217)Received a PONG for localhost on port 7696
+2018-08-16T15:26:13.033635Z: DEBUG [1] input.connector: (Port:45217)    Time since last heartbeat: 10009ms
+2018-08-16T15:26:13.033664Z: DEBUG [2] input.connector: (Port:33335)Received a PONG for localhost on port 7596
+2018-08-16T15:26:13.033692Z: DEBUG [2] input.connector: (Port:33335)    Time since last heartbeat: 10007ms
+2018-08-16T15:26:22.601068Z: DEBUG [6] input.connector: Connecting to data source: localhost on port: 7496
+2018-08-16T15:26:22.601435Z: WARN  [6] input.connector: (Port:0)connect: Socket exception: unable to connect to 'localhost:7496'
+2018-08-16T15:26:22.601489Z: INFO  [6] input.adapter: Will try to reconnect in 10000 milliseconds
+2018-08-16T15:26:23.005898Z: DEBUG [4] input.connector: (Port:40981)Sending a PING for localhost on port 7796
+2018-08-16T15:26:23.006990Z: DEBUG [4] input.connector: (Port:40981)Received a PONG for localhost on port 7796
+2018-08-16T15:26:23.007021Z: DEBUG [4] input.connector: (Port:40981)    Time since last heartbeat: 10003ms
+2018-08-16T15:26:23.025390Z: DEBUG [5] input.connector: (Port:60571)Sending a PING for localhost on port 7996
+2018-08-16T15:26:23.025511Z: DEBUG [5] input.connector: (Port:60571)Received a PONG for localhost on port 7996
+2018-08-16T15:26:23.025537Z: DEBUG [5] input.connector: (Port:60571)    Time since last heartbeat: 10007ms
+2018-08-16T15:26:23.027889Z: DEBUG [3] input.connector: (Port:54421)Sending a PING for localhost on port 7896
+2018-08-16T15:26:23.027975Z: DEBUG [3] input.connector: (Port:54421)Received a PONG for localhost on port 7896
+2018-08-16T15:26:23.027998Z: DEBUG [3] input.connector: (Port:54421)    Time since last heartbeat: 10009ms
+2018-08-16T15:26:23.041388Z: DEBUG [1] input.connector: (Port:45217)Sending a PING for localhost on port 7696
+2018-08-16T15:26:23.041502Z: DEBUG [1] input.connector: (Port:45217)Received a PONG for localhost on port 7696
+2018-08-16T15:26:23.041537Z: DEBUG [1] input.connector: (Port:45217)    Time since last heartbeat: 10007ms
+2018-08-16T15:26:23.043757Z: DEBUG [2] input.connector: (Port:33335)Sending a PING for localhost on port 7596
+2018-08-16T15:26:23.043926Z: DEBUG [2] input.connector: (Port:33335)Received a PONG for localhost on port 7596
+2018-08-16T15:26:23.043959Z: DEBUG [2] input.connector: (Port:33335)    Time since last heartbeat: 10010ms
+2018-08-16T15:26:32.601586Z: DEBUG [6] input.connector: Connecting to data source: localhost on port: 7496
+2018-08-16T15:26:32.601741Z: WARN  [6] input.connector: (Port:0)connect: Socket exception: unable to connect to 'localhost:7496'
+2018-08-16T15:26:32.601768Z: INFO  [6] input.adapter: Will try to reconnect in 10000 milliseconds
+2018-08-16T15:26:33.011398Z: DEBUG [4] input.connector: (Port:40981)Sending a PING for localhost on port 7796
+2018-08-16T15:26:33.011545Z: DEBUG [4] input.connector: (Port:40981)Received a PONG for localhost on port 7796
+2018-08-16T15:26:33.011590Z: DEBUG [4] input.connector: (Port:40981)    Time since last heartbeat: 10004ms
+2018-08-16T15:26:33.033561Z: DEBUG [5] input.connector: (Port:60571)Sending a PING for localhost on port 7996
+2018-08-16T15:26:33.033796Z: DEBUG [5] input.connector: (Port:60571)Received a PONG for localhost on port 7996
+2018-08-16T15:26:33.033872Z: DEBUG [5] input.connector: (Port:60571)    Time since last heartbeat: 10008ms
+2018-08-16T15:26:33.035743Z: DEBUG [3] input.connector: (Port:54421)Sending a PING for localhost on port 7896
+2018-08-16T15:26:33.039625Z: DEBUG [3] input.connector: (Port:54421)Received a PONG for localhost on port 7896
+2018-08-16T15:26:33.039664Z: DEBUG [3] input.connector: (Port:54421)    Time since last heartbeat: 10011ms
+2018-08-16T15:26:33.049388Z: DEBUG [1] input.connector: (Port:45217)Sending a PING for localhost on port 7696
+2018-08-16T15:26:33.049501Z: DEBUG [1] input.connector: (Port:45217)Received a PONG for localhost on port 7696
+2018-08-16T15:26:33.049534Z: DEBUG [1] input.connector: (Port:45217)    Time since last heartbeat: 10007ms
+2018-08-16T15:26:33.053392Z: DEBUG [2] input.connector: (Port:33335)Sending a PING for localhost on port 7596
+2018-08-16T15:26:33.053530Z: DEBUG [2] input.connector: (Port:33335)Received a PONG for localhost on port 7596
+2018-08-16T15:26:33.053556Z: DEBUG [2] input.connector: (Port:33335)    Time since last heartbeat: 10009ms
+2018-08-16T15:26:42.601874Z: DEBUG [6] input.connector: Connecting to data source: localhost on port: 7496
+2018-08-16T15:26:42.602165Z: WARN  [6] input.connector: (Port:0)connect: Socket exception: unable to connect to 'localhost:7496'
+2018-08-16T15:26:42.602213Z: INFO  [6] input.adapter: Will try to reconnect in 10000 milliseconds
+2018-08-16T15:26:43.021637Z: DEBUG [4] input.connector: (Port:40981)Sending a PING for localhost on port 7796
+2018-08-16T15:26:43.021937Z: DEBUG [4] input.connector: (Port:40981)Received a PONG for localhost on port 7796
+2018-08-16T15:26:43.021960Z: DEBUG [4] input.connector: (Port:40981)    Time since last heartbeat: 10010ms
+2018-08-16T15:26:43.040559Z: DEBUG [3] input.connector: (Port:54421)Sending a PING for localhost on port 7896
+2018-08-16T15:26:43.040622Z: DEBUG [5] input.connector: (Port:60571)Sending a PING for localhost on port 7996
+2018-08-16T15:26:43.040679Z: DEBUG [3] input.connector: (Port:54421)Received a PONG for localhost on port 7896
+2018-08-16T15:26:43.040703Z: DEBUG [3] input.connector: (Port:54421)    Time since last heartbeat: 10001ms
+2018-08-16T15:26:43.040733Z: DEBUG [5] input.connector: (Port:60571)Received a PONG for localhost on port 7996
+2018-08-16T15:26:43.040761Z: DEBUG [5] input.connector: (Port:60571)    Time since last heartbeat: 10006ms
+2018-08-16T15:26:43.057386Z: DEBUG [1] input.connector: (Port:45217)Sending a PING for localhost on port 7696
+2018-08-16T15:26:43.060037Z: DEBUG [1] input.connector: (Port:45217)Received a PONG for localhost on port 7696
+2018-08-16T15:26:43.060087Z: DEBUG [1] input.connector: (Port:45217)    Time since last heartbeat: 10010ms
+2018-08-16T15:26:43.061151Z: DEBUG [2] input.connector: (Port:33335)Sending a PING for localhost on port 7596
+2018-08-16T15:26:43.061244Z: DEBUG [2] input.connector: (Port:33335)Received a PONG for localhost on port 7596
+2018-08-16T15:26:43.061270Z: DEBUG [2] input.connector: (Port:33335)    Time since last heartbeat: 10007ms
+2018-08-16T15:26:52.602324Z: DEBUG [6] input.connector: Connecting to data source: localhost on port: 7496
+2018-08-16T15:26:52.602489Z: WARN  [6] input.connector: (Port:0)connect: Socket exception: unable to connect to 'localhost:7496'
+2018-08-16T15:26:52.602518Z: INFO  [6] input.adapter: Will try to reconnect in 10000 milliseconds
+2018-08-16T15:26:53.030629Z: DEBUG [4] input.connector: (Port:40981)Sending a PING for localhost on port 7796
+2018-08-16T15:26:53.031008Z: DEBUG [4] input.connector: (Port:40981)Received a PONG for localhost on port 7796
+2018-08-16T15:26:53.031085Z: DEBUG [4] input.connector: (Port:40981)    Time since last heartbeat: 10009ms
+2018-08-16T15:26:53.043183Z: DEBUG [5] input.connector: (Port:60571)Sending a PING for localhost on port 7996
+2018-08-16T15:26:53.043305Z: DEBUG [5] input.connector: (Port:60571)Received a PONG for localhost on port 7996
+2018-08-16T15:26:53.043331Z: DEBUG [5] input.connector: (Port:60571)    Time since last heartbeat: 10002ms
+2018-08-16T15:26:53.049373Z: DEBUG [3] input.connector: (Port:54421)Sending a PING for localhost on port 7896
+2018-08-16T15:26:53.049452Z: DEBUG [3] input.connector: (Port:54421)Received a PONG for localhost on port 7896
+2018-08-16T15:26:53.049475Z: DEBUG [3] input.connector: (Port:54421)    Time since last heartbeat: 10008ms
+2018-08-16T15:26:53.066354Z: DEBUG [1] input.connector: (Port:45217)Sending a PING for localhost on port 7696
+2018-08-16T15:26:53.066513Z: DEBUG [1] input.connector: (Port:45217)Received a PONG for localhost on port 7696
+2018-08-16T15:26:53.066539Z: DEBUG [1] input.connector: (Port:45217)    Time since last heartbeat: 10006ms
+2018-08-16T15:26:53.071305Z: DEBUG [2] input.connector: (Port:33335)Sending a PING for localhost on port 7596
+2018-08-16T15:26:53.071902Z: DEBUG [2] input.connector: (Port:33335)Received a PONG for localhost on port 7596
+2018-08-16T15:26:53.071933Z: DEBUG [2] input.connector: (Port:33335)    Time since last heartbeat: 10010ms
+2018-08-16T15:27:02.602621Z: DEBUG [6] input.connector: Connecting to data source: localhost on port: 7496
+2018-08-16T15:27:02.602863Z: WARN  [6] input.connector: (Port:0)connect: Socket exception: unable to connect to 'localhost:7496'
+2018-08-16T15:27:02.602902Z: INFO  [6] input.adapter: Will try to reconnect in 10000 milliseconds
+2018-08-16T15:27:03.040565Z: DEBUG [4] input.connector: (Port:40981)Sending a PING for localhost on port 7796
+2018-08-16T15:27:03.041019Z: DEBUG [4] input.connector: (Port:40981)Received a PONG for localhost on port 7796
+2018-08-16T15:27:03.041051Z: DEBUG [4] input.connector: (Port:40981)    Time since last heartbeat: 10009ms
+2018-08-16T15:27:03.049413Z: DEBUG [5] input.connector: (Port:60571)Sending a PING for localhost on port 7996
+2018-08-16T15:27:03.049730Z: DEBUG [5] input.connector: (Port:60571)Received a PONG for localhost on port 7996
+2018-08-16T15:27:03.049826Z: DEBUG [5] input.connector: (Port:60571)    Time since last heartbeat: 10006ms
+2018-08-16T15:27:03.059517Z: DEBUG [3] input.connector: (Port:54421)Sending a PING for localhost on port 7896
+2018-08-16T15:27:03.061442Z: DEBUG [3] input.connector: (Port:54421)Received a PONG for localhost on port 7896
+2018-08-16T15:27:03.061473Z: DEBUG [3] input.connector: (Port:54421)    Time since last heartbeat: 10011ms
+2018-08-16T15:27:03.076376Z: DEBUG [1] input.connector: (Port:45217)Sending a PING for localhost on port 7696
+2018-08-16T15:27:03.077046Z: DEBUG [1] input.connector: (Port:45217)Received a PONG for localhost on port 7696
+2018-08-16T15:27:03.077154Z: DEBUG [1] input.connector: (Port:45217)    Time since last heartbeat: 10010ms
+2018-08-16T15:27:03.081411Z: DEBUG [2] input.connector: (Port:33335)Sending a PING for localhost on port 7596
+2018-08-16T15:27:03.082202Z: DEBUG [2] input.connector: (Port:33335)Received a PONG for localhost on port 7596
+2018-08-16T15:27:03.082271Z: DEBUG [2] input.connector: (Port:33335)    Time since last heartbeat: 10010ms
+2018-08-16T15:27:12.603024Z: DEBUG [6] input.connector: Connecting to data source: localhost on port: 7496
+2018-08-16T15:27:12.603193Z: WARN  [6] input.connector: (Port:0)connect: Socket exception: unable to connect to 'localhost:7496'
+2018-08-16T15:27:12.603222Z: INFO  [6] input.adapter: Will try to reconnect in 10000 milliseconds
+2018-08-16T15:27:13.050106Z: DEBUG [4] input.connector: (Port:40981)Sending a PING for localhost on port 7796
+2018-08-16T15:27:13.050241Z: DEBUG [4] input.connector: (Port:40981)Received a PONG for localhost on port 7796
+2018-08-16T15:27:13.050277Z: DEBUG [4] input.connector: (Port:40981)    Time since last heartbeat: 10009ms
+2018-08-16T15:27:13.053844Z: DEBUG [5] input.connector: (Port:60571)Sending a PING for localhost on port 7996
+2018-08-16T15:27:13.053940Z: DEBUG [5] input.connector: (Port:60571)Received a PONG for localhost on port 7996
+2018-08-16T15:27:13.053974Z: DEBUG [5] input.connector: (Port:60571)    Time since last heartbeat: 10004ms
+2018-08-16T15:27:13.069396Z: DEBUG [3] input.connector: (Port:54421)Sending a PING for localhost on port 7896
+2018-08-16T15:27:13.069896Z: DEBUG [3] input.connector: (Port:54421)Received a PONG for localhost on port 7896
+2018-08-16T15:27:13.069937Z: DEBUG [3] input.connector: (Port:54421)    Time since last heartbeat: 10008ms
+2018-08-16T15:27:13.086275Z: DEBUG [1] input.connector: (Port:45217)Sending a PING for localhost on port 7696
+2018-08-16T15:27:13.086568Z: DEBUG [1] input.connector: (Port:45217)Received a PONG for localhost on port 7696
+2018-08-16T15:27:13.086609Z: DEBUG [1] input.connector: (Port:45217)    Time since last heartbeat: 10009ms
+2018-08-16T15:27:13.092336Z: DEBUG [2] input.connector: (Port:33335)Sending a PING for localhost on port 7596
+2018-08-16T15:27:13.092565Z: DEBUG [2] input.connector: (Port:33335)Received a PONG for localhost on port 7596
+2018-08-16T15:27:13.092610Z: DEBUG [2] input.connector: (Port:33335)    Time since last heartbeat: 10010ms
+2018-08-16T15:27:22.603322Z: DEBUG [6] input.connector: Connecting to data source: localhost on port: 7496
+2018-08-16T15:27:22.603505Z: WARN  [6] input.connector: (Port:0)connect: Socket exception: unable to connect to 'localhost:7496'
+2018-08-16T15:27:22.603539Z: INFO  [6] input.adapter: Will try to reconnect in 10000 milliseconds
+2018-08-16T15:27:23.058046Z: DEBUG [4] input.connector: (Port:40981)Sending a PING for localhost on port 7796
+2018-08-16T15:27:23.059596Z: DEBUG [4] input.connector: (Port:40981)Received a PONG for localhost on port 7796
+2018-08-16T15:27:23.059671Z: DEBUG [4] input.connector: (Port:40981)    Time since last heartbeat: 10009ms
+2018-08-16T15:27:23.064020Z: DEBUG [5] input.connector: (Port:60571)Sending a PING for localhost on port 7996
+2018-08-16T15:27:23.064139Z: DEBUG [5] input.connector: (Port:60571)Received a PONG for localhost on port 7996
+2018-08-16T15:27:23.064169Z: DEBUG [5] input.connector: (Port:60571)    Time since last heartbeat: 10010ms
+2018-08-16T15:27:23.077428Z: DEBUG [3] input.connector: (Port:54421)Sending a PING for localhost on port 7896
+2018-08-16T15:27:23.077755Z: DEBUG [3] input.connector: (Port:54421)Received a PONG for localhost on port 7896
+2018-08-16T15:27:23.077827Z: DEBUG [3] input.connector: (Port:54421)    Time since last heartbeat: 10007ms
+2018-08-16T15:27:23.094831Z: DEBUG [1] input.connector: (Port:45217)Sending a PING for localhost on port 7696
+2018-08-16T15:27:23.095319Z: DEBUG [1] input.connector: (Port:45217)Received a PONG for localhost on port 7696
+2018-08-16T15:27:23.095364Z: DEBUG [1] input.connector: (Port:45217)    Time since last heartbeat: 10008ms
+2018-08-16T15:27:23.101402Z: DEBUG [2] input.connector: (Port:33335)Sending a PING for localhost on port 7596
+2018-08-16T15:27:23.101545Z: DEBUG [2] input.connector: (Port:33335)Received a PONG for localhost on port 7596
+2018-08-16T15:27:23.101575Z: DEBUG [2] input.connector: (Port:33335)    Time since last heartbeat: 10008ms
+2018-08-16T15:27:32.603631Z: DEBUG [6] input.connector: Connecting to data source: localhost on port: 7496
+2018-08-16T15:27:32.603796Z: WARN  [6] input.connector: (Port:0)connect: Socket exception: unable to connect to 'localhost:7496'
+2018-08-16T15:27:32.603827Z: INFO  [6] input.adapter: Will try to reconnect in 10000 milliseconds
+2018-08-16T15:27:33.065407Z: DEBUG [4] input.connector: (Port:40981)Sending a PING for localhost on port 7796
+2018-08-16T15:27:33.065658Z: DEBUG [4] input.connector: (Port:40981)Received a PONG for localhost on port 7796
+2018-08-16T15:27:33.065704Z: DEBUG [4] input.connector: (Port:40981)    Time since last heartbeat: 10005ms
+2018-08-16T15:27:33.073759Z: DEBUG [5] input.connector: (Port:60571)Sending a PING for localhost on port 7996
+2018-08-16T15:27:33.073887Z: DEBUG [5] input.connector: (Port:60571)Received a PONG for localhost on port 7996
+2018-08-16T15:27:33.073914Z: DEBUG [5] input.connector: (Port:60571)    Time since last heartbeat: 10009ms
+2018-08-16T15:27:33.086614Z: DEBUG [3] input.connector: (Port:54421)Sending a PING for localhost on port 7896
+2018-08-16T15:27:33.086731Z: DEBUG [3] input.connector: (Port:54421)Received a PONG for localhost on port 7896
+2018-08-16T15:27:33.086774Z: DEBUG [3] input.connector: (Port:54421)    Time since last heartbeat: 10008ms
+2018-08-16T15:27:33.096777Z: DEBUG [1] input.connector: (Port:45217)Sending a PING for localhost on port 7696
+2018-08-16T15:27:33.097578Z: DEBUG [1] input.connector: (Port:45217)Received a PONG for localhost on port 7696
+2018-08-16T15:27:33.097640Z: DEBUG [1] input.connector: (Port:45217)    Time since last heartbeat: 10002ms
+2018-08-16T15:27:33.104559Z: DEBUG [2] input.connector: (Port:33335)Sending a PING for localhost on port 7596
+2018-08-16T15:27:33.104736Z: DEBUG [2] input.connector: (Port:33335)Received a PONG for localhost on port 7596
+2018-08-16T15:27:33.104777Z: DEBUG [2] input.connector: (Port:33335)    Time since last heartbeat: 10003ms
+2018-08-16T15:27:42.603948Z: DEBUG [6] input.connector: Connecting to data source: localhost on port: 7496
+2018-08-16T15:27:42.604177Z: WARN  [6] input.connector: (Port:0)connect: Socket exception: unable to connect to 'localhost:7496'
+2018-08-16T15:27:42.604210Z: INFO  [6] input.adapter: Will try to reconnect in 10000 milliseconds
+2018-08-16T15:27:43.073384Z: DEBUG [4] input.connector: (Port:40981)Sending a PING for localhost on port 7796
+2018-08-16T15:27:43.074501Z: DEBUG [4] input.connector: (Port:40981)Received a PONG for localhost on port 7796
+2018-08-16T15:27:43.074587Z: DEBUG [4] input.connector: (Port:40981)    Time since last heartbeat: 10008ms
+2018-08-16T15:27:43.074961Z: DEBUG [5] input.connector: (Port:60571)Sending a PING for localhost on port 7996
+2018-08-16T15:27:43.075141Z: DEBUG [5] input.connector: (Port:60571)Received a PONG for localhost on port 7996
+2018-08-16T15:27:43.075170Z: DEBUG [5] input.connector: (Port:60571)    Time since last heartbeat: 10001ms
+2018-08-16T15:27:43.095049Z: DEBUG [3] input.connector: (Port:54421)Sending a PING for localhost on port 7896
+2018-08-16T15:27:43.095399Z: DEBUG [3] input.connector: (Port:54421)Received a PONG for localhost on port 7896
+2018-08-16T15:27:43.095445Z: DEBUG [3] input.connector: (Port:54421)    Time since last heartbeat: 10008ms
+2018-08-16T15:27:43.107505Z: DEBUG [2] input.connector: (Port:33335)Sending a PING for localhost on port 7596
+2018-08-16T15:27:43.107707Z: DEBUG [1] input.connector: (Port:45217)Sending a PING for localhost on port 7696
+2018-08-16T15:27:43.107829Z: DEBUG [2] input.connector: (Port:33335)Received a PONG for localhost on port 7596
+2018-08-16T15:27:43.107869Z: DEBUG [2] input.connector: (Port:33335)    Time since last heartbeat: 10003ms
+2018-08-16T15:27:43.107937Z: DEBUG [1] input.connector: (Port:45217)Received a PONG for localhost on port 7696
+2018-08-16T15:27:43.107965Z: DEBUG [1] input.connector: (Port:45217)    Time since last heartbeat: 10010ms
+2018-08-16T15:27:52.604303Z: DEBUG [6] input.connector: Connecting to data source: localhost on port: 7496
+2018-08-16T15:27:52.604453Z: WARN  [6] input.connector: (Port:0)connect: Socket exception: unable to connect to 'localhost:7496'
+2018-08-16T15:27:52.604479Z: INFO  [6] input.adapter: Will try to reconnect in 10000 milliseconds
+2018-08-16T15:27:53.081539Z: DEBUG [5] input.connector: (Port:60571)Sending a PING for localhost on port 7996
+2018-08-16T15:27:53.081649Z: DEBUG [5] input.connector: (Port:60571)Received a PONG for localhost on port 7996
+2018-08-16T15:27:53.081684Z: DEBUG [5] input.connector: (Port:60571)    Time since last heartbeat: 10006ms
+2018-08-16T15:27:53.083093Z: DEBUG [4] input.connector: (Port:40981)Sending a PING for localhost on port 7796
+2018-08-16T15:27:53.083181Z: DEBUG [4] input.connector: (Port:40981)Received a PONG for localhost on port 7796
+2018-08-16T15:27:53.083203Z: DEBUG [4] input.connector: (Port:40981)    Time since last heartbeat: 10008ms
+2018-08-16T15:27:53.099614Z: DEBUG [3] input.connector: (Port:54421)Sending a PING for localhost on port 7896
+2018-08-16T15:27:53.100845Z: DEBUG [3] input.connector: (Port:54421)Received a PONG for localhost on port 7896
+2018-08-16T15:27:53.100875Z: DEBUG [3] input.connector: (Port:54421)    Time since last heartbeat: 10005ms
+2018-08-16T15:27:53.117853Z: DEBUG [2] input.connector: (Port:33335)Sending a PING for localhost on port 7596
+2018-08-16T15:27:53.117918Z: DEBUG [1] input.connector: (Port:45217)Sending a PING for localhost on port 7696
+2018-08-16T15:27:53.117958Z: DEBUG [2] input.connector: (Port:33335)Received a PONG for localhost on port 7596
+2018-08-16T15:27:53.117980Z: DEBUG [2] input.connector: (Port:33335)    Time since last heartbeat: 10010ms
+2018-08-16T15:27:53.118007Z: DEBUG [1] input.connector: (Port:45217)Received a PONG for localhost on port 7696
+2018-08-16T15:27:53.118045Z: DEBUG [1] input.connector: (Port:45217)    Time since last heartbeat: 10010ms
+2018-08-16T15:28:02.604566Z: DEBUG [6] input.connector: Connecting to data source: localhost on port: 7496
+2018-08-16T15:28:02.604725Z: WARN  [6] input.connector: (Port:0)connect: Socket exception: unable to connect to 'localhost:7496'
+2018-08-16T15:28:02.604752Z: INFO  [6] input.adapter: Will try to reconnect in 10000 milliseconds
+2018-08-16T15:28:03.091666Z: DEBUG [5] input.connector: (Port:60571)Sending a PING for localhost on port 7996
+2018-08-16T15:28:03.091788Z: DEBUG [4] input.connector: (Port:40981)Sending a PING for localhost on port 7796
+2018-08-16T15:28:03.091833Z: DEBUG [5] input.connector: (Port:60571)Received a PONG for localhost on port 7996
+2018-08-16T15:28:03.091869Z: DEBUG [5] input.connector: (Port:60571)    Time since last heartbeat: 10010ms
+2018-08-16T15:28:03.091903Z: DEBUG [4] input.connector: (Port:40981)Received a PONG for localhost on port 7796
+2018-08-16T15:28:03.091935Z: DEBUG [4] input.connector: (Port:40981)    Time since last heartbeat: 10008ms
+2018-08-16T15:28:03.109736Z: DEBUG [3] input.connector: (Port:54421)Sending a PING for localhost on port 7896
+2018-08-16T15:28:03.110089Z: DEBUG [3] input.connector: (Port:54421)Received a PONG for localhost on port 7896
+2018-08-16T15:28:03.110147Z: DEBUG [3] input.connector: (Port:54421)    Time since last heartbeat: 10009ms
+2018-08-16T15:28:03.123349Z: DEBUG [2] input.connector: (Port:33335)Sending a PING for localhost on port 7596
+2018-08-16T15:28:03.124055Z: DEBUG [2] input.connector: (Port:33335)Received a PONG for localhost on port 7596
+2018-08-16T15:28:03.124096Z: DEBUG [2] input.connector: (Port:33335)    Time since last heartbeat: 10006ms
+2018-08-16T15:28:03.125391Z: DEBUG [1] input.connector: (Port:45217)Sending a PING for localhost on port 7696
+2018-08-16T15:28:03.125601Z: DEBUG [1] input.connector: (Port:45217)Received a PONG for localhost on port 7696
+2018-08-16T15:28:03.125630Z: DEBUG [1] input.connector: (Port:45217)    Time since last heartbeat: 10007ms
+2018-08-16T15:28:12.604836Z: DEBUG [6] input.connector: Connecting to data source: localhost on port: 7496
+2018-08-16T15:28:12.604977Z: WARN  [6] input.connector: (Port:0)connect: Socket exception: unable to connect to 'localhost:7496'
+2018-08-16T15:28:12.605004Z: INFO  [6] input.adapter: Will try to reconnect in 10000 milliseconds
+2018-08-16T15:28:13.101389Z: DEBUG [5] input.connector: (Port:60571)Sending a PING for localhost on port 7996
+2018-08-16T15:28:13.101508Z: DEBUG [5] input.connector: (Port:60571)Received a PONG for localhost on port 7996
+2018-08-16T15:28:13.101536Z: DEBUG [5] input.connector: (Port:60571)    Time since last heartbeat: 10009ms
+2018-08-16T15:28:13.101966Z: DEBUG [4] input.connector: (Port:40981)Sending a PING for localhost on port 7796
+2018-08-16T15:28:13.102036Z: DEBUG [4] input.connector: (Port:40981)Received a PONG for localhost on port 7796
+2018-08-16T15:28:13.102056Z: DEBUG [4] input.connector: (Port:40981)    Time since last heartbeat: 10010ms
+2018-08-16T15:28:13.111127Z: DEBUG [3] input.connector: (Port:54421)Sending a PING for localhost on port 7896
+2018-08-16T15:28:13.111654Z: DEBUG [3] input.connector: (Port:54421)Received a PONG for localhost on port 7896
+2018-08-16T15:28:13.111690Z: DEBUG [3] input.connector: (Port:54421)    Time since last heartbeat: 10001ms
+2018-08-16T15:28:13.131920Z: DEBUG [1] input.connector: (Port:45217)Sending a PING for localhost on port 7696
+2018-08-16T15:28:13.132171Z: DEBUG [1] input.connector: (Port:45217)Received a PONG for localhost on port 7696
+2018-08-16T15:28:13.132230Z: DEBUG [1] input.connector: (Port:45217)    Time since last heartbeat: 10006ms
+2018-08-16T15:28:13.133383Z: DEBUG [2] input.connector: (Port:33335)Sending a PING for localhost on port 7596
+2018-08-16T15:28:13.136863Z: DEBUG [2] input.connector: (Port:33335)Received a PONG for localhost on port 7596
+2018-08-16T15:28:13.136892Z: DEBUG [2] input.connector: (Port:33335)    Time since last heartbeat: 10012ms
+2018-08-16T15:28:22.605122Z: DEBUG [6] input.connector: Connecting to data source: localhost on port: 7496
+2018-08-16T15:28:22.605303Z: WARN  [6] input.connector: (Port:0)connect: Socket exception: unable to connect to 'localhost:7496'
+2018-08-16T15:28:22.605333Z: INFO  [6] input.adapter: Will try to reconnect in 10000 milliseconds
+2018-08-16T15:28:23.109480Z: DEBUG [4] input.connector: (Port:40981)Sending a PING for localhost on port 7796
+2018-08-16T15:28:23.109727Z: DEBUG [5] input.connector: (Port:60571)Sending a PING for localhost on port 7996
+2018-08-16T15:28:23.109892Z: DEBUG [4] input.connector: (Port:40981)Received a PONG for localhost on port 7796
+2018-08-16T15:28:23.109966Z: DEBUG [4] input.connector: (Port:40981)    Time since last heartbeat: 10007ms
+2018-08-16T15:28:23.110011Z: DEBUG [5] input.connector: (Port:60571)Received a PONG for localhost on port 7996
+2018-08-16T15:28:23.110058Z: DEBUG [5] input.connector: (Port:60571)    Time since last heartbeat: 10008ms
+2018-08-16T15:28:23.121503Z: DEBUG [3] input.connector: (Port:54421)Sending a PING for localhost on port 7896
+2018-08-16T15:28:23.121663Z: DEBUG [3] input.connector: (Port:54421)Received a PONG for localhost on port 7896
+2018-08-16T15:28:23.121696Z: DEBUG [3] input.connector: (Port:54421)    Time since last heartbeat: 10009ms
+2018-08-16T15:28:23.134328Z: DEBUG [1] input.connector: (Port:45217)Sending a PING for localhost on port 7696
+2018-08-16T15:28:23.134427Z: DEBUG [1] input.connector: (Port:45217)Received a PONG for localhost on port 7696
+2018-08-16T15:28:23.134451Z: DEBUG [1] input.connector: (Port:45217)    Time since last heartbeat: 10002ms
+2018-08-16T15:28:23.141415Z: DEBUG [2] input.connector: (Port:33335)Sending a PING for localhost on port 7596
+2018-08-16T15:28:23.141613Z: DEBUG [2] input.connector: (Port:33335)Received a PONG for localhost on port 7596
+2018-08-16T15:28:23.141657Z: DEBUG [2] input.connector: (Port:33335)    Time since last heartbeat: 10004ms
+2018-08-16T15:28:32.605413Z: DEBUG [6] input.connector: Connecting to data source: localhost on port: 7496
+2018-08-16T15:28:32.605557Z: WARN  [6] input.connector: (Port:0)connect: Socket exception: unable to connect to 'localhost:7496'
+2018-08-16T15:28:32.605587Z: INFO  [6] input.adapter: Will try to reconnect in 10000 milliseconds
+2018-08-16T15:28:33.117385Z: DEBUG [5] input.connector: (Port:60571)Sending a PING for localhost on port 7996
+2018-08-16T15:28:33.117497Z: DEBUG [5] input.connector: (Port:60571)Received a PONG for localhost on port 7996
+2018-08-16T15:28:33.117524Z: DEBUG [5] input.connector: (Port:60571)    Time since last heartbeat: 10007ms
+2018-08-16T15:28:33.119481Z: DEBUG [4] input.connector: (Port:40981)Sending a PING for localhost on port 7796
+2018-08-16T15:28:33.120238Z: DEBUG [4] input.connector: (Port:40981)Received a PONG for localhost on port 7796
+2018-08-16T15:28:33.120263Z: DEBUG [4] input.connector: (Port:40981)    Time since last heartbeat: 10010ms
+2018-08-16T15:28:33.131459Z: DEBUG [3] input.connector: (Port:54421)Sending a PING for localhost on port 7896
+2018-08-16T15:28:33.131903Z: DEBUG [3] input.connector: (Port:54421)Received a PONG for localhost on port 7896
+2018-08-16T15:28:33.131933Z: DEBUG [3] input.connector: (Port:54421)    Time since last heartbeat: 10010ms
+2018-08-16T15:28:33.141885Z: DEBUG [1] input.connector: (Port:45217)Sending a PING for localhost on port 7696
+2018-08-16T15:28:33.142002Z: DEBUG [1] input.connector: (Port:45217)Received a PONG for localhost on port 7696
+2018-08-16T15:28:33.142025Z: DEBUG [1] input.connector: (Port:45217)    Time since last heartbeat: 10007ms
+2018-08-16T15:28:33.149835Z: DEBUG [2] input.connector: (Port:33335)Sending a PING for localhost on port 7596
+2018-08-16T15:28:33.151317Z: DEBUG [2] input.connector: (Port:33335)Received a PONG for localhost on port 7596
+2018-08-16T15:28:33.151348Z: DEBUG [2] input.connector: (Port:33335)    Time since last heartbeat: 10009ms
+2018-08-16T15:28:42.605682Z: DEBUG [6] input.connector: Connecting to data source: localhost on port: 7496
+2018-08-16T15:28:42.605840Z: WARN  [6] input.connector: (Port:0)connect: Socket exception: unable to connect to 'localhost:7496'
+2018-08-16T15:28:42.605866Z: INFO  [6] input.adapter: Will try to reconnect in 10000 milliseconds
+2018-08-16T15:28:43.126980Z: DEBUG [5] input.connector: (Port:60571)Sending a PING for localhost on port 7996
+2018-08-16T15:28:43.127099Z: DEBUG [5] input.connector: (Port:60571)Received a PONG for localhost on port 7996
+2018-08-16T15:28:43.127131Z: DEBUG [5] input.connector: (Port:60571)    Time since last heartbeat: 10009ms
+2018-08-16T15:28:43.129375Z: DEBUG [4] input.connector: (Port:40981)Sending a PING for localhost on port 7796
+2018-08-16T15:28:43.129486Z: DEBUG [4] input.connector: (Port:40981)Received a PONG for localhost on port 7796
+2018-08-16T15:28:43.129518Z: DEBUG [4] input.connector: (Port:40981)    Time since last heartbeat: 10009ms
+2018-08-16T15:28:43.140463Z: DEBUG [3] input.connector: (Port:54421)Sending a PING for localhost on port 7896
+2018-08-16T15:28:43.140756Z: DEBUG [3] input.connector: (Port:54421)Received a PONG for localhost on port 7896
+2018-08-16T15:28:43.140801Z: DEBUG [3] input.connector: (Port:54421)    Time since last heartbeat: 10008ms
+2018-08-16T15:28:43.152092Z: DEBUG [1] input.connector: (Port:45217)Sending a PING for localhost on port 7696
+2018-08-16T15:28:43.152373Z: DEBUG [1] input.connector: (Port:45217)Received a PONG for localhost on port 7696
+2018-08-16T15:28:43.152407Z: DEBUG [1] input.connector: (Port:45217)    Time since last heartbeat: 10010ms
+2018-08-16T15:28:43.157377Z: DEBUG [2] input.connector: (Port:33335)Sending a PING for localhost on port 7596
+2018-08-16T15:28:43.160824Z: DEBUG [2] input.connector: (Port:33335)Received a PONG for localhost on port 7596
+2018-08-16T15:28:43.160855Z: DEBUG [2] input.connector: (Port:33335)    Time since last heartbeat: 10009ms
+2018-08-16T15:28:52.605980Z: DEBUG [6] input.connector: Connecting to data source: localhost on port: 7496
+2018-08-16T15:28:52.606133Z: WARN  [6] input.connector: (Port:0)connect: Socket exception: unable to connect to 'localhost:7496'
+2018-08-16T15:28:52.606158Z: INFO  [6] input.adapter: Will try to reconnect in 10000 milliseconds
+2018-08-16T15:28:53.127542Z: DEBUG [5] input.connector: (Port:60571)Sending a PING for localhost on port 7996
+2018-08-16T15:28:53.127828Z: DEBUG [5] input.connector: (Port:60571)Received a PONG for localhost on port 7996
+2018-08-16T15:28:53.127878Z: DEBUG [5] input.connector: (Port:60571)    Time since last heartbeat: 10000ms
+2018-08-16T15:28:53.139583Z: DEBUG [4] input.connector: (Port:40981)Sending a PING for localhost on port 7796
+2018-08-16T15:28:53.139706Z: DEBUG [4] input.connector: (Port:40981)Received a PONG for localhost on port 7796
+2018-08-16T15:28:53.139734Z: DEBUG [4] input.connector: (Port:40981)    Time since last heartbeat: 10010ms
+2018-08-16T15:28:53.149402Z: DEBUG [3] input.connector: (Port:54421)Sending a PING for localhost on port 7896
+2018-08-16T15:28:53.155541Z: DEBUG [3] input.connector: (Port:54421)Received a PONG for localhost on port 7896
+2018-08-16T15:28:53.155636Z: DEBUG [3] input.connector: (Port:54421)    Time since last heartbeat: 10014ms
+2018-08-16T15:28:53.161862Z: DEBUG [1] input.connector: (Port:45217)Sending a PING for localhost on port 7696
+2018-08-16T15:28:53.162469Z: DEBUG [1] input.connector: (Port:45217)Received a PONG for localhost on port 7696
+2018-08-16T15:28:53.162638Z: DEBUG [1] input.connector: (Port:45217)    Time since last heartbeat: 10010ms
+2018-08-16T15:28:53.166380Z: DEBUG [2] input.connector: (Port:33335)Sending a PING for localhost on port 7596
+2018-08-16T15:28:53.167165Z: DEBUG [2] input.connector: (Port:33335)Received a PONG for localhost on port 7596
+2018-08-16T15:28:53.167196Z: DEBUG [2] input.connector: (Port:33335)    Time since last heartbeat: 10006ms
+2018-08-16T15:29:02.606265Z: DEBUG [6] input.connector: Connecting to data source: localhost on port: 7496
+2018-08-16T15:29:02.606432Z: WARN  [6] input.connector: (Port:0)connect: Socket exception: unable to connect to 'localhost:7496'
+2018-08-16T15:29:02.606460Z: INFO  [6] input.adapter: Will try to reconnect in 10000 milliseconds
+2018-08-16T15:29:03.134143Z: DEBUG [5] input.connector: (Port:60571)Sending a PING for localhost on port 7996
+2018-08-16T15:29:03.134289Z: DEBUG [5] input.connector: (Port:60571)Received a PONG for localhost on port 7996
+2018-08-16T15:29:03.134341Z: DEBUG [5] input.connector: (Port:60571)    Time since last heartbeat: 10006ms
+2018-08-16T15:29:03.144329Z: DEBUG [4] input.connector: (Port:40981)Sending a PING for localhost on port 7796
+2018-08-16T15:29:03.144608Z: DEBUG [4] input.connector: (Port:40981)Received a PONG for localhost on port 7796
+2018-08-16T15:29:03.144658Z: DEBUG [4] input.connector: (Port:40981)    Time since last heartbeat: 10004ms
+2018-08-16T15:29:03.158785Z: DEBUG [3] input.connector: (Port:54421)Sending a PING for localhost on port 7896
+2018-08-16T15:29:03.159019Z: DEBUG [3] input.connector: (Port:54421)Received a PONG for localhost on port 7896
+2018-08-16T15:29:03.159055Z: DEBUG [3] input.connector: (Port:54421)    Time since last heartbeat: 10003ms
+2018-08-16T15:29:03.169382Z: DEBUG [1] input.connector: (Port:45217)Sending a PING for localhost on port 7696
+2018-08-16T15:29:03.169693Z: DEBUG [1] input.connector: (Port:45217)Received a PONG for localhost on port 7696
+2018-08-16T15:29:03.169723Z: DEBUG [1] input.connector: (Port:45217)    Time since last heartbeat: 10007ms
+2018-08-16T15:29:03.171762Z: DEBUG [2] input.connector: (Port:33335)Sending a PING for localhost on port 7596
+2018-08-16T15:29:03.172177Z: DEBUG [2] input.connector: (Port:33335)Received a PONG for localhost on port 7596
+2018-08-16T15:29:03.172227Z: DEBUG [2] input.connector: (Port:33335)    Time since last heartbeat: 10005ms
+2018-08-16T15:29:12.606546Z: DEBUG [6] input.connector: Connecting to data source: localhost on port: 7496
+2018-08-16T15:29:12.606691Z: WARN  [6] input.connector: (Port:0)connect: Socket exception: unable to connect to 'localhost:7496'
+2018-08-16T15:29:12.606717Z: INFO  [6] input.adapter: Will try to reconnect in 10000 milliseconds
+2018-08-16T15:29:13.141970Z: DEBUG [5] input.connector: (Port:60571)Sending a PING for localhost on port 7996
+2018-08-16T15:29:13.142081Z: DEBUG [5] input.connector: (Port:60571)Received a PONG for localhost on port 7996
+2018-08-16T15:29:13.142109Z: DEBUG [5] input.connector: (Port:60571)    Time since last heartbeat: 10007ms
+2018-08-16T15:29:13.153486Z: DEBUG [4] input.connector: (Port:40981)Sending a PING for localhost on port 7796
+2018-08-16T15:29:13.155770Z: DEBUG [4] input.connector: (Port:40981)Received a PONG for localhost on port 7796
+2018-08-16T15:29:13.155843Z: DEBUG [4] input.connector: (Port:40981)    Time since last heartbeat: 10011ms
+2018-08-16T15:29:13.162495Z: DEBUG [3] input.connector: (Port:54421)Sending a PING for localhost on port 7896
+2018-08-16T15:29:13.162883Z: DEBUG [3] input.connector: (Port:54421)Received a PONG for localhost on port 7896
+2018-08-16T15:29:13.162920Z: DEBUG [3] input.connector: (Port:54421)    Time since last heartbeat: 10003ms
+2018-08-16T15:29:13.179769Z: DEBUG [1] input.connector: (Port:45217)Sending a PING for localhost on port 7696
+2018-08-16T15:29:13.179897Z: DEBUG [1] input.connector: (Port:45217)Received a PONG for localhost on port 7696
+2018-08-16T15:29:13.179920Z: DEBUG [1] input.connector: (Port:45217)    Time since last heartbeat: 10010ms
+2018-08-16T15:29:13.181378Z: DEBUG [2] input.connector: (Port:33335)Sending a PING for localhost on port 7596
+2018-08-16T15:29:13.184586Z: DEBUG [2] input.connector: (Port:33335)Received a PONG for localhost on port 7596
+2018-08-16T15:29:13.184613Z: DEBUG [2] input.connector: (Port:33335)    Time since last heartbeat: 10012ms
+2018-08-16T15:29:22.606811Z: DEBUG [6] input.connector: Connecting to data source: localhost on port: 7496
+2018-08-16T15:29:22.606989Z: WARN  [6] input.connector: (Port:0)connect: Socket exception: unable to connect to 'localhost:7496'
+2018-08-16T15:29:22.607019Z: INFO  [6] input.adapter: Will try to reconnect in 10000 milliseconds
+2018-08-16T15:29:23.149392Z: DEBUG [5] input.connector: (Port:60571)Sending a PING for localhost on port 7996
+2018-08-16T15:29:23.149522Z: DEBUG [5] input.connector: (Port:60571)Received a PONG for localhost on port 7996
+2018-08-16T15:29:23.149548Z: DEBUG [5] input.connector: (Port:60571)    Time since last heartbeat: 10007ms
+2018-08-16T15:29:23.161379Z: DEBUG [4] input.connector: (Port:40981)Sending a PING for localhost on port 7796
+2018-08-16T15:29:23.167544Z: DEBUG [4] input.connector: (Port:40981)Received a PONG for localhost on port 7796
+2018-08-16T15:29:23.167583Z: DEBUG [4] input.connector: (Port:40981)    Time since last heartbeat: 10011ms
+2018-08-16T15:29:23.167960Z: DEBUG [3] input.connector: (Port:54421)Sending a PING for localhost on port 7896
+2018-08-16T15:29:23.169417Z: DEBUG [3] input.connector: (Port:54421)Received a PONG for localhost on port 7896
+2018-08-16T15:29:23.169451Z: DEBUG [3] input.connector: (Port:54421)    Time since last heartbeat: 10006ms
+2018-08-16T15:29:23.188384Z: DEBUG [2] input.connector: (Port:33335)Sending a PING for localhost on port 7596
+2018-08-16T15:29:23.188462Z: DEBUG [1] input.connector: (Port:45217)Sending a PING for localhost on port 7696
+2018-08-16T15:29:23.188553Z: DEBUG [2] input.connector: (Port:33335)Received a PONG for localhost on port 7596
+2018-08-16T15:29:23.188581Z: DEBUG [2] input.connector: (Port:33335)    Time since last heartbeat: 10003ms
+2018-08-16T15:29:23.188612Z: DEBUG [1] input.connector: (Port:45217)Received a PONG for localhost on port 7696
+2018-08-16T15:29:23.188643Z: DEBUG [1] input.connector: (Port:45217)    Time since last heartbeat: 10008ms

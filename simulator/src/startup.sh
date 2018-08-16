@@ -1,6 +1,6 @@
 #Starting the single_robot_demo
 #! /bin/sh
-xterm -e roslaunch ceccrebot_demo_support single_robot_demo.launch &
+xterm -e roslaunch ceccrebot_demo_support single_robot_demo.launch sim_robot:=false &
 
 sleep 5
 xterm -e roslaunch ceccrebot_demo robot.launch &
