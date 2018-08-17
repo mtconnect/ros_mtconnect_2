@@ -384,7 +384,7 @@ class Robot:
                     self.fault()
                 print ("Moved out")
 
-	    elif ev.name == "MoveOut":
+	    elif ev.name == "MoveOutCT":
                 print ("Moving Out From cnc1_t1")
                 
                 if ['move_out','cnc1_t1',self.master_tasks[self.master_uuid]['part_quality']] not in self.low_level_event_list:
