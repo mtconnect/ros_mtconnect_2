@@ -362,13 +362,35 @@ class Robot:
                     self.fault()
                 print ("Moved in")
 
-            elif ev.name == "MoveOut":
+            elif ev.name == "MoveInCT":
+                print ("Moving In cnc1_t1")
+                
+                if ['move_in','cnc1_t1',self.master_tasks[self.master_uuid]['part_quality']] not in self.low_level_event_list:
+                    self.low_level_event_list.append(['move_in','cnc1_t1',self.master_tasks[self.master_uuid]['part_quality']])
+
+                status = self.parent.move_in('cnc1_t1', self.master_tasks[self.master_uuid]['part_quality'])
+                if status != True:
+                    self.fault()
+                print ("Moved in")
+
+	    elif ev.name == "MoveOut":
                 print ("Moving Out From " + ev.text)
                 
                 if ['move_out',ev.text,self.master_tasks[self.master_uuid]['part_quality']] not in self.low_level_event_list:
                     self.low_level_event_list.append(['move_out',ev.text,self.master_tasks[self.master_uuid]['part_quality']])
 
                 status = self.parent.move_out(ev.text, self.master_tasks[self.master_uuid]['part_quality'])
+                if status != True:
+                    self.fault()
+                print ("Moved out")
+
+	    elif ev.name == "MoveOut":
+                print ("Moving Out From cnc1_t1")
+                
+                if ['move_out','cnc1_t1',self.master_tasks[self.master_uuid]['part_quality']] not in self.low_level_event_list:
+                    self.low_level_event_list.append(['move_out','cnc1_t1',self.master_tasks[self.master_uuid]['part_quality']])
+
+                status = self.parent.move_out('cnc1_t1', self.master_tasks[self.master_uuid]['part_quality'])
                 if status != True:
                     self.fault()
                 print ("Moved out")
