@@ -8,6 +8,7 @@ from coordinator import *
 from collaborator import *
 from mtconnect_adapter import Adapter
 from long_pull import LongPull
+from priority import priority
 from data_item import Event, SimpleCondition, Sample, ThreeDSample
 from archetypeToInstance import archetypeToInstance
 from from_long_pull import from_long_pull, from_long_pull_asset
@@ -69,9 +70,21 @@ class cnc(object):
 
                 self.wait_for_completion = False
 
+                self.initial_execution_state()
+
+                self.priority = priority(self, self.cnc_binding)
+
                 self.initiate_cnc_client()
                 
                 self.initiate_pull_thread()
+
+            def initial_execution_state(self):
+                self.execution = {}
+                self.execution['cnc1'] = None
+                self.execution['cmm1'] = None
+                self.execution['b1'] = None
+                self.execution['conv1'] = None
+                self.execution['r1'] = None
 
             def initiate_cnc_client(self):
                 if not self.sim:
@@ -109,6 +122,9 @@ class cnc(object):
 
                 self.binding_state_material = Event('binding_state_material')
                 self.adapter.add_data_item(self.binding_state_material)
+
+                self.cnc_binding = Event('cnc_binding')
+                self.adapter.add_data_item(self.cnc_binding)
 
                 self.open_chuck = Event('open_chuck')
                 self.adapter.add_data_item(self.open_chuck)
@@ -212,12 +228,20 @@ class cnc(object):
                     self.iscoordinator = True
                     self.iscollaborator = False
 
+                    if self.master_uuid in self.master_tasks:
+                        del self.master_tasks[self.master_uuid]
+
                     self.master_uuid = self.deviceUuid+'_'+str(uuid.uuid4())
+                    
                     master_task_uuid = copy.deepcopy(self.master_uuid)
+
+                    
+                    self.adapter.begin_gather()
+                    self.cnc_binding.set_value(master_task_uuid)
+                    self.adapter.complete_gather()
+
                     self.coordinator_task = "MoveMaterial_2"
                     
-                    self.master_tasks = {}
-
                     self.coordinator = coordinator(parent = self, master_task_uuid = master_task_uuid, interface = self.binding_state_material , coordinator_name = self.deviceUuid)
                     self.coordinator.create_statemachine()
                     
@@ -232,11 +256,13 @@ class cnc(object):
                     
                     self.iscoordinator = False
                     self.iscollaborator = True
-                    self.master_tasks = {}
                     self.collaborator = collaborator(parent = self, interface = self.binding_state_material, collaborator_name = 'cnc1')
                     self.collaborator.create_statemachine()
                     self.collaborator.superstate.task_name = "LoadCnc"
                     self.collaborator.superstate.unavailable()
+
+                    self.priority.collab_check()
+                    
 
                 else:
                     self.start()
@@ -273,16 +299,21 @@ class cnc(object):
                         self.e1.set_value("READY")
                         self.adapter.complete_gather()
 
-                        master_task_uuid = copy.deepcopy(self.master_uuid)
                         self.cnc_execution_ready()
                         self.iscoordinator = True
                         self.iscollaborator = False
+
+                        if self.master_uuid in self.master_tasks:
+                            del self.master_tasks[self.master_uuid]
             
                         self.master_uuid = self.deviceUuid+'_'+str(uuid.uuid4())
                         master_task_uuid = copy.deepcopy(self.master_uuid)
                         self.coordinator_task = "MoveMaterial_2"
+
+                        self.adapter.begin_gather()
+                        self.cnc_binding.set_value(master_task_uuid)
+                        self.adapter.complete_gather()
                         
-                        self.master_tasks = {}
                         self.coordinator = coordinator(parent = self, master_task_uuid = master_task_uuid, interface = self.binding_state_material , coordinator_name = self.deviceUuid)
                         self.coordinator.create_statemachine()
                         
@@ -347,11 +378,11 @@ class cnc(object):
                     if self.has_material == False:
                         self.iscoordinator = False
                         self.iscollaborator = True
-                        self.master_tasks = {}
                         self.collaborator = collaborator(parent = self, interface = self.binding_state_material, collaborator_name = 'cnc1')
                         self.collaborator.create_statemachine()
                         self.collaborator.superstate.task_name = "LoadCnc"
                         self.collaborator.superstate.unavailable()
+                        self.priority.collab_check()
                         
                 elif "Response" and "chuck" in self.interfaceType:
                     self.adapter.begin_gather()
@@ -378,9 +409,17 @@ class cnc(object):
                     self.unloading()
                     self.iscoordinator = True
                     self.iscollaborator = False
-                    self.master_tasks = {}
+
+                    if self.master_uuid in self.master_tasks:
+                        del self.master_tasks[self.master_uuid]
+                        
                     self.master_uuid = self.deviceUuid+'_'+str(uuid.uuid4())
                     master_task_uuid = copy.deepcopy(self.master_uuid)
+
+                    self.adapter.begin_gather()
+                    self.cnc_binding.set_value(master_task_uuid)
+                    self.adapter.complete_gather()
+                    
                     self.coordinator_task = "MoveMaterial_2"
                     
 
@@ -395,11 +434,11 @@ class cnc(object):
                     self.loading()
                     self.iscoordinator = False
                     self.iscollaborator = True
-                    self.master_tasks = {}
                     self.collaborator = collaborator(parent = self, interface = self.binding_state_material, collaborator_name = 'cnc1')
                     self.collaborator.create_statemachine()
                     self.collaborator.superstate.task_name = "LoadCnc"
                     self.collaborator.superstate.unavailable()
+                    self.priority.collab_check()
               
             def LOADED(self):
                 self.has_material = True
@@ -430,11 +469,15 @@ class cnc(object):
                 if action == "fail":
                     action = "failure"
 
+                if comp == "Coordinator" and value.lower() == 'preparing':
+                    self.priority.event_list([source, comp, name, value, code, text])
+
                 if comp == "Task_Collaborator" and action!='unavailable':
                     self.coordinator.superstate.event(source, comp, name, value, code, text)
 
                 elif comp == "Coordinator" and action!='unavailable':
-                    self.collaborator.superstate.event(source, comp, name, value, code, text)
+                    if value.lower() != 'preparing':
+                        self.collaborator.superstate.event(source, comp, name, value, code, text)
 
                 elif 'SubTask' in name and action!='unavailable':
                     """ #for manually operated door
@@ -549,6 +592,8 @@ class cnc(object):
                             self.adapter.begin_gather()
                             self.e1.set_value(value.upper())
                             self.adapter.complete_gather()
+                        elif text in self.execution:
+                            self.execution[text]  = value.lower()
 
                 elif comp == "Device":
 
