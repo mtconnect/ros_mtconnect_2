@@ -47,7 +47,7 @@ def from_long_pull(self, chunk, addr = None):
                                 stream_root = [event,source,component,x.attrib['uuid']]
                                 coord_task_id = self.priority.binding_states[stream_root[3]][1]
                                 
-                                if event.text == 'PREPARING':
+                                if event.text == 'PREPARING' or event.text == 'INACTIVE':
                                     self.priority.binding_state(stream_root[3],event.text, None)
 
                                 if self.iscoordinator:
@@ -194,8 +194,9 @@ def from_long_pull_asset(self,chunk, stream_root = None):
         parentRef = root.findall('.//'+xmlns+'ParentRef')
         if self.deviceUuid == 'conv1':
             if 'cmm1' in root.findall('.//'+xmlns+'Task')[0].attrib['assetId']:
-                print (root.findall('.//'+xmlns+'Task')[0].attrib['assetId'])
-                print (task is not None and state == "PREPARING", "T/F",state)
+		pass
+                #print (root.findall('.//'+xmlns+'Task')[0].attrib['assetId'])
+                #print (task is not None and state == "PREPARING", "T/F",state)
     else:
         task = None
     #if robot a collaborator
@@ -215,7 +216,8 @@ def from_long_pull_asset(self,chunk, stream_root = None):
 
                 if self.deviceUuid == 'conv1':
                     if 'cmm1' in root.findall('.//'+xmlns+'Task')[0].attrib['assetId']:
-                        print ('In the loop',root.findall('.//'+xmlns+'Task')[0].attrib['assetId'], main_task_uuid not in self.master_tasks and value == "PREPARING")
+                        #print ('In the loop',root.findall('.//'+xmlns+'Task')[0].attrib['assetId'], main_task_uuid not in self.master_tasks and value == "PREPARING")
+			pass
                         
                 if main_task_uuid not in self.master_tasks and value == "PREPARING":
                     self.master_tasks[main_task_uuid] = archetypeToInstance(main_task_archetype,"uuid", main_task_deviceUuid, main_task_uuid).jsonInstance()

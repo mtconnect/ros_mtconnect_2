@@ -125,6 +125,8 @@ class task(object):
                 self.interface.set_value("COMMITTED")
                 self.parent.adapter.complete_gather()
 
+		self.parent.priority.commit_check()
+
                 self.taskIns = assetUpdate(self.taskIns, "State", "COMMITTED")
                 self.parent.adapter.addAsset('Task', self.master_task_uuid, self.taskIns)
             

@@ -42,7 +42,7 @@ class cmm(object):
 
                 self.system = []
                 
-                self.cycle_time = 10
+                self.cycle_time = 5
 
                 self.load_time_limit(20)
                 self.unload_time_limit(20)

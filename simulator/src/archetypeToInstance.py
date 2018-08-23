@@ -128,8 +128,10 @@ class archetypeToInstance(object):
         part_quality = self.taskArch.split('_')[-1]
         if part_quality in ['good', 'bad', 'rework']:
             jsonModel['part_quality']=part_quality
-        else:
-            jsonModel['part_quality']=None
+        elif part_quality == 'reworked':
+            jsonModel['part_quality']='rework'
+	else:
+	    jsonModel['part_quality']=None
         subTaskModel = self.traverse(self.root,{})
         CoordinatorSubTask = {}
         CollaboratorSubTask = {}
@@ -207,7 +209,7 @@ def update(taskIns, dataitem, value):
 if __name__ == "__main__":
     #print archetypeToInstance("MoveMaterial_2","xyz","cnc1").jsonInstance()
     print datetime.datetime.now().isoformat()
-    a2i = archetypeToInstance("MoveMaterial_4_good","xyz","b1")
+    a2i = archetypeToInstance("MoveMaterial_4_bad","xyz","b1")
     a2i.jsonInstance()
     print a2i.jsonModel
     print datetime.datetime.now().isoformat()

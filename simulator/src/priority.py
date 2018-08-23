@@ -28,6 +28,8 @@ class priority(object):
         self.parent = parent
         self.interface = interface
         self.priority_task = None
+	self.collaborators = []
+	self.current_collaborators = []
 
     def event_list(self, event):
         if event:
@@ -39,11 +41,12 @@ class priority(object):
                 self.event_priority_update()
 
                 self.collab_check2()
+		self.commit_check()
 
     def event_priority_update(self):
         for i,x in enumerate(self.tasks_list):
             task = deepcopy(self.tasks_list[i])
-            task[0] = x[0] + 1
+            task[0] = 2*x[0]
             self.tasks_list[i] = task
 
 
@@ -60,6 +63,11 @@ class priority(object):
                         if self.binding_states[y][2] and y != x[2][0] and y!='conv1':
                             devices_avail = False
                             break
+			elif self.binding_states[y][1] and self.binding_states[y][0]:
+                            if self.binding_states[y][1] in str(self.tasks_list) and self.binding_states[y][1] != x[1] and y!=self.parent.deviceUuid:
+                                devices_avail = False
+                                print ("device uuid check fail",self.parent.deviceUuid,y,self.binding_states[y][1],x[1])
+                                break
                     else:
                         devices_avail = False
                         break
@@ -67,8 +75,10 @@ class priority(object):
                     
                 if devices_avail and self.tasks_list:
                     self.priority_task = deepcopy(self.tasks_list[i][3])
+		    self.collaborators = deepcopy(self.tasks_list[i][2])
                     self.tasks_list.pop(i)
                     if self.priority_task[4][0] in str(self.tasks_pop_check):
+			print ("event already popped once")
                         self.priority_event()
                     self.tasks_pop_check.append([x[3], datetime.datetime.now().isoformat()])
                     break
@@ -96,12 +106,46 @@ class priority(object):
                 while timer.isAlive():
                     if self.parent.binding_state_material.value().lower() != 'inactive':
                         timer.cancel()
-                        break
+			break
 
         thread= Thread(target = wait)
         thread.start()
-            
-        
+
+    def commit_check(self):
+	def all_commit():
+	    self.current_collaborators = self.parent.master_tasks[self.parent.master_uuid]['coordinator'].keys()+self.parent.master_tasks[self.parent.master_uuid]['collaborators'].keys()
+	    current_uuid = deepcopy(self.parent.master_uuid)
+	    check = False
+	    time.sleep(5)
+	    while self.parent.binding_state_material.value().lower() == 'committed':
+		if self.binding_states['r1'][1].lower() != self.parent.master_uuid or self.binding_states['r1'][0].lower() == 'inactive':
+		    time.sleep(10)
+		    print ("task stuck, no success",self.binding_states['r1'][1].lower())
+		    if self.parent.binding_state_material.value().lower() == 'committed' and self.parent.iscoordinator and current_uuid == self.parent.master_uuid:
+		        self.parent.coordinator.superstate.task.superstate.success()
+			print ("task committed from priority method",self.parent.deviceUuid)
+		    check = True
+		else:
+		    for x in self.current_collaborators:
+			if x not in [self.parent.deviceUuid,'r1']:
+			    if self.binding_states[x][1].lower() != self.parent.master_uuid:
+				time.sleep(10)
+				print ("task stuck2, no success",self.binding_states[x][1].lower())
+	                        if self.parent.binding_state_material.value().lower() == 'committed' and self.parent.iscoordinator and current_uuid == self.parent.master_uuid:
+            		            self.parent.coordinator.superstate.task.superstate.success()
+                        	    print ("task committed from priority method2",self.parent.deviceUuid)
+				check = True
+
+		if check == True:
+		    break
+		else:
+		    pass
+
+	if self.parent.iscoordinator:
+	    thread = Thread(target = all_commit)
+	    thread.start()
+
+
     def initiate_binding_state(self):
         self.binding_states['conv1'] = [None,None,None]
         self.binding_states['cnc1'] = [None,None,None]
