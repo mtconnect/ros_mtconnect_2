@@ -51,8 +51,9 @@ class Robot:
 
             self.deviceUuid = "r1"
 
-            self.material_load_interface.superstate.simulated_duration = 60
-            self.material_unload_interface.superstate.simulated_duration = 60
+            # Maximum amount of time for material handling to complete before marking it complete regardless
+            self.material_load_interface.superstate.simulated_duration = 200
+            self.material_unload_interface.superstate.simulated_duration = 200
 
             self.master_uuid = str()
 
