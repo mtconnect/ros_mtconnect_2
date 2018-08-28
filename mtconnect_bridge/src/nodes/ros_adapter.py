@@ -44,8 +44,8 @@ J5_18 = create_item('J5_18', adapter)
 J6_21 = create_item('J6_21', adapter)
 
 # Path
-controller_mode = create_item('task1_25', adapter)
-execution = create_item('task1_26', adapter)
+#controller_mode = create_item('task1_25', adapter)
+#execution = create_item('task1_26', adapter)
 
 #Gripper
 gripper = create_item('gripper_29', adapter)
@@ -62,28 +62,26 @@ def callback(msg):
     J5_18.set_value((msg.position[4]))
     J6_21.set_value((msg.position[5]))
     adapter.complete_gather()
+    print ("Updated joint values")
 
 # Update Path status
-def status_callback(msg):
-    if msg.status_list:
-        execution.set_value(msg.status_list[-1].status)
+#def status_callback(msg):
+#    if msg.status_list:
+#        execution.set_value(msg.status_list[-1].status)
 
 # Update gripper status
 def gripper_callback(msg):
     gripper.set_value('IDLE')
 
 if __name__ == "__main__":
-    avail = Event('avail')
-    adapter.add_data_item(avail)
-    avail.set_value('AVAILABLE')
-    controller_mode.set_value('AUTOMATIC')
+#    controller_mode.set_value('AUTOMATIC')
+    print "started"
 
 
-
-#    adapter.start()
+    adapter.start()
     rospy.init_node('mtconnect_adapter')
     rospy.Subscriber('/ur/joint_states', JointState, callback)
-    rospy.Subscriber('/ur/execute_trajectory/status', GoalStatusArray, status_callback)
+#    rospy.Subscriber('/ur/execute_trajectory/status', GoalStatusArray, status_callback)
     rospy.spin()
 
     
