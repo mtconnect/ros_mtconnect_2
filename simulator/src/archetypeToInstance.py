@@ -213,7 +213,7 @@ if __name__ == "__main__":
     a2i.jsonInstance()
     print a2i.jsonModel
     print datetime.datetime.now().isoformat()
-    
+    print a2i.jsonModel['coordinator'].keys()+a2i.jsonModel['collaborators'].keys()
     
 
         
