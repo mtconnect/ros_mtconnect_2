@@ -35,6 +35,7 @@ class priority(object):
         if event:
             #[task_priority, assetID, device_collaborators, event]
             task_list = [float(event[4][1]['priority']), event[4][0], event[4][1]['coordinator'].keys()+event[4][1]['collaborators'].keys(), event]
+	    print (self.parent.deviceUuid, task_list[2][0], 'event check')
             if task_list[1] not in str(self.tasks_list) and self.parent.deviceUuid in task_list[2]:
                 self.tasks_list.append(task_list)
                 self.tasks_check.append([task_list, datetime.datetime.now().isoformat()])
@@ -58,6 +59,18 @@ class priority(object):
             self.tasks_list.sort(reverse = True)
             for i,x in enumerate(self.tasks_list):
                 devices_avail = False
+
+		for z in x[2]:
+		    if z!= self.parent.deviceUuid and self.parent.execution[z] != 'active':
+			devices_avail = True
+		    elif z!= self.parent.deviceUuid:
+			devices_avail = False
+			break
+		if devices_avail == False:
+		    break
+		else:
+		    time.sleep(0.1)
+
                 for y in x[2]:
                     if (not self.binding_states[y][0] or self.binding_states[y][0].lower() not in ['committing','committed']) and self.parent.execution[y] != 'active':
                         if self.binding_states[y][2] and y != x[2][0] and y!='conv1':
@@ -73,7 +86,7 @@ class priority(object):
                         break
                     devices_avail = True
                     
-                if devices_avail and self.tasks_list:
+                if devices_avail and self.tasks_list and i< len(self.tasks_list):
                     self.priority_task = deepcopy(self.tasks_list[i][3])
 		    self.collaborators = deepcopy(self.tasks_list[i][2])
                     self.tasks_list.pop(i)
