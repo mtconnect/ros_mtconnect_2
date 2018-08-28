@@ -268,8 +268,16 @@ class Buffer(object):
               
             def LOADED(self):
                 self.buffer_append()
+
+		timer_timeout = Timer(40,self.collaborator.superstate.completed)
+                timer_timeout.start()
+
                 while self.collaborator.superstate.state != 'base:inactive' or self.binding_state_material.value().lower() != 'inactive':
                     pass
+
+                if self.binding_state_material.value().lower() != 'committed' and timer_timeout.isAlive():
+                    timer_timeout.cancel()
+
                 time.sleep(1)
 
             def wait_for_task_completion(self):
@@ -485,7 +493,7 @@ class Buffer(object):
 
 
 if __name__ == '__main__':
-    
+    """
     #collaborator
     b1 = Buffer('localhost',7671)
     b1.create_statemachine()
@@ -494,7 +502,7 @@ if __name__ == '__main__':
     b1.superstate.unload_time_limit(200)
     time.sleep(10)
     b1.superstate.enable()
-    """
+    
     #Coordinator
     
     b1 = Buffer('localhost',7670)
@@ -506,4 +514,8 @@ if __name__ == '__main__':
     time.sleep(10)
     b1.superstate.enable()
     """
-        
+    b = Buffer('localhost',7696)
+    b.create_statemachine()
+    b.superstate.load_time_limit(600)
+    b.superstate.unload_time_limit(600)
+    b.superstate.enable()

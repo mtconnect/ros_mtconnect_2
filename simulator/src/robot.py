@@ -213,6 +213,8 @@ class Robot:
                 self.collaborator.create_statemachine()
                 time.sleep(0.1)
                 self.collaborator.superstate.unavailable()
+	    else:
+		time.sleep(0.2)
 
 	    thread= Thread(target = self.collaboration_task_check)
             thread.start()
@@ -226,7 +228,6 @@ class Robot:
             while self.binding_state_material.value().lower() == 'inactive':
                 self.priority.collab_check()
 		time.sleep(4)
-
 
         def LOADING(self):
             self.material_unload_interface.superstate.not_ready()
@@ -266,7 +267,7 @@ class Robot:
                     test = True
 
         def UNLOADING_COMPLETE(self):
-            self.CHECK_COMPLETION_UL()
+            #self.CHECK_COMPLETION_UL()
             self.priority.binding_state(self.master_tasks[self.master_uuid]['coordinator'].keys()[0],has_material = False)
 
         def LOAD_READY(self):

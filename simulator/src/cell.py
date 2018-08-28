@@ -37,10 +37,10 @@ class cell(object):
 
         self.cell_part_quality = None
 
-        self.initiate_cnc('localhost',7896)
+        #self.initiate_cnc('localhost',7896)
         #self.initiate_robot('localhost',7996)
-        self.initiate_buffer('localhost',7696)
-        self.initiate_cmm('localhost',7596)
+        #self.initiate_buffer('localhost',7696)
+        #self.initiate_cmm('localhost',7596)
         self.initiate_inputConveyor('localhost',7796)
         #self.initiate_outputConveyor('localhost',7496)
 

@@ -274,8 +274,16 @@ class inputConveyor(object):
                     print ("Number of cycles completed: "+ str(self.cycle_count)+ " !")
 
                 self.material_load_interface.superstate.DEACTIVATE()
-                while self.binding_state_material.value().lower() != 'inactive' or self.collaborator.superstate.state != 'base:inactive':
+
+
+		timer_timeout = Timer(40,self.collaborator.superstate.completed)
+                timer_timeout.start()
+
+                while self.collaborator.superstate.state != 'base:inactive' or self.binding_state_material.value().lower() != 'inactive':
                     pass
+                if self.binding_state_material.value().lower() != 'committed' and timer_timeout.isAlive():
+                    timer_timeout.cancel()
+
                 time.sleep(1)
 
             def EXIT_UNLOADING(self):

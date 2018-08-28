@@ -42,7 +42,7 @@ class cmm(object):
 
                 self.system = []
                 
-                self.cycle_time = 5
+                self.cycle_time = 120
 
                 self.load_time_limit(20)
                 self.unload_time_limit(20)
@@ -418,8 +418,12 @@ class cmm(object):
               
             def LOADED(self):
                 self.has_material = True
+		timer_timeout = Timer(60,self.collaborator.superstate.completed)
+                timer_timeout.start()
                 while self.collaborator.superstate.state != 'base:inactive' or self.binding_state_material.value().lower() != 'inactive':
 		    pass
+		if self.binding_state_material.value().lower() != 'committed' and timer_timeout.isAlive():
+		    timer_timeout.cancel()
 
             def UNLOADED(self):
                 self.has_material = False
@@ -595,7 +599,7 @@ if __name__ == '__main__':
     cmm1.superstate.unload_time_limit(200)
     time.sleep(7)
     cmm1.superstate.enable()
-    """
+    
 
     #Coordinator
     cmm1 = cmm()
@@ -606,6 +610,13 @@ if __name__ == '__main__':
     
     time.sleep(15)
     cmm1.superstate.enable()
+    """
+
+    cmm = cmm('localhost',7596)
+    cmm.create_statemachine()
+    cmm.superstate.load_time_limit(600)
+    cmm.superstate.unload_time_limit(600)
+    cmm.superstate.enable()
     
     
         
