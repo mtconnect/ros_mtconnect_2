@@ -42,7 +42,7 @@ class cnc(object):
 
                 self.system = []
                 
-                self.cycle_time = 10
+                self.cycle_time = 150
 
                 self.load_time_limit(20)
                 self.unload_time_limit(20)
@@ -88,7 +88,7 @@ class cnc(object):
 
             def initiate_cnc_client(self):
                 if not self.sim:
-		    configFile = open('configFiles/clients.cfg','r')
+                    configFile = open('configFiles/clients.cfg','r')
                     device = json.loads(configFile.read())['devices'][self.deviceUuid]
                     self.cnc_client = hurcoClient(str(device['host']),int(device['port']))
 
@@ -337,7 +337,7 @@ class cnc(object):
                 if not self.has_material:
                     self.material_unload_interface.superstate.DEACTIVATE()
                     self.material_load_interface.superstate.idle()
-                    
+
 
             def UNLOADING(self):
                 if self.has_material:
@@ -442,8 +442,15 @@ class cnc(object):
               
             def LOADED(self):
                 self.has_material = True
+
+		timer_timeout = Timer(120,self.collaborator.superstate.completed)
+                timer_timeout.start()
+
                 while self.collaborator.superstate.state != 'base:inactive' or self.binding_state_material.value().lower() != 'inactive':
-		    pass
+                    pass
+
+                if self.binding_state_material.value().lower() != 'committed' and timer_timeout.isAlive():
+                    timer_timeout.cancel()
 
             def UNLOADED(self):
                 self.has_material = False
@@ -693,7 +700,7 @@ if __name__ == '__main__':
     cnc1.superstate.unload_time_limit(200)
     time.sleep(10)
     cnc1.superstate.enable()
-    """
+    
 
     #Coordinator
     cnc1 = cnc('localhost',7871)
@@ -709,5 +716,13 @@ if __name__ == '__main__':
     
     time.sleep(15)
     cnc1.superstate.enable()
+    """
+    cnc = cnc('localhost',7896)
+    cnc.create_statemachine()
+    cnc.superstate.load_time_limit(600)
+    cnc.superstate.unload_time_limit(600)
+    cnc.superstate.enable()
+
+    
     
     
