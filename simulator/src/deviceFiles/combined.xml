@@ -217,5 +217,67 @@
 				</Interfaces>
 			</Components>
 		</Device>
+                <Device name='ROS_UR10' uuid='ros_ROS_UR10_98607c' id='ROS_UR10_1'>
+                  <Description model='UR-10' manufacturer='UR'>UR 6 Axis Robot - UR Robot for ETC Demo</Description>
+                  <DataItems>
+                    <DataItem type='AVAILABILITY' category='EVENT' id='dtop_2' name='avail'/>
+                    <DataItem type='EMERGENCY_STOP' category='EVENT' id='dtop_3' name='estop'/>
+                  </DataItems>
+                  <Components>
+                    <Axes name='axes' id='axes_4'>
+                      <Components>
+                        <Rotary name='J1' id='J1_5'>
+                          <DataItems>
+                            <DataItem type='ANGLE' category='SAMPLE' id='J1_6' name='j1_angle' units='RADIANS' nativeUnits='RADIANS'/>
+                          </DataItems>
+                        </Rotary>
+                        <Rotary name='J2' id='J2_8'>
+                          <DataItems>
+                            <DataItem type='ANGLE' category='SAMPLE' id='J2_9' name='j2_angle' units='RADIANS' nativeUnits='RADIANS'/>
+                          </DataItems>
+                        </Rotary>
+                        <Rotary name='J3' id='J3_11'>
+                          <DataItems>
+                            <DataItem type='ANGLE' category='SAMPLE' id='J3_12' name='j3_angle' units='RADIANS' nativeUnits='RADIANS'/>
+                          </DataItems>
+                        </Rotary>
+                        <Rotary name='J4' id='J4_14'>
+                          <DataItems>
+                            <DataItem type='ANGLE' category='SAMPLE' id='J4_15' name='j4_angle' units='RADIANS' nativeUnits='RADIANS'/>
+                          </DataItems>
+                        </Rotary>
+                        <Rotary name='J5' id='J5_17'>
+                          <DataItems>
+                            <DataItem type='ANGLE' category='SAMPLE' id='J5_18' name='j5_angle' units='RADIANS' nativeUnits='RADIANS'/>
+                          </DataItems>
+                        </Rotary>
+                        <Rotary name='J6' id='J6_20'>
+                          <DataItems>
+                            <DataItem type='ANGLE' category='SAMPLE' id='J6_21' name='j6_angle' units='RADIANS' nativeUnits='RADIANS'/>
+                          </DataItems>
+                        </Rotary>
+                      </Components>
+                    </Axes>
+                    <Controller name='controller' id='controller_23'>
+                      <Components>
+                        <Path name='task1' id='task1_24'>
+                          <DataItems>
+                            <DataItem type='CONTROLLER_MODE' category='EVENT' id='task1_25' name='mode'/>
+                            <DataItem type='EXECUTION' category='EVENT' id='task1_26' name='exec'/>
+                          </DataItems>
+                        </Path>
+                      </Components>
+                    </Controller>
+                    <Accessories name='accessories' id='accessories_27'>
+                      <Components>
+                        <EndEffector name='gripper' id='gripper_28'>
+                          <DataItems>
+                            <DataItem type='GRIPPER_STATE' category='EVENT' id='gripper_29' name='gripper_state'/>
+                          </DataItems>
+                        </EndEffector>
+                      </Components>
+                    </Accessories>
+                  </Components>
+                </Device>
 	</Devices>
 </MTConnectDevices>
