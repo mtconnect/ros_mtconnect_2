@@ -14,9 +14,6 @@
     
 import sys, os, time
 
-#path, file = os.path.split(__file__)
-#print file
-#print path
 sys.path.append(os.path.join(os.getenv('HOME'), 'mtconnect_dev/src/ceccrebot/'))
 sys.path.append(os.path.join(os.getenv('HOME'), 'mtconnect_dev/src/ceccrebot/simulator/src'))
 
@@ -36,7 +33,7 @@ def create_item(name, adapt):
     adapter.add_data_item(tmp)
     return tmp
 
-adapter = Adapter(('127.0.0.1', 7878))
+adapter = Adapter(('127.0.0.1', 7996))
 
 # Joints
 J1_6 = create_item('J1_6', adapter)
@@ -83,7 +80,7 @@ if __name__ == "__main__":
 
 
 
-    adapter.start()
+#    adapter.start()
     rospy.init_node('mtconnect_adapter')
     rospy.Subscriber('/ur/joint_states', JointState, callback)
     rospy.Subscriber('/ur/execute_trajectory/status', GoalStatusArray, status_callback)
