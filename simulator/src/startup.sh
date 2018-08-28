@@ -11,11 +11,15 @@ xterm -e roslaunch ceccrebot_demo robot.launch &
 xterm -e agent run /etc/mtconnect/agent/agent.cfg &
 
 
-sleep 7
+sleep 10
 #Starting the mtconnect robot statemachine
 
 xterm -e roslaunch ceccrebot_demo mtconnect.launch &
 
 sleep 3
 #Starting the cell.py
-xterm -e pipenv run python cell.py 
+
+xterm -e pipenv run python cnc.py &
+xterm -e pipenv run python cmm.py &
+xterm -e pipenv run python buffer.py &
+xterm -e pipenv run python cell.py &
