@@ -97,6 +97,15 @@
                                     </Rotary>
                                   </Components>
                                 </Axes>
+                                <Accessories name='accessories' id='accessories_27'>
+                                   <Components>
+                                       <EndEffector name='gripper' id='gripper_28'>
+                                           <DataItems>
+                                              <DataItem type='GRIPPER_STATE' category='EVENT' id='gripper_29' name='gripper_state'/>
+                                           </DataItems>
+                                       </EndEffector>
+                                   </Components>
+                                </Accessories>
 				<Controller name="Controller" id="cont2">
 					<DataItems>
 						<DataItem type="CONTROLLER_MODE" category="EVENT" id="rmode" name="mode"/>

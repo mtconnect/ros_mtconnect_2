@@ -19,6 +19,8 @@ def from_long_pull(self, chunk, addr = None):
             component = y.attrib['component']
 
             events = y.find('.//'+xmlns+'Events')
+            if events is None:
+                continue
             for event in events:
                 if True:
                     #THIS CLAUSE? DO WE NEED IT?
@@ -60,7 +62,7 @@ def from_long_pull(self, chunk, addr = None):
                                         elif 'ToolChange' in str(self.master_tasks) and collabUuid == 'r1':
                                             self.master_tasks[self.master_uuid]['coordinator'][self.deviceUuid]['SubTask']['cnc1'][1] = 'COMPLETE'
                                             self.coordinator.superstate.task.superstate.success()
-                                            
+
                                 elif self.iscollaborator:
                                     #print '\nBSEVENT:: '+event.text
                                     if self.binding_state_material.value() == "PREPARING" and event.text == 'COMMITTING':
@@ -75,7 +77,7 @@ def from_long_pull(self, chunk, addr = None):
                                         #print "Collaborator event"
                                         if event.text == 'INACTIVE' and 'ToolChange' in str(self.master_tasks) and collabUuid == 'r1':
                                             self.event(source.lower(), component, 'SubTask_binding_state', event.text, self.master_uuid, collabUuid)
-                                            
+
                                         elif self.master_tasks[self.master_uuid]['coordinator'][self.master_tasks[self.master_uuid]['coordinator'].keys()[0]]['SubTask'][self.deviceUuid] and collabUuid in self.master_tasks[self.master_uuid]['coordinator'][self.master_tasks[self.master_uuid]['coordinator'].keys()[0]]['SubTask'][self.deviceUuid][2]:
                                             if event.tag.split('}')[-1] in self.master_tasks[self.master_uuid]['coordinator'][self.master_tasks[self.master_uuid]['coordinator'].keys()[0]]['SubTask'][self.deviceUuid][3]:
                                                 #print "First Filter"
@@ -95,7 +97,7 @@ def from_long_pull(self, chunk, addr = None):
                                         elif self.master_tasks[self.master_uuid]['collaborators'][self.deviceUuid]:
                                             #print 'going to the non robot collab'
                                             self.event(source.lower(), 'Coordinator', 'binding_state', event.text, self.master_uuid,  collabUuid)
-                                                    
+
 
                             elif self.binding_state_material.value() == "COMMITTED" and self.master_uuid in self.master_tasks:
                                 stream_root = [event,source,component,x.attrib['uuid']]
@@ -131,7 +133,7 @@ def from_long_pull(self, chunk, addr = None):
                                             elif self.master_tasks[self.master_uuid]['coordinator'][coord]['SubTask'][coord][1] == 'COMPLETE' and coord!=collabUuid:
                                                 self.event(source.lower(), component, 'SubTask_'+event.tag.split('}')[-1], event.text, self.master_uuid,  collabUuid)
 
-                                                
+
                                 elif self.iscoordinator and self.master_uuid in self.master_tasks:
                                     #print "3_bind"
                                     event = stream_root[0]

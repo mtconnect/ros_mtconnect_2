@@ -14,74 +14,64 @@
     
 import sys, os, time
 
-sys.path.append(os.path.join(os.getenv('HOME'), 'mtconnect_dev/src/ceccrebot/'))
-sys.path.append(os.path.join(os.getenv('HOME'), 'mtconnect_dev/src/ceccrebot/simulator/src'))
+sys.path.append(os.path.join(os.getenv('HOME'), 'catkin_ws/src/ceccrebot/'))
+sys.path.append(os.path.join(os.getenv('HOME'), 'catkin_ws/src/ceccrebot/simulator/src'))
 
 from data_item import Event, SimpleCondition, Sample
 from mtconnect_adapter import Adapter
 
-import roslib
+import roslib, rospy
 
-import rospy
 from sensor_msgs.msg import JointState
 from actionlib_msgs.msg import GoalStatusArray
 
 
+adapter = Adapter(('127.0.0.1', 7997))
 
 def create_item(name, adapt):
     tmp = Sample(name)
     adapter.add_data_item(tmp)
     return tmp
 
-adapter = Adapter(('127.0.0.1', 7996))
-
 # Joints
-J1_6 = create_item('J1_6', adapter)
-J2_9 = create_item('J2_9', adapter)
-J3_12 = create_item('J3_12', adapter)
-J4_15 = create_item('J4_15', adapter)
-J5_18 = create_item('J5_18', adapter)
-J6_21 = create_item('J6_21', adapter)
+J1_6 = create_item('j1_angle', adapter)
+J2_9 = create_item('j2_angle', adapter)
+J3_12 = create_item('j3_angle', adapter)
+J4_15 = create_item('j4_angle', adapter)
+J5_18 = create_item('j5_angle', adapter)
+J6_21 = create_item('j6_angle', adapter)
 
-# Path
-#controller_mode = create_item('task1_25', adapter)
-#execution = create_item('task1_26', adapter)
+# Gripper
+gripper = create_item('gripper_state', adapter)
 
-#Gripper
-gripper = create_item('gripper_29', adapter)
-
+# Controller
+controller_mode = create_item('mode', adapter)
+execution = create_item('exec', adapter)
 
 
 # Update joint values
 def callback(msg):
     adapter.begin_gather()
-    J1_6.set_value((msg.position[0] ))
+    J1_6.set_value((msg.position[0]))
     J2_9.set_value((msg.position[1]))
     J3_12.set_value((msg.position[2]))
     J4_15.set_value((msg.position[3]))
     J5_18.set_value((msg.position[4]))
     J6_21.set_value((msg.position[5]))
     adapter.complete_gather()
-    print ("Updated joint values")
-
-# Update Path status
-#def status_callback(msg):
-#    if msg.status_list:
-#        execution.set_value(msg.status_list[-1].status)
 
 # Update gripper status
 def gripper_callback(msg):
-    gripper.set_value('IDLE')
+    gripper.set_value('IDLE')  #Input update here
+
 
 if __name__ == "__main__":
-#    controller_mode.set_value('AUTOMATIC')
-    print "started"
-
-
     adapter.start()
+    gripper.set_value("INITIALIZED")
+
     rospy.init_node('mtconnect_adapter')
     rospy.Subscriber('/ur/joint_states', JointState, callback)
-#    rospy.Subscriber('/ur/execute_trajectory/status', GoalStatusArray, status_callback)
+
     rospy.spin()
 
     
