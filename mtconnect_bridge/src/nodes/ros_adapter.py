@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 """Copyright 2012, System Insights, Inc.
 
    Licensed under the Apache License, Version 2.0 (the "License");
@@ -14,8 +15,7 @@
     
 import sys, os, time
 
-sys.path.append(os.path.join(os.getenv('HOME'), 'catkin_ws/src/ceccrebot/'))
-sys.path.append(os.path.join(os.getenv('HOME'), 'catkin_ws/src/ceccrebot/simulator/src'))
+sys.path.append(os.path.join(os.getenv('HOME'), 'mtconnect_dev/src/ceccrebot/simulator/src'))
 
 from data_item import Event, SimpleCondition, Sample
 from mtconnect_adapter import Adapter
@@ -25,52 +25,71 @@ import roslib, rospy
 from sensor_msgs.msg import JointState
 from actionlib_msgs.msg import GoalStatusArray
 
+class ROSAdapter:
+    def __init__(self):
+        # Get all of the ROS Params
+        self.address = rospy.get_param('~address')
+        self.port = rospy.get_param('~port')
+        self.joint_topic = rospy.get_param('~joint_topic')
+        self.joint_names = rospy.get_param('~joint_data_items')
+        self.gripper_topic = rospy.get_param('~gripper_topic')
+        self.gripper_names = rospy.get_param('~gripper_data_items')
 
-adapter = Adapter(('127.0.0.1', 7997))
+        # Start the adapter
+        self.adapter = Adapter((self.address, self.port))
+        self.adapter.start()
 
-def create_item(name, adapt):
-    tmp = Sample(name)
-    adapter.add_data_item(tmp)
-    return tmp
+        # Start ROS Subscribers
+        rospy.Subscriber(self.joint_topic, JointState, self.joint_callback)
 
-# Joints
-J1_6 = create_item('j1_angle', adapter)
-J2_9 = create_item('j2_angle', adapter)
-J3_12 = create_item('j3_angle', adapter)
-J4_15 = create_item('j4_angle', adapter)
-J5_18 = create_item('j5_angle', adapter)
-J6_21 = create_item('j6_angle', adapter)
+        # Create Gripper
+        self.gripper = self.create_event_item('gripper_state', self.adapter)
+        self.gripper.set_value("INITIALIZED")
 
-# Gripper
-gripper = create_item('gripper_state', adapter)
-
-# Controller
-controller_mode = create_item('mode', adapter)
-execution = create_item('exec', adapter)
+        # Create Joint data items
+        self.joint_data_items = []
+        for name in self.joint_names:
+            self.joint_data_items.append(self.create_sample_item(name, self.adapter))
 
 
-# Update joint values
-def callback(msg):
-    adapter.begin_gather()
-    J1_6.set_value((msg.position[0]))
-    J2_9.set_value((msg.position[1]))
-    J3_12.set_value((msg.position[2]))
-    J4_15.set_value((msg.position[3]))
-    J5_18.set_value((msg.position[4]))
-    J6_21.set_value((msg.position[5]))
-    adapter.complete_gather()
 
-# Update gripper status
-def gripper_callback(msg):
-    gripper.set_value('IDLE')  #Input update here
+    # Creates a "Sample" type data item
+    def create_sample_item(self, name, adapt):
+        tmp = Sample(name)
+        self.adapter.add_data_item(tmp)
+        return tmp
+
+    # Creates an Event type data item
+    def create_event_item(self, name, adapt):
+        tmp = Event(name)
+        self.adapter.add_data_item(tmp)
+        return tmp
+
+
+    # Update joint values
+    def joint_callback(self, msg):
+        # check if the lengths are correct
+        if len(self.joint_names) != len(msg.position):
+            rospy.logwarn('Mismatched number of joint names and joint values check mtconnect publisher yaml file')
+            return
+        self.adapter.begin_gather()
+        ind = 0
+        #Assign joint values to the associated data item
+        for name in self.joint_names:
+            self.joint_data_items[ind].set_value((msg.position[ind]))
+            ind = ind + 1
+        self.adapter.complete_gather()
+
+    # Update gripper status
+    def gripper_callback(self, msg):
+        self.gripper.set_value('IDLE')  #Input update here
 
 
 if __name__ == "__main__":
-    adapter.start()
-    gripper.set_value("INITIALIZED")
+
 
     rospy.init_node('mtconnect_adapter')
-    rospy.Subscriber('/ur/joint_states', JointState, callback)
+    ros_adapter = ROSAdapter()
 
     rospy.spin()
 
