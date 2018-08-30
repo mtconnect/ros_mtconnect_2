@@ -13,11 +13,8 @@
    See the License for the specific language governing permissions and
    limitations under the License."""
     
-import sys, os, time
-
-sys.path.append(os.path.join(os.getenv('HOME'), 'mtconnect_dev/src/ceccrebot/simulator/src'))
-
-from data_item import Event, SimpleCondition, Sample
+import mtconnect_bridge
+from data_item import Event, Sample
 from mtconnect_adapter import Adapter
 
 import roslib, rospy
