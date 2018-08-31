@@ -24,7 +24,7 @@ import collections
 import functools
 import datetime
 import time
-import re
+import re, gc
 import copy
 import requests
 import urllib2
@@ -49,8 +49,10 @@ class Robot:
            
             self.events = []
 
-            self.master_tasks ={}
+            self.lp ={}
 
+            self.master_tasks ={}
+            self.nextsequence='1'
             self.deviceUuid = "r1"
 
             self.material_load_interface.superstate.simulated_duration = 60
@@ -64,13 +66,19 @@ class Robot:
 
             self.fail_next = False
 
+            self.reset_required = False
+            
             self.initial_execution_state()
 
-            self.priority = priority(self, self.robot_binding)
+            self.set_priority()
 
             self.low_level_event_list = []
 
             self.initiate_pull_thread()
+
+        def set_priority(self):
+            self.priority = None
+            self.priority = priority(self, self.robot_binding)
 
         def initial_execution_state(self):
             self.execution = {}
@@ -147,26 +155,27 @@ class Robot:
 
         def initiate_pull_thread(self):
 
-            thread= Thread(target = self.start_pull,args=("http://localhost:5000","/cnc/sample?interval=100&count=1000",from_long_pull))
-            thread.start()
+            self.thread= Thread(target = self.start_pull,args=("http://localhost:5000","/cnc/sample?interval=10&count=1000",from_long_pull))
+            self.thread.start()
 
-            thread2= Thread(target = self.start_pull,args=("http://localhost:5000","/conv/sample?interval=100&count=1000",from_long_pull))
-            thread2.start()
+            self.thread2= Thread(target = self.start_pull,args=("http://localhost:5000","/conv/sample?interval=10&count=1000",from_long_pull))
+            self.thread2.start()
 
-            thread3= Thread(target = self.start_pull,args=("http://localhost:5000","/buffer/sample?interval=100&count=1000",from_long_pull))
-            thread3.start()
+            self.thread3= Thread(target = self.start_pull,args=("http://localhost:5000","/buffer/sample?interval=10&count=1000",from_long_pull))
+            self.thread3.start()
 
-            thread4= Thread(target = self.start_pull,args=("http://localhost:5000","/cmm/sample?interval=100&count=1000",from_long_pull))
-            thread4.start()
+            self.thread4= Thread(target = self.start_pull,args=("http://localhost:5000","/cmm/sample?interval=10&count=1000",from_long_pull))
+            self.thread4.start()
 
         def interface_type(self, value = None, subtype = None):
             self.interfaceType = value
 
         def start_pull(self,addr,request, func, stream = True):
 
-            response = requests.get(addr+request, stream=stream)
-            lp = LongPull(response, addr, self)
-            lp.long_pull(func)
+            response = requests.get(addr+request+"&from="+self.nextsequence, stream=stream)
+            self.lp[request.split('/')[1]] = None
+            self.lp[request.split('/')[1]] = LongPull(response, addr, self)
+            self.lp[request.split('/')[1]].long_pull(func)
 
         def start_pull_asset(self, addr, request, assetId, stream_root):
             response = urllib2.urlopen(addr+request).read()
@@ -197,6 +206,11 @@ class Robot:
             self.make_idle()
 
         def IDLE(self):
+
+            if self.reset_required:
+                time.sleep(2)
+                self.reset_statemachine()
+                self.reset_required = False
 
             if self.master_uuid and 'ToolChange' not in str(self.master_tasks[self.master_uuid]):
                 self.material_unload_interface.superstate.not_ready()
@@ -244,6 +258,46 @@ class Robot:
                 if 'MaterialLoad' in v:
                     self.priority.binding_state(k,has_material = True)
                     break
+            gc.collect()
+
+            if coordinator == 'cmm1' and self.master_tasks[self.master_uuid]['part_quality'] == 'rework':
+                self.reset_required = True
+
+                
+        def reset_statemachine(self):
+            
+            coordinator = self.master_tasks[self.master_uuid]['coordinator'].keys()[0]
+            uuid = copy.deepcopy(self.master_uuid)
+            
+            if coordinator == 'cmm1' and self.master_tasks[uuid]['part_quality'] == 'rework': #try later
+                print ("Resetting Robot")
+                
+                self.events = []
+                self.low_level_event_list = []
+
+                for k,v in self.master_tasks.iteritems():
+                    if k != uuid:
+                        self.master_tasks[k] = None
+                        
+
+                for k,v in self.lp.iteritems():
+                    self.lp[k]._response = None
+
+                nsx = urllib2.urlopen("http://localhost:5000/current").read()
+                nsr = ET.fromstring(nsx)
+                ns = nsr[0].attrib['nextSequence']
+
+                self.nextsequence = ns
+
+                self.priority = None
+
+                self.set_priority()
+
+                self.adapter.removeAllAsset('Task')
+
+                self.initiate_pull_thread()
+
+                print ("robot reset")
 
         def CHECK_COMPLETION(self):
             #temporary fix till task/subtask sequencing is determined
@@ -623,7 +677,7 @@ class Robot:
                 'trigger': 'complete',
                 'source': 'base:operational:loading',
                 'dest': 'base:operational:idle',
-                'before': 'LOADING_COMPLETE'
+                'before': 'LOADING_COMPLETE',
             },
             {
                 'trigger': 'complete',

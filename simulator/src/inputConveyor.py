@@ -40,11 +40,13 @@ class inputConveyor(object):
 
                 self.load_time_limit(15)
                 self.unload_time_limit(15)
-
+                self.nextsequence='1'
                 self.load_failed_time_limit(2)
                 self.unload_failed_time_limit(2)
 
                 self.events = []
+
+                self.lp = {}
 
                 self.master_tasks = {}
 
@@ -70,11 +72,15 @@ class inputConveyor(object):
 
                 self.initial_execution_state()
 
-                self.priority = priority(self,self.conv1_binding)
+                self.set_priority()
 
                 self.initiate_internal_buffer()
 
                 self.initiate_pull_thread()
+
+            def set_priority(self):
+                self.priority = None
+                self.priority = priority(self, self.conv1_binding)
                 
             def initial_execution_state(self):
                 self.execution = {}
@@ -129,24 +135,25 @@ class inputConveyor(object):
                 self.material_load.set_value("NOT_READY")
                 self.material_unload.set_value("NOT_READY")
 
-                self.adapter.complete_gather()                
+                self.adapter.complete_gather()
 
             def initiate_pull_thread(self):
 
-                thread= Thread(target = self.start_pull,args=("http://localhost:5000","/cnc/sample?interval=100&count=1000",from_long_pull))
-                thread.start()
+                self.thread= Thread(target = self.start_pull,args=("http://localhost:5000","/cnc/sample?interval=10&count=1000",from_long_pull))
+                self.thread.start()
 
-                thread2= Thread(target = self.start_pull,args=("http://localhost:5000","/robot/sample?interval=100&count=1000",from_long_pull))
-                thread2.start()
+                self.thread2= Thread(target = self.start_pull,args=("http://localhost:5000","/robot/sample?interval=10&count=1000",from_long_pull))
+                self.thread2.start()
 
-                thread3= Thread(target = self.start_pull,args=("http://localhost:5000","/cmm/sample?interval=100&count=1000",from_long_pull))
-                thread3.start()
+                self.thread3= Thread(target = self.start_pull,args=("http://localhost:5000","/cmm/sample?interval=10&count=1000",from_long_pull))
+                self.thread3.start()
                 
             def start_pull(self,addr,request, func, stream = True):
 
-                response = requests.get(addr+request, stream=stream)
-                lp = LongPull(response, addr, self)
-                lp.long_pull(func)
+                response = requests.get(addr+request+"&from="+self.nextsequence, stream=stream)
+                self.lp[request.split('/')[1]] = None
+                self.lp[request.split('/')[1]] = LongPull(response, addr, self)
+                self.lp[request.split('/')[1]].long_pull(func)
 
             def start_pull_asset(self, addr, request, assetId, stream_root):
                 response = urllib2.urlopen(addr+request).read()
@@ -173,6 +180,9 @@ class inputConveyor(object):
             def part_order(self):
                 #scripted sequence of part order tasks
                 part_quality_list = [self.internal_buffer['good'], self.internal_buffer['bad'], self.internal_buffer['rework']]
+
+                if self.cycle_count == 1:
+                    self.current_part = "reset"
 
                 if part_quality_list == [True,True,True] and self.current_part == None:
                     self.current_part = 'good'
@@ -250,8 +260,11 @@ class inputConveyor(object):
                     self.collaborator.superstate.unavailable()
                     self.priority.collab_check()
 
-                self.cell_part(current_part = self.current_part)
-
+                else:
+                    if part_order == None:
+                        self.cell_part(current_part = "reset")
+                    else:
+                        self.cell_part(current_part = self.current_part)
             def IDLE(self):
                 if False not in self.internal_buffer.values():
                     self.material_load_interface.superstate.DEACTIVATE()
@@ -314,12 +327,12 @@ class inputConveyor(object):
             def COMPLETED(self):
                 if self.interfaceType == "Request":
                     self.complete()
-            
+
             def EXITING_IDLE(self):
                 if self.has_material:
                     self.has_material = False #look into it later
-               
-              
+
+
             def LOADED(self):
                 self.has_material = True
 
@@ -480,4 +493,3 @@ if __name__ == '__main__':
     conv1.superstate.unload_time_limit(200)
     time.sleep(15)
     conv1.superstate.enable()
-    

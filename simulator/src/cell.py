@@ -11,6 +11,13 @@ from collaborator import *
 from hurco_bridge import *
 from cmm_bridge import *
 from robot_interface import RobotInterface
+from SocketServer import ThreadingMixIn, TCPServer, BaseRequestHandler
+import threading
+import socket
+import uuid
+from datetime import datetime
+import re
+import struct, gc
 from mtconnect_adapter import Adapter
 from long_pull import LongPull
 from data_item import Event, SimpleCondition, Sample, ThreeDSample
@@ -36,11 +43,11 @@ class cell(object):
     def __init__(self):
 
         self.cell_part_quality = None
-
-        #self.initiate_cnc('localhost',7896)
+        self.current_part = None
+        self.initiate_cnc('localhost',7896)
         #self.initiate_robot('localhost',7996)
-        #self.initiate_buffer('localhost',7696)
-        #self.initiate_cmm('localhost',7596)
+        self.initiate_buffer('localhost',7696)
+        self.initiate_cmm('localhost',7596)
         self.initiate_inputConveyor('localhost',7796)
         #self.initiate_outputConveyor('localhost',7496)
 
@@ -52,6 +59,10 @@ class cell(object):
         elif current_part == True:
             return self.current_part
         
+        elif current_part == "reset":
+            self.current_part = "reset"
+            self.reset_all()
+
         elif current_part:
             self.current_part = current_part
             return self.current_part
@@ -60,6 +71,8 @@ class cell(object):
             return self.cell_part_quality
 
     def part_arrival(self):
+        self.inputConveyor.superstate.cycle_count = 0
+        self.inputConveyor.superstate.current_part = None
         self.inputConveyor.superstate.enable()
 
     def initiate_inputConveyor(self,host,port):
@@ -74,7 +87,7 @@ class cell(object):
         self.cnc.create_statemachine()
         self.cnc.superstate.load_time_limit(600)
         self.cnc.superstate.unload_time_limit(600)
-        self.cnc.superstate.enable()
+        #self.cnc.superstate.enable()
 
     def initiate_robot(self,host,port, sim = True):
         self.robot = Robot(host,port,RobotInterface(), sim = sim)
@@ -87,14 +100,14 @@ class cell(object):
         self.buffer.create_statemachine()
         self.buffer.superstate.load_time_limit(200)
         self.buffer.superstate.unload_time_limit(200)
-        self.buffer.superstate.enable()
+        #self.buffer.superstate.enable()
 
     def initiate_cmm(self,host,port, sim = True):
         self.cmm = cmm(host,port,sim = sim, cell_part=self.cell_part)
         self.cmm.create_statemachine()
         self.cmm.superstate.load_time_limit(200)
         self.cmm.superstate.unload_time_limit(200)
-        self.cmm.superstate.enable()
+        #self.cmm.superstate.enable()
         
     def initiate_outputConveyor(self,host,port):
         self.outputConveyor = outputConveyor(host,port)
@@ -102,9 +115,56 @@ class cell(object):
         self.outputConveyor.superstate.load_time_limit(200)
         self.outputConveyor.superstate.unload_time_limit(200)
         self.outputConveyor.superstate.enable()
-        
+
+    def reset_device(self,device = None):
+        if device:
+
+            for k,v in device.superstate.lp.iteritems():
+                device.superstate.lp[k]._response = None
+            device.superstate.master_tasks = {}
+            device.superstate.coordinator = None
+            device.superstate.collaborator = None
+            device.superstate.adapter.removeAllAsset('Task')
+            device.superstate.set_priority()
+            device.superstate.initiate_interfaces()
+            device.superstate.events = []
+            device.superstate.initiate_pull_thread()
+            #device.superstate.adapter.stop()
+            #time.sleep(2)
+
+            print (device.superstate.deviceUuid,"reset")
+
+    def reset_all(self):
+        if self.current_part == "reset":
+            gc.collect()
+            nsx = urllib2.urlopen("http://localhost:5000/current").read()
+            nsr = ET.fromstring(nsx)
+            ns = nsr[0].attrib['nextSequence']
+
+            self.inputConveyor.superstate.nextsequence = ns
+            self.buffer.superstate.nextsequence = ns
+            self.cnc.superstate.nextsequence = ns
+            self.cmm.superstate.nextsequence = ns
+
+            self.reset_device(self.cnc)
+            self.reset_device(self.buffer)
+            self.reset_device(self.cmm)
+            self.reset_device(self.inputConveyor)
+
+
+            self.cnc.superstate.enable()
+            self.cmm.superstate.enable()
+            self.buffer.superstate.enable()
+            time.sleep(5)
+            self.part_arrival()
+
+            self.current_part = None
 
 if __name__ == "__main__":
+    gc.collect()
     machine_cell = cell()
+    machine_cell.cnc.superstate.enable()
+    machine_cell.cmm.superstate.enable()
+    machine_cell.buffer.superstate.enable()
     time.sleep(10)
     machine_cell.part_arrival()

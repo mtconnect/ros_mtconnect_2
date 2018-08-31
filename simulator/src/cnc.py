@@ -42,14 +42,14 @@ class cnc(object):
 
                 self.system = []
                 
-                self.cycle_time = 150
+                self.cycle_time = 180
 
                 self.load_time_limit(20)
                 self.unload_time_limit(20)
 
                 self.load_failed_time_limit(2)
                 self.unload_failed_time_limit(2)
-
+                self.nextsequence = '1'
                 self.events = []
 
                 self.master_tasks ={}
@@ -68,15 +68,21 @@ class cnc(object):
                 
                 self.fail_next = False
 
+                self.lp = {}
+
                 self.wait_for_completion = False
 
                 self.initial_execution_state()
 
-                self.priority = priority(self, self.cnc_binding)
+                self.set_priority()
 
                 self.initiate_cnc_client()
                 
                 self.initiate_pull_thread()
+
+            def set_priority(self):
+                self.priority = None
+                self.priority = priority(self, self.cnc_binding)
 
             def initial_execution_state(self):
                 self.execution = {}
@@ -171,23 +177,24 @@ class cnc(object):
 
             def initiate_pull_thread(self):
 
-                thread= Thread(target = self.start_pull,args=("http://localhost:5000","/conv/sample?interval=100&count=1000",from_long_pull))
-                thread.start()
+                self.thread= Thread(target = self.start_pull,args=("http://localhost:5000","/conv/sample?interval=10&count=1000",from_long_pull))
+                self.thread.start()
 
-                thread2= Thread(target = self.start_pull,args=("http://localhost:5000","/robot/sample?interval=100&count=1000",from_long_pull))
-                thread2.start()
+                self.thread2= Thread(target = self.start_pull,args=("http://localhost:5000","/robot/sample?interval=10&count=1000",from_long_pull))
+                self.thread2.start()
 
-                thread3= Thread(target = self.start_pull,args=("http://localhost:5000","/buffer/sample?interval=100&count=1000",from_long_pull))
-                thread3.start()
+                self.thread3= Thread(target = self.start_pull,args=("http://localhost:5000","/buffer/sample?interval=10&count=1000",from_long_pull))
+                self.thread3.start()
 
-                thread4= Thread(target = self.start_pull,args=("http://localhost:5000","/cmm/sample?interval=100&count=1000",from_long_pull))
-                thread4.start()
+                self.thread4= Thread(target = self.start_pull,args=("http://localhost:5000","/cmm/sample?interval=10&count=1000",from_long_pull))
+                self.thread4.start()
 
             def start_pull(self,addr,request, func, stream = True):
 
-                response = requests.get(addr+request, stream=stream)
-                lp = LongPull(response, addr, self)
-                lp.long_pull(func)
+                response = requests.get(addr+request+"&from="+self.nextsequence, stream=stream)
+                self.lp[request.split('/')[1]] = None
+                self.lp[request.split('/')[1]] = LongPull(response, addr, self)
+                self.lp[request.split('/')[1]].long_pull(func)
 
             def start_pull_asset(self, addr, request, assetId, stream_root):
                 response = urllib2.urlopen(addr+request).read()

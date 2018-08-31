@@ -73,14 +73,14 @@ class collaborator(object):
                                     self.subTask[x[1]].superstate.create()
                                     self.currentSubTask = copy.deepcopy(x[1])
 
-                                    while self.currentSubTask and self.subTask[self.currentSubTask].superstate.state != 'removed':
+                                    while self.currentSubTask and self.currentSubTask in self.subTask and hasattr(self.subTask[self.currentSubTask].superstate,'state') and self.subTask[self.currentSubTask].superstate.state != 'removed':
                                         pass
                                     self.parent.master_tasks[code]['collaborators'][key]['SubTask'][self.task_name][i][2] = 'COMPLETE'
 
                                     self.currentSubTask = copy.deepcopy(value['coordinator'][text]['SubTask'][self.collaborator_name][0])
                                 
  
-                    while self.currentSubTask and self.subTask[self.currentSubTask].superstate.state != 'removed':
+                    while self.currentSubTask and self.currentSubTask in self.subTask and hasattr(self.subTask[self.currentSubTask].superstate, 'state') and self.subTask[self.currentSubTask].superstate.state != 'removed':
                         pass
                     self.parent.master_tasks[code]['coordinator'][text]['SubTask'][self.collaborator_name][1] = 'COMPLETE'
 

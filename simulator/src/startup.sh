@@ -19,7 +19,8 @@ xterm -e roslaunch ceccrebot_demo mtconnect.launch &
 sleep 3
 #Starting the cell.py
 
-xterm -e pipenv run python cnc.py &
-xterm -e pipenv run python cmm.py &
-xterm -e pipenv run python buffer.py &
-xterm -e pipenv run python cell.py &
+#xterm -e pipenv run python cnc.py &
+#xterm -e pipenv run python cmm.py &
+#xterm -e pipenv run python buffer.py &
+#xterm -e pipenv run python cell.py &
+xterm -e pipenv run idle -r cell.py &
