@@ -8,6 +8,7 @@ from coordinator import *
 from collaborator import *
 from mtconnect_adapter import Adapter
 from long_pull import LongPull
+from priority import priority
 from data_item import Event, SimpleCondition, Sample, ThreeDSample
 from archetypeToInstance import archetypeToInstance
 from from_long_pull import from_long_pull, from_long_pull_asset
@@ -41,14 +42,14 @@ class cnc(object):
 
                 self.system = []
                 
-                self.cycle_time = 10.0
+                self.cycle_time = 180
 
                 self.load_time_limit(20)
                 self.unload_time_limit(20)
 
                 self.load_failed_time_limit(2)
                 self.unload_failed_time_limit(2)
-
+                self.nextsequence = '1'
                 self.events = []
 
                 self.master_tasks ={}
@@ -67,15 +68,33 @@ class cnc(object):
                 
                 self.fail_next = False
 
+                self.lp = {}
+
                 self.wait_for_completion = False
+
+                self.initial_execution_state()
+
+                self.set_priority()
 
                 self.initiate_cnc_client()
                 
                 self.initiate_pull_thread()
 
+            def set_priority(self):
+                self.priority = None
+                self.priority = priority(self, self.cnc_binding)
+
+            def initial_execution_state(self):
+                self.execution = {}
+                self.execution['cnc1'] = None
+                self.execution['cmm1'] = None
+                self.execution['b1'] = None
+                self.execution['conv1'] = None
+                self.execution['r1'] = None
+
             def initiate_cnc_client(self):
                 if not self.sim:
-		    configFile = open('configFiles/clients.cfg','r')
+                    configFile = open('configFiles/clients.cfg','r')
                     device = json.loads(configFile.read())['devices'][self.deviceUuid]
                     self.cnc_client = hurcoClient(str(device['host']),int(device['port']))
 
@@ -109,6 +128,9 @@ class cnc(object):
 
                 self.binding_state_material = Event('binding_state_material')
                 self.adapter.add_data_item(self.binding_state_material)
+
+                self.cnc_binding = Event('cnc_binding')
+                self.adapter.add_data_item(self.cnc_binding)
 
                 self.open_chuck = Event('open_chuck')
                 self.adapter.add_data_item(self.open_chuck)
@@ -155,23 +177,24 @@ class cnc(object):
 
             def initiate_pull_thread(self):
 
-                thread= Thread(target = self.start_pull,args=("http://localhost:5000","/conv/sample?interval=100&count=1000",from_long_pull))
-                thread.start()
+                self.thread= Thread(target = self.start_pull,args=("http://localhost:5000","/conv/sample?interval=10&count=1000",from_long_pull))
+                self.thread.start()
 
-                thread2= Thread(target = self.start_pull,args=("http://localhost:5000","/robot/sample?interval=100&count=1000",from_long_pull))
-                thread2.start()
+                self.thread2= Thread(target = self.start_pull,args=("http://localhost:5000","/robot/sample?interval=10&count=1000",from_long_pull))
+                self.thread2.start()
 
-                thread3= Thread(target = self.start_pull,args=("http://localhost:5000","/buffer/sample?interval=100&count=1000",from_long_pull))
-                thread3.start()
+                self.thread3= Thread(target = self.start_pull,args=("http://localhost:5000","/buffer/sample?interval=10&count=1000",from_long_pull))
+                self.thread3.start()
 
-                thread4= Thread(target = self.start_pull,args=("http://localhost:5000","/cmm/sample?interval=100&count=1000",from_long_pull))
-                thread4.start()
+                self.thread4= Thread(target = self.start_pull,args=("http://localhost:5000","/cmm/sample?interval=10&count=1000",from_long_pull))
+                self.thread4.start()
 
             def start_pull(self,addr,request, func, stream = True):
 
-                response = requests.get(addr+request, stream=stream)
-                lp = LongPull(response, addr, self)
-                lp.long_pull(func)
+                response = requests.get(addr+request+"&from="+self.nextsequence, stream=stream)
+                self.lp[request.split('/')[1]] = None
+                self.lp[request.split('/')[1]] = LongPull(response, addr, self)
+                self.lp[request.split('/')[1]].long_pull(func)
 
             def start_pull_asset(self, addr, request, assetId, stream_root):
                 response = urllib2.urlopen(addr+request).read()
@@ -212,12 +235,20 @@ class cnc(object):
                     self.iscoordinator = True
                     self.iscollaborator = False
 
+                    if self.master_uuid in self.master_tasks:
+                        del self.master_tasks[self.master_uuid]
+
                     self.master_uuid = self.deviceUuid+'_'+str(uuid.uuid4())
+                    
                     master_task_uuid = copy.deepcopy(self.master_uuid)
+
+                    
+                    self.adapter.begin_gather()
+                    self.cnc_binding.set_value(master_task_uuid)
+                    self.adapter.complete_gather()
+
                     self.coordinator_task = "MoveMaterial_2"
                     
-                    self.master_tasks = {}
-
                     self.coordinator = coordinator(parent = self, master_task_uuid = master_task_uuid, interface = self.binding_state_material , coordinator_name = self.deviceUuid)
                     self.coordinator.create_statemachine()
                     
@@ -232,11 +263,13 @@ class cnc(object):
                     
                     self.iscoordinator = False
                     self.iscollaborator = True
-                    self.master_tasks = {}
                     self.collaborator = collaborator(parent = self, interface = self.binding_state_material, collaborator_name = 'cnc1')
                     self.collaborator.create_statemachine()
                     self.collaborator.superstate.task_name = "LoadCnc"
                     self.collaborator.superstate.unavailable()
+
+                    self.priority.collab_check()
+                    
 
                 else:
                     self.start()
@@ -273,16 +306,21 @@ class cnc(object):
                         self.e1.set_value("READY")
                         self.adapter.complete_gather()
 
-                        master_task_uuid = copy.deepcopy(self.master_uuid)
                         self.cnc_execution_ready()
                         self.iscoordinator = True
                         self.iscollaborator = False
+
+                        if self.master_uuid in self.master_tasks:
+                            del self.master_tasks[self.master_uuid]
             
                         self.master_uuid = self.deviceUuid+'_'+str(uuid.uuid4())
                         master_task_uuid = copy.deepcopy(self.master_uuid)
                         self.coordinator_task = "MoveMaterial_2"
+
+                        self.adapter.begin_gather()
+                        self.cnc_binding.set_value(master_task_uuid)
+                        self.adapter.complete_gather()
                         
-                        self.master_tasks = {}
                         self.coordinator = coordinator(parent = self, master_task_uuid = master_task_uuid, interface = self.binding_state_material , coordinator_name = self.deviceUuid)
                         self.coordinator.create_statemachine()
                         
@@ -306,7 +344,7 @@ class cnc(object):
                 if not self.has_material:
                     self.material_unload_interface.superstate.DEACTIVATE()
                     self.material_load_interface.superstate.idle()
-                    
+
 
             def UNLOADING(self):
                 if self.has_material:
@@ -347,11 +385,11 @@ class cnc(object):
                     if self.has_material == False:
                         self.iscoordinator = False
                         self.iscollaborator = True
-                        self.master_tasks = {}
                         self.collaborator = collaborator(parent = self, interface = self.binding_state_material, collaborator_name = 'cnc1')
                         self.collaborator.create_statemachine()
                         self.collaborator.superstate.task_name = "LoadCnc"
                         self.collaborator.superstate.unavailable()
+                        self.priority.collab_check()
                         
                 elif "Response" and "chuck" in self.interfaceType:
                     self.adapter.begin_gather()
@@ -378,9 +416,17 @@ class cnc(object):
                     self.unloading()
                     self.iscoordinator = True
                     self.iscollaborator = False
-                    self.master_tasks = {}
+
+                    if self.master_uuid in self.master_tasks:
+                        del self.master_tasks[self.master_uuid]
+                        
                     self.master_uuid = self.deviceUuid+'_'+str(uuid.uuid4())
                     master_task_uuid = copy.deepcopy(self.master_uuid)
+
+                    self.adapter.begin_gather()
+                    self.cnc_binding.set_value(master_task_uuid)
+                    self.adapter.complete_gather()
+                    
                     self.coordinator_task = "MoveMaterial_2"
                     
 
@@ -395,16 +441,23 @@ class cnc(object):
                     self.loading()
                     self.iscoordinator = False
                     self.iscollaborator = True
-                    self.master_tasks = {}
                     self.collaborator = collaborator(parent = self, interface = self.binding_state_material, collaborator_name = 'cnc1')
                     self.collaborator.create_statemachine()
                     self.collaborator.superstate.task_name = "LoadCnc"
                     self.collaborator.superstate.unavailable()
+                    self.priority.collab_check()
               
             def LOADED(self):
                 self.has_material = True
+
+		timer_timeout = Timer(120,self.collaborator.superstate.completed)
+                timer_timeout.start()
+
                 while self.collaborator.superstate.state != 'base:inactive' or self.binding_state_material.value().lower() != 'inactive':
-		    pass
+                    pass
+
+                if self.binding_state_material.value().lower() != 'committed' and timer_timeout.isAlive():
+                    timer_timeout.cancel()
 
             def UNLOADED(self):
                 self.has_material = False
@@ -430,11 +483,15 @@ class cnc(object):
                 if action == "fail":
                     action = "failure"
 
+                if comp == "Coordinator" and value.lower() == 'preparing':
+                    self.priority.event_list([source, comp, name, value, code, text])
+
                 if comp == "Task_Collaborator" and action!='unavailable':
                     self.coordinator.superstate.event(source, comp, name, value, code, text)
 
                 elif comp == "Coordinator" and action!='unavailable':
-                    self.collaborator.superstate.event(source, comp, name, value, code, text)
+                    if value.lower() != 'preparing':
+                        self.collaborator.superstate.event(source, comp, name, value, code, text)
 
                 elif 'SubTask' in name and action!='unavailable':
                     """ #for manually operated door
@@ -549,6 +606,8 @@ class cnc(object):
                             self.adapter.begin_gather()
                             self.e1.set_value(value.upper())
                             self.adapter.complete_gather()
+                        elif text in self.execution:
+                            self.execution[text]  = value.lower()
 
                 elif comp == "Device":
 
@@ -648,7 +707,7 @@ if __name__ == '__main__':
     cnc1.superstate.unload_time_limit(200)
     time.sleep(10)
     cnc1.superstate.enable()
-    """
+    
 
     #Coordinator
     cnc1 = cnc('localhost',7871)
@@ -664,5 +723,13 @@ if __name__ == '__main__':
     
     time.sleep(15)
     cnc1.superstate.enable()
+    """
+    cnc = cnc('localhost',7896)
+    cnc.create_statemachine()
+    cnc.superstate.load_time_limit(600)
+    cnc.superstate.unload_time_limit(600)
+    cnc.superstate.enable()
+
+    
     
     

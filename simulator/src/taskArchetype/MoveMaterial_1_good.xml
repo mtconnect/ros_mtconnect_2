@@ -3,7 +3,7 @@
 	<Header version="1.5" creationTime="2018-02-02T16:16:16" instanceId="1" sender="localhost" assetBufferSize="1024" assetCount="10"/>
 	<Assets>
 		<TaskArchetype assetId="MoveMaterial1good" timestamp="2018-02-02T16:16:16" deviceUuid="ERP">
-			<Priority>1</Priority>
+			<Priority>18</Priority>
 			<TaskType>MOVE_MATERIAL</TaskType>
 			<Coordinator collaboratorId="conv1">
 				<CollaboratorType>CONVEYOR</CollaboratorType>

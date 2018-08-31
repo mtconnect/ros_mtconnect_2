@@ -56,11 +56,18 @@ class LongPull:
                     length = len(boundary)
                     header = True
 
+                if not self._response:
+                    break
+            if not self._response:
+                break
+
 if __name__ == "__main__":
-    response = requests.get("http://localhost:5007/sample?interval=100&count=100", stream=True)
+    response = requests.get("http://localhost:5000/sample?interval=100&count=10&from=1", stream=True)
 
     lp = LongPull(response)
     def callback(chunk, body, addr):
-        print chunk,datetime.datetime.now().isoformat()
+        print body,datetime.datetime.now().isoformat()
 
-    lp.long_pull(callback)
+    thread= Thread(target = lp.long_pull, args = (callback,))
+    thread.start()
+    #lp.long_pull(callback)

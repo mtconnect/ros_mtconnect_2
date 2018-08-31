@@ -1,6 +1,8 @@
 *~
 *.pyc
 *.exe
+*.save
+*.log
 .ruby-version
 .bundle
 .DS_Store

@@ -18,11 +18,11 @@ import socket
 import uuid
 from datetime import datetime
 import re
+import struct
 
 
 class Adapter(ThreadingMixIn, TCPServer):
     allow_reuse_address = True
-
     def __init__(self, address, heartbeat_interval = 10000, family = socket.AF_INET):
         self.address_family = family
         TCPServer.__init__(self, address, BaseRequestHandler, False)
@@ -61,7 +61,12 @@ class Adapter(ThreadingMixIn, TCPServer):
         self._lock.release()
 
         # Turn nageling off
+        l_onoff =1
+        l_linger =0
+        
         request.setsockopt(socket.SOL_TCP, socket.TCP_NODELAY, 1)
+        #request.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+        request.setsockopt(socket.SOL_SOCKET, socket.SO_LINGER, struct.pack('ii',l_onoff,l_linger))
 
         self.send_initial(client_address)
         self.heartbeat(request)
@@ -189,5 +194,10 @@ class Adapter(ThreadingMixIn, TCPServer):
     def removeAsset(self, assetId):
         bound = "--multiline--%s" % str(uuid.uuid4())
         text = "|@REMOVE_ASSET@|%s" % assetId
+        self.send(self.format_time(), text, self._clients.keys())
+
+    def removeAllAsset(self, assetId):
+        bound = "--multiline--%s" % str(uuid.uuid4())
+        text = "|@REMOVE_ALL_ASSETS@|%s" % assetId
         self.send(self.format_time(), text, self._clients.keys())
 
