@@ -221,7 +221,7 @@ class inputConveyor(object):
                 part_order = self.part_order()
                     
                 if part_order == "coordinator":
-                    print (self.current_part)
+                    #print (self.current_part)
                     self.unloading()
                     
                     self.iscoordinator = True
@@ -249,7 +249,7 @@ class inputConveyor(object):
                     self.coordinator.superstate.unavailable()
 
                 elif part_order == "collaborator":
-                    print (self.current_part)
+                    #print (self.current_part)
                     self.loading()
                     
                     self.iscoordinator = False
@@ -284,7 +284,8 @@ class inputConveyor(object):
                 self.internal_buffer[self.current_part] = True
                 if self.current_part == 'rework':
                     self.cycle_count = self.cycle_count + 1
-                    print ("Cycle completed !")
+                    self.cell_part(cycle_count = True)
+                    #print ("Cycle completed !")
 
                 self.material_load_interface.superstate.DEACTIVATE()
 
@@ -307,7 +308,7 @@ class inputConveyor(object):
                     pass
 
                 time.sleep(1)
-                print (self.cell_part(self.current_part))
+                #print (self.cell_part(self.current_part))
 
             def load_time_limit(self, limit):
                 self.material_load_interface.superstate.processing_time_limit = limit

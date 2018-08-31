@@ -44,6 +44,7 @@ class cell(object):
 
         self.cell_part_quality = None
         self.current_part = None
+        self.cycle_count = 0
         self.initiate_cnc('localhost',7896)
         #self.initiate_robot('localhost',7996)
         self.initiate_buffer('localhost',7696)
@@ -51,10 +52,14 @@ class cell(object):
         self.initiate_inputConveyor('localhost',7796)
         #self.initiate_outputConveyor('localhost',7496)
 
-    def cell_part(self, value = None, current_part = None):
+    def cell_part(self, value = None, current_part = None, cycle_count = None):
         if value:
             self.cell_part_quality = value
             return self.cell_part_quality
+
+        elif cycle_count == True:
+            self.cycle_count = self.cycle_count + 1
+            print ("Cycle count: ", self.cycle_count, ".")            
         
         elif current_part == True:
             return self.current_part
@@ -132,7 +137,7 @@ class cell(object):
             #device.superstate.adapter.stop()
             #time.sleep(2)
 
-            print (device.superstate.deviceUuid,"reset")
+            print (device.superstate.deviceUuid," reset.")
 
     def reset_all(self):
         if self.current_part == "reset":

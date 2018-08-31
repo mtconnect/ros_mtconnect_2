@@ -271,7 +271,7 @@ class Robot:
             uuid = copy.deepcopy(self.master_uuid)
             
             if coordinator == 'cmm1' and self.master_tasks[uuid]['part_quality'] == 'rework': #try later
-                print ("Resetting Robot")
+                #print ("Resetting Robot")
                 
                 self.events = []
                 self.low_level_event_list = []
@@ -298,7 +298,7 @@ class Robot:
 
                 self.initiate_pull_thread()
 
-                print ("robot reset")
+                #print ("robot reset")
 
         def CHECK_COMPLETION(self):
             #temporary fix till task/subtask sequencing is determined
