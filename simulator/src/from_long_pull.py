@@ -84,7 +84,7 @@ def from_long_pull(self, chunk, addr = None):
                                         #print "Collaborator event"
                                         if event.text == 'INACTIVE' and 'ToolChange' in str(self.master_tasks[self.master_uuid]) and collabUuid == 'r1':
                                             self.event(source.lower(), component, 'SubTask_binding_state', event.text, self.master_uuid, collabUuid)
-                                            print ("automated task completion at tool change")
+                                            #print ("automated task completion at tool change")
                                                                                     
                                             
                                         elif self.master_tasks[self.master_uuid]['coordinator'][self.master_tasks[self.master_uuid]['coordinator'].keys()[0]]['SubTask'][self.deviceUuid] and collabUuid in self.master_tasks[self.master_uuid]['coordinator'][self.master_tasks[self.master_uuid]['coordinator'].keys()[0]]['SubTask'][self.deviceUuid][2]:
@@ -177,8 +177,7 @@ def from_long_pull(self, chunk, addr = None):
                             thread1.start()
                     """
                 except Exception as e:
-                    print ("Invalid Event", self.deviceUuid)
-                    print (e)
+                    print ("Invalid Event in ", self.deviceUuid, " from ",e)
     #print '\nFROM PULL END'+root[0].attrib['creationTime']+datetime.datetime.now().isoformat()
 def from_long_pull_asset(self,chunk, stream_root = None):
     
