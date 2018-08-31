@@ -1,20 +1,21 @@
-#Starting the single_robot_demo
 #! /bin/sh
-source ~/catkin_workspace/devel/setup.sh
-xterm -e roslaunch ceccrebot_demo_support single_robot_demo.launch &
+#Starting the single_robot_demo
+xterm -e roslaunch ceccrebot_demo_support single_robot_demo.launch sim_robot:=false &
 
 sleep 5
 xterm -e roslaunch ceccrebot_demo robot.launch &
 
 
-#Starting the agent
-xterm -e agent run /etc/mtconnect/agent/agent.cfg &
+#Start Gripper
+#xterm -e roslaunch ceccrebot_demo_support robotiq_gripper.launch &
 
+sleep 2
+#Starting the agent
+xterm -e /home/etc_demo/cppagent/build/agent/agent run /home/etc_demo/catkin_ws/src/ceccrebot/simulator/src/deviceFiles/agent.cfg &
 
 sleep 10
 #Starting the mtconnect robot statemachine
-
-xterm -e roslaunch ceccrebot_demo mtconnect.launch &
+xterm -e pipenv shell roslaunch ceccrebot_demo mtconnect.launch &
 
 sleep 3
 #Starting the cell.py

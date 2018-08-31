@@ -284,7 +284,7 @@ class inputConveyor(object):
                 self.internal_buffer[self.current_part] = True
                 if self.current_part == 'rework':
                     self.cycle_count = self.cycle_count + 1
-                    print ("Number of cycles completed: "+ str(self.cycle_count)+ " !")
+                    print ("Cycle completed !")
 
                 self.material_load_interface.superstate.DEACTIVATE()
 
