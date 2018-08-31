@@ -63,6 +63,49 @@
 				<DataItem type="SYSTEM" category="CONDITION" id="rsy" name="system"/>
 			</DataItems>
 			<Components>
+                                <Axes name='axes' id='axes_4'>
+                                  <Components>
+                                    <Rotary name='J1' id='J1_5'>
+                                      <DataItems>
+                                        <DataItem type='ANGLE' category='SAMPLE' id='J1_6' name='j1_angle' units='RADIANS' nativeUnits='RADIANS'/>
+                                      </DataItems>
+                                    </Rotary>
+                                    <Rotary name='J2' id='J2_8'>
+                                      <DataItems>
+                                        <DataItem type='ANGLE' category='SAMPLE' id='J2_9' name='j2_angle' units='RADIANS' nativeUnits='RADIANS'/>
+                                      </DataItems>
+                                    </Rotary>
+                                    <Rotary name='J3' id='J3_11'>
+                                      <DataItems>
+                                        <DataItem type='ANGLE' category='SAMPLE' id='J3_12' name='j3_angle' units='RADIANS' nativeUnits='RADIANS'/>
+                                      </DataItems>
+                                    </Rotary>
+                                    <Rotary name='J4' id='J4_14'>
+                                      <DataItems>
+                                        <DataItem type='ANGLE' category='SAMPLE' id='J4_15' name='j4_angle' units='RADIANS' nativeUnits='RADIANS'/>
+                                      </DataItems>
+                                    </Rotary>
+                                    <Rotary name='J5' id='J5_17'>
+                                      <DataItems>
+                                        <DataItem type='ANGLE' category='SAMPLE' id='J5_18' name='j5_angle' units='RADIANS' nativeUnits='RADIANS'/>
+                                      </DataItems>
+                                    </Rotary>
+                                    <Rotary name='J6' id='J6_20'>
+                                      <DataItems>
+                                        <DataItem type='ANGLE' category='SAMPLE' id='J6_21' name='j6_angle' units='RADIANS' nativeUnits='RADIANS'/>
+                                      </DataItems>
+                                    </Rotary>
+                                  </Components>
+                                </Axes>
+                                <Accessories name='accessories' id='accessories_27'>
+                                   <Components>
+                                       <EndEffector name='gripper' id='gripper_28'>
+                                           <DataItems>
+                                              <DataItem type='GRIPPER_STATE' category='EVENT' id='gripper_29' name='gripper_state'/>
+                                           </DataItems>
+                                       </EndEffector>
+                                   </Components>
+                                </Accessories>
 				<Controller name="Controller" id="cont2">
 					<DataItems>
 						<DataItem type="CONTROLLER_MODE" category="EVENT" id="rmode" name="mode"/>
@@ -217,6 +260,7 @@
 				</Interfaces>
 			</Components>
 		</Device>
+
 	</Devices>
 </MTConnectDevices>
 
