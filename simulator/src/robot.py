@@ -29,6 +29,7 @@ import copy
 import requests
 import urllib2
 import xml.etree.ElementTree as ET
+from pympler.asizeof import asizeof
 
 RobotEvent = collections.namedtuple('RobotEvent', ['source', 'component', 'name', 'value', 'code', 'text'])
 
@@ -156,16 +157,16 @@ class Robot:
 
         def initiate_pull_thread(self):
 
-            self.thread= Thread(target = self.start_pull,args=("http://localhost:5000","/cnc/sample?interval=10&count=1000",from_long_pull))
+            self.thread= Thread(target = self.start_pull,args=("http://localhost:5000","""/cnc/sample?path=//DataItem[@category="EVENT"]&interval=10&count=1000""",from_long_pull))
             self.thread.start()
 
-            self.thread2= Thread(target = self.start_pull,args=("http://localhost:5000","/conv/sample?interval=10&count=1000",from_long_pull))
+            self.thread2= Thread(target = self.start_pull,args=("http://localhost:5000","""/conv/sample?path=//DataItem[@category="EVENT"]&interval=10&count=1000""",from_long_pull))
             self.thread2.start()
 
-            self.thread3= Thread(target = self.start_pull,args=("http://localhost:5000","/buffer/sample?interval=10&count=1000",from_long_pull))
+            self.thread3= Thread(target = self.start_pull,args=("http://localhost:5000","""/buffer/sample?path=//DataItem[@category="EVENT"]&interval=10&count=1000""",from_long_pull))
             self.thread3.start()
 
-            self.thread4= Thread(target = self.start_pull,args=("http://localhost:5000","/cmm/sample?interval=10&count=1000",from_long_pull))
+            self.thread4= Thread(target = self.start_pull,args=("http://localhost:5000","""/cmm/sample?path=//DataItem[@category="EVENT"]&interval=10&count=1000""",from_long_pull))
             self.thread4.start()
 
         def interface_type(self, value = None, subtype = None):
@@ -259,7 +260,6 @@ class Robot:
                 if 'MaterialLoad' in v:
                     self.priority.binding_state(k,has_material = True)
                     break
-            gc.collect()
 
             if coordinator == 'cmm1' and self.master_tasks[self.master_uuid]['part_quality'] == 'rework':
                 self.reset_required = True
@@ -271,7 +271,7 @@ class Robot:
             uuid = copy.deepcopy(self.master_uuid)
             
             if coordinator == 'cmm1' and self.master_tasks[uuid]['part_quality'] == 'rework': #try later
-                #print ("Resetting Robot")
+                print ("Resetting Robot")
                 
                 self.events = []
                 self.low_level_event_list = []
@@ -294,11 +294,16 @@ class Robot:
 
                 self.set_priority()
 
+                try: self.FAULT()
+                except Exception as e: print ("Error resetting interfaces",e)
+
                 self.adapter.removeAllAsset('Task')
 
                 self.initiate_pull_thread()
 
-                #print ("robot reset")
+                print (asizeof(self))
+
+                print ("robot reset")
 
         def CHECK_COMPLETION(self):
             #temporary fix till task/subtask sequencing is determined
