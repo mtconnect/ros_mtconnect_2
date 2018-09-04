@@ -139,13 +139,13 @@ class inputConveyor(object):
 
             def initiate_pull_thread(self):
 
-                self.thread= Thread(target = self.start_pull,args=("http://localhost:5000","/cnc/sample?interval=10&count=1000",from_long_pull))
+                self.thread= Thread(target = self.start_pull,args=("http://localhost:5000","""/cnc/sample?path=//DataItem[@category="EVENT"]&interval=10&count=1000""",from_long_pull))
                 self.thread.start()
 
-                self.thread2= Thread(target = self.start_pull,args=("http://localhost:5000","/robot/sample?interval=10&count=1000",from_long_pull))
+                self.thread2= Thread(target = self.start_pull,args=("http://localhost:5000","""/robot/sample?path=//DataItem[@category="EVENT"]&interval=10&count=1000""",from_long_pull))
                 self.thread2.start()
 
-                self.thread3= Thread(target = self.start_pull,args=("http://localhost:5000","/cmm/sample?interval=10&count=1000",from_long_pull))
+                self.thread3= Thread(target = self.start_pull,args=("http://localhost:5000","""/cmm/sample?path=//DataItem[@category="EVENT"]&interval=10&count=1000""",from_long_pull))
                 self.thread3.start()
                 
             def start_pull(self,addr,request, func, stream = True):

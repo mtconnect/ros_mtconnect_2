@@ -141,7 +141,6 @@ class cell(object):
 
     def reset_all(self):
         if self.current_part == "reset":
-            gc.collect()
             nsx = urllib2.urlopen("http://localhost:5000/current").read()
             nsr = ET.fromstring(nsx)
             ns = nsr[0].attrib['nextSequence']
@@ -160,13 +159,12 @@ class cell(object):
             self.cnc.superstate.enable()
             self.cmm.superstate.enable()
             self.buffer.superstate.enable()
-            time.sleep(5)
+            time.sleep(7)
             self.part_arrival()
 
             self.current_part = None
 
 if __name__ == "__main__":
-    gc.collect()
     machine_cell = cell()
     machine_cell.cnc.superstate.enable()
     machine_cell.cmm.superstate.enable()
