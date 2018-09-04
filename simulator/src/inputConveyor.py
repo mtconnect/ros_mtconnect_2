@@ -290,7 +290,7 @@ class inputConveyor(object):
                 self.material_load_interface.superstate.DEACTIVATE()
 
 
-		timer_timeout = Timer(40,self.collaborator.superstate.completed)
+		timer_timeout = Timer(200,self.collaborator.superstate.completed)
                 timer_timeout.start()
 
                 while self.collaborator.superstate.state != 'base:inactive' or self.binding_state_material.value().lower() != 'inactive':
