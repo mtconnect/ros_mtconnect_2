@@ -83,8 +83,8 @@ class cell(object):
     def initiate_inputConveyor(self,host,port):
         self.inputConveyor = inputConveyor(host,port,cell_part=self.cell_part)
         self.inputConveyor.create_statemachine()
-        self.inputConveyor.superstate.load_time_limit(200)
-        self.inputConveyor.superstate.unload_time_limit(200)
+        self.inputConveyor.superstate.load_time_limit(600)
+        self.inputConveyor.superstate.unload_time_limit(600)
         #self.inputConveyor.superstate.enable()
 
     def initiate_cnc(self,host,port,sim = True):
@@ -96,22 +96,22 @@ class cell(object):
 
     def initiate_robot(self,host,port, sim = True):
         self.robot = Robot(host,port,RobotInterface(), sim = sim)
-        self.robot.superstate.material_load_interface.superstate.simulated_duration = 40
-        self.robot.superstate.material_unload_interface.superstate.simulated_duration = 40
+        self.robot.superstate.material_load_interface.superstate.simulated_duration = 600
+        self.robot.superstate.material_unload_interface.superstate.simulated_duration = 600
         self.robot.superstate.enable()
 
     def initiate_buffer(self,host,port):
         self.buffer = Buffer(host,port)
         self.buffer.create_statemachine()
-        self.buffer.superstate.load_time_limit(200)
-        self.buffer.superstate.unload_time_limit(200)
+        self.buffer.superstate.load_time_limit(600)
+        self.buffer.superstate.unload_time_limit(600)
         #self.buffer.superstate.enable()
 
     def initiate_cmm(self,host,port, sim = True):
         self.cmm = cmm(host,port,sim = sim, cell_part=self.cell_part)
         self.cmm.create_statemachine()
-        self.cmm.superstate.load_time_limit(200)
-        self.cmm.superstate.unload_time_limit(200)
+        self.cmm.superstate.load_time_limit(600)
+        self.cmm.superstate.unload_time_limit(600)
         #self.cmm.superstate.enable()
         
     def initiate_outputConveyor(self,host,port):
