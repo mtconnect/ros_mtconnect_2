@@ -208,6 +208,9 @@ class Robot:
             self.make_idle()
 
         def IDLE(self):
+            self.adapter.begin_gather()
+            self.e1.set_value("READY")
+            self.adapter.complete_gather()
 
             if self.reset_required:
                 time.sleep(2)
@@ -252,6 +255,10 @@ class Robot:
         def UNLOADING(self):
             self.material_load_interface.superstate.not_ready()
             self.material_unload_interface.superstate.ready()
+            self.adapter.begin_gather()
+            self.e1.set_value("ACTIVE")
+            self.adapter.complete_gather()
+
 
         def LOADING_COMPLETE(self):
             #self.CHECK_COMPLETION()

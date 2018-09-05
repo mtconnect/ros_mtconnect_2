@@ -52,7 +52,7 @@ class priority(object):
 
 
     def priority_event(self):
-        if self.parent.binding_state_material.value().lower() != 'inactive' or self.parent.iscoordinator or self.parent.e1.value().lower()=='active':
+        if self.parent.binding_state_material.value().lower() != 'inactive' or self.parent.iscoordinator or (self.parent.e1.value().lower()=='active' and self.parent.deviceUuid != 'r1'):
             self.priority_task = "task_queued"
         else:
             self.priority_task = None
@@ -61,7 +61,7 @@ class priority(object):
                 devices_avail = False
 
 		for z in x[2]:
-		    if z!= self.parent.deviceUuid and self.parent.execution[z] != 'active':
+		    if z!= self.parent.deviceUuid and (self.parent.execution[z] != 'active' or z == 'r1'):
 			devices_avail = True
 		    elif z!= self.parent.deviceUuid:
 			devices_avail = False
@@ -72,7 +72,7 @@ class priority(object):
 		    time.sleep(0.1)
 
                 for y in x[2]:
-                    if (not self.binding_states[y][0] or self.binding_states[y][0].lower() not in ['committing','committed']) and self.parent.execution[y] != 'active':
+                    if (not self.binding_states[y][0] or self.binding_states[y][0].lower() not in ['committing','committed']) and (self.parent.execution[y] != 'active' or y == 'r1'):
                         if self.binding_states[y][2] and y != x[2][0] and y!='conv1':
                             devices_avail = False
                             break
