@@ -90,8 +90,8 @@ class cell(object):
     def initiate_cnc(self,host,port,sim = True):
         self.cnc = cnc(host,port,sim)
         self.cnc.create_statemachine()
-        self.cnc.superstate.load_time_limit(600)
-        self.cnc.superstate.unload_time_limit(600)
+        self.cnc.superstate.load_time_limit(900)
+        self.cnc.superstate.unload_time_limit(900)
         #self.cnc.superstate.enable()
 
     def initiate_robot(self,host,port, sim = True):
@@ -110,8 +110,8 @@ class cell(object):
     def initiate_cmm(self,host,port, sim = True):
         self.cmm = cmm(host,port,sim = sim, cell_part=self.cell_part)
         self.cmm.create_statemachine()
-        self.cmm.superstate.load_time_limit(600)
-        self.cmm.superstate.unload_time_limit(600)
+        self.cmm.superstate.load_time_limit(900)
+        self.cmm.superstate.unload_time_limit(900)
         #self.cmm.superstate.enable()
         
     def initiate_outputConveyor(self,host,port):
