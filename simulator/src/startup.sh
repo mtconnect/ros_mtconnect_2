@@ -13,10 +13,15 @@ sleep 2
 #Starting the agent
 xterm -e /home/etc_demo/cppagent/build/agent/agent run /home/etc_demo/catkin_ws/src/ceccrebot/simulator/src/deviceFiles/agent.cfg &
 
-sleep 7
+sleep 10
 #Starting the mtconnect robot statemachine
 xterm -e pipenv shell roslaunch ceccrebot_demo mtconnect.launch &
 
 sleep 3
 #Starting the cell.py
-xterm -e pipenv run python cell.py 
+
+#xterm -e pipenv run python cnc.py &
+#xterm -e pipenv run python cmm.py &
+#xterm -e pipenv run python buffer.py &
+#xterm -e pipenv run python cell.py &
+xterm -e pipenv run idle -r cell.py &

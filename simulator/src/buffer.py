@@ -8,6 +8,7 @@ from coordinator import *
 
 from mtconnect_adapter import Adapter
 from long_pull import LongPull
+from priority import priority
 from data_item import Event, SimpleCondition, Sample, ThreeDSample
 from archetypeToInstance import archetypeToInstance
 from from_long_pull import from_long_pull, from_long_pull_asset
@@ -38,7 +39,7 @@ class Buffer(object):
 
                 self.load_time_limit(15)
                 self.unload_time_limit(15)
-
+                self.nextsequence='1'
                 self.load_failed_time_limit(2)
                 self.unload_failed_time_limit(2)
 
@@ -49,6 +50,8 @@ class Buffer(object):
                 self.deviceUuid = "b1"
                 
                 self.buffer = []
+
+                self.lp = {}
 
                 self.buffer_size = 100
 
@@ -66,7 +69,23 @@ class Buffer(object):
 
                 self.timer_check = str()
 
+                self.initial_execution_state()
+
+                self.set_priority()
+
                 self.initiate_pull_thread()
+
+            def set_priority(self):
+                self.priority = None
+                self.priority = priority(self, self.buffer_binding)
+
+            def initial_execution_state(self):
+                self.execution = {}
+                self.execution['cnc1'] = None
+                self.execution['cmm1'] = None
+                self.execution['b1'] = None
+                self.execution['conv1'] = None
+                self.execution['r1'] = None
 
             def initiate_interfaces(self):
                 self.material_load_interface = MaterialLoad(self)
@@ -87,6 +106,9 @@ class Buffer(object):
 
                 self.binding_state_material = Event('binding_state_material')
                 self.adapter.add_data_item(self.binding_state_material)
+
+                self.buffer_binding = Event('buffer_binding')
+                self.adapter.add_data_item(self.buffer_binding)
 
                 self.material_load = Event('material_load')
                 self.adapter.add_data_item(self.material_load)
@@ -109,20 +131,21 @@ class Buffer(object):
 
             def initiate_pull_thread(self):
 
-                thread= Thread(target = self.start_pull,args=("http://localhost:5000","/cnc/sample?interval=100&count=1000",from_long_pull))
-                thread.start()
+                self.thread= Thread(target = self.start_pull,args=("http://localhost:5000","""/cnc/sample?path=//DataItem[@category="EVENT"]&interval=10&count=1000""",from_long_pull))
+                self.thread.start()
 
-                thread2= Thread(target = self.start_pull,args=("http://localhost:5000","/robot/sample?interval=100&count=1000",from_long_pull))
-                thread2.start()
+                self.thread2= Thread(target = self.start_pull,args=("http://localhost:5000","""/robot/sample?path=//DataItem[@category="EVENT"]&interval=10&count=1000""",from_long_pull))
+                self.thread2.start()
 
-                thread3= Thread(target = self.start_pull,args=("http://localhost:5000","/cmm/sample?interval=100&count=1000",from_long_pull))
-                thread3.start()
+                self.thread3= Thread(target = self.start_pull,args=("http://localhost:5000","""/cmm/sample?path=//DataItem[@category="EVENT"]&interval=10&count=1000""",from_long_pull))
+                self.thread3.start()
 
             def start_pull(self,addr,request, func, stream = True):
 
-                response = requests.get(addr+request, stream=stream)
-                lp = LongPull(response, addr, self)
-                lp.long_pull(func)
+                response = requests.get(addr+request+"&from="+self.nextsequence, stream=stream)
+                self.lp[request.split('/')[1]] = None
+                self.lp[request.split('/')[1]] = LongPull(response, addr, self)
+                self.lp[request.split('/')[1]].long_pull(func)
 
             def start_pull_asset(self, addr, request, assetId, stream_root):
                 response = urllib2.urlopen(addr+request).read()
@@ -188,14 +211,21 @@ class Buffer(object):
                         self.collaborator.superstate.task_name = "LoadBuffer"
                         self.collaborator.superstate.unavailable()
                         self.material_load_interface.superstate.IDLE()
+                        self.priority.collab_check()
                    
                     if self.has_material and self.binding_state_material.value() != "COMMITTED":
                         #self.unloading()
+                        if self.master_uuid in self.master_tasks:
+                            del self.master_tasks[self.master_uuid]
+                            
                         self.master_uuid = self.deviceUuid+'_'+str(uuid.uuid4())
                         master_task_uuid = copy.deepcopy(self.master_uuid)
                         self.coordinator_task = "MoveMaterial_3"
 
-                        self.master_tasks = {}
+                        time.sleep(0.2)
+                        self.adapter.begin_gather()
+                        self.buffer_binding.set_value(master_task_uuid)
+                        self.adapter.complete_gather()
                         
                         self.coordinator = coordinator(parent = self, master_task_uuid = master_task_uuid, interface = self.binding_state_material , coordinator_name = self.deviceUuid)
                         self.coordinator.create_statemachine()
@@ -245,9 +275,17 @@ class Buffer(object):
               
             def LOADED(self):
                 self.buffer_append()
-		while self.collaborator.superstate.state != 'base:inactive' or self.binding_state_material.value().lower() != 'inactive':
-		    pass
-		time.sleep(1)
+
+		timer_timeout = Timer(40,self.collaborator.superstate.completed)
+                timer_timeout.start()
+
+                while self.collaborator.superstate.state != 'base:inactive' or self.binding_state_material.value().lower() != 'inactive':
+                    pass
+
+                if self.binding_state_material.value().lower() != 'committed' and timer_timeout.isAlive():
+                    timer_timeout.cancel()
+
+                time.sleep(1)
 
             def wait_for_task_completion(self):
                 def check():
@@ -309,6 +347,9 @@ class Buffer(object):
                 
                 if action == "fail":
                     action = "failure"
+
+                if comp == "Coordinator" and value.lower() == 'preparing':
+                    self.priority.event_list([source, comp, name, value, code, text])
                     
                 
                 if comp == "Task_Collaborator" and self.iscoordinator == True:
@@ -333,7 +374,8 @@ class Buffer(object):
 
                 elif comp == "Coordinator" and self.iscollaborator == True:
                     #if self.iscoordinator: self.iscoordinator = False
-                    self.collaborator.superstate.event(source, comp, name, value, code, text)
+                    if value.lower() != 'preparing':
+                        self.collaborator.superstate.event(source, comp, name, value, code, text)
                     
 
                 elif 'SubTask' in name:
@@ -374,6 +416,9 @@ class Buffer(object):
                             self.adapter.begin_gather()
                             self.e1.set_value(value.upper())
                             self.adapter.complete_gather()
+
+                        elif text in self.execution:
+                            self.execution[text]  = value.lower()
 
                 elif comp == "Device":
 
@@ -455,7 +500,7 @@ class Buffer(object):
 
 
 if __name__ == '__main__':
-    
+    """
     #collaborator
     b1 = Buffer('localhost',7671)
     b1.create_statemachine()
@@ -464,7 +509,7 @@ if __name__ == '__main__':
     b1.superstate.unload_time_limit(200)
     time.sleep(10)
     b1.superstate.enable()
-    """
+    
     #Coordinator
     
     b1 = Buffer('localhost',7670)
@@ -476,4 +521,8 @@ if __name__ == '__main__':
     time.sleep(10)
     b1.superstate.enable()
     """
-        
+    b = Buffer('localhost',7696)
+    b.create_statemachine()
+    b.superstate.load_time_limit(600)
+    b.superstate.unload_time_limit(600)
+    b.superstate.enable()

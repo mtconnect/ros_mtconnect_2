@@ -29,7 +29,7 @@ class task(object):
 
                 self.interface = interface
                 self.parent = parent
-                self.commit_time_limit = 60.0
+                self.commit_time_limit = 120.0
                 self.master_task_uuid = master_task_uuid
                 self.coordinator = coordinator
                 self.subTask = {}
@@ -124,6 +124,8 @@ class task(object):
                 self.parent.adapter.begin_gather()
                 self.interface.set_value("COMMITTED")
                 self.parent.adapter.complete_gather()
+
+		self.parent.priority.commit_check()
 
                 self.taskIns = assetUpdate(self.taskIns, "State", "COMMITTED")
                 self.parent.adapter.addAsset('Task', self.master_task_uuid, self.taskIns)

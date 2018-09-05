@@ -73,19 +73,19 @@ class collaborator(object):
                                     self.subTask[x[1]].superstate.create()
                                     self.currentSubTask = copy.deepcopy(x[1])
 
-                                    while self.currentSubTask and self.subTask[self.currentSubTask].superstate.state != 'removed':
+                                    while self.currentSubTask and self.currentSubTask in self.subTask and hasattr(self.subTask[self.currentSubTask].superstate,'state') and self.subTask[self.currentSubTask].superstate.state != 'removed':
                                         pass
                                     self.parent.master_tasks[code]['collaborators'][key]['SubTask'][self.task_name][i][2] = 'COMPLETE'
 
                                     self.currentSubTask = copy.deepcopy(value['coordinator'][text]['SubTask'][self.collaborator_name][0])
                                 
  
-                    while self.currentSubTask and self.subTask[self.currentSubTask].superstate.state != 'removed':
+                    while self.currentSubTask and self.currentSubTask in self.subTask and hasattr(self.subTask[self.currentSubTask].superstate, 'state') and self.subTask[self.currentSubTask].superstate.state != 'removed':
                         pass
                     self.parent.master_tasks[code]['coordinator'][text]['SubTask'][self.collaborator_name][1] = 'COMPLETE'
 
 
-                    if 'ToolChange' in str(self.parent.master_tasks):
+                    if 'ToolChange' in str(self.parent.master_tasks[self.parent.master_uuid]):
                         "Wait for completion"
                     else:
                         self.completed()
@@ -152,7 +152,7 @@ class collaborator(object):
                                 elif 'Load' in self.currentSubTask:
                                     self.subTask[self.currentSubTask].superstate.success()
                                     
-                                    if 'ToolChange' in str(self.parent.master_tasks):
+                                    if 'ToolChange' in str(self.parent.master_tasks[self.parent.master_uuid]):
                                         self.parent.material_load_interface.superstate.complete()
                                     break
                             
@@ -160,10 +160,9 @@ class collaborator(object):
                             self.currentSubTaskState = None
 
                 if collabUuid == True:
-                    self.parent.master_tasks[self.parent.master_uuid]['collaborators'][self.parent.deviceUuid]['state'][2] = 'COMPLETE'
                     self.parent.material_load_interface.superstate.complete()
+                    self.parent.master_tasks[self.parent.master_uuid]['collaborators'][self.parent.deviceUuid]['state'][2] = 'COMPLETE'
                     self.completed()
-                    self.parent.master_tasks = {}
                     self.parent.IDLE()
                     
                 else:

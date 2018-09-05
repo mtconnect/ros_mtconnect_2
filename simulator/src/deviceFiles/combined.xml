@@ -29,7 +29,7 @@
 						<MaterialHandlerInterface name="material" id="ml2">
 							<DataItems>
 								<!-- Interfaces -->
-								<!--<DataItem type="BINDING" category="EVENT" id="cnc_bind" name="cnc_binding"/>-->
+								<DataItem type="BINDING" category="EVENT" id="cnc_bind" name="cnc_binding"/>
 								<DataItem type="BINDING_STATE" category="EVENT" id="bs" name="binding_state_material"/>
 								<DataItem type="MATERIAL_LOAD" subType="REQUEST" category="EVENT" id="rlm" name="material_load"/>
 								<DataItem type="MATERIAL_UNLOAD" subType="REQUEST" category="EVENT" id="rulm" name="material_unload"/>
@@ -117,7 +117,7 @@
 						<MaterialHandlerInterface name="material" id="rml">
 							<DataItems>
 								<!-- Interfaces -->
-								<!--<DataItem type="BINDING" category="EVENT" id="r_bind" name="robot_binding"/>-->
+								<DataItem type="BINDING" category="EVENT" id="r_bind" name="robot_binding"/>
 								<DataItem type="BINDING_STATE" category="EVENT" id="bs2" name="binding_state_material"/>
 								<DataItem type="MATERIAL_LOAD" subType="RESPONSE" category="EVENT" id="rrlm" name="material_load"/>
 								<DataItem type="MATERIAL_UNLOAD" subType="RESPONSE" category="EVENT" id="rrulm" name="material_unload"/>
@@ -163,7 +163,7 @@
 						<MaterialHandlerInterface name="material" id="ml3">
 							<DataItems>
 								<!-- Interfaces -->
-								<!--<DataItem type="BINDING" category="EVENT" id="conv1_bind" name="conv1_binding"/>-->
+								<DataItem type="BINDING" category="EVENT" id="conv1_bind" name="conv1_binding"/>
 								<DataItem type="BINDING_STATE" category="EVENT" id="bs3" name="binding_state_material"/>
 								<DataItem type="MATERIAL_LOAD" subType="REQUEST" category="EVENT" id="rlm2" name="material_load"/>
 								<DataItem type="MATERIAL_UNLOAD" subType="REQUEST" category="EVENT" id="rulm2" name="material_unload"/>
@@ -192,7 +192,7 @@
 						<MaterialHandlerInterface name="material" id="ml4">
 							<DataItems>
 								<!-- Interfaces -->
-								<!--<DataItem type="BINDING" category="EVENT" id="b_bind" name="buffer_binding"/>-->
+								<DataItem type="BINDING" category="EVENT" id="b_bind" name="buffer_binding"/>
 								<DataItem type="BINDING_STATE" category="EVENT" id="bs4" name="binding_state_material"/>
 								<DataItem type="MATERIAL_LOAD" subType="REQUEST" category="EVENT" id="rlm4" name="material_load"/>
 								<DataItem type="MATERIAL_UNLOAD" subType="REQUEST" category="EVENT" id="rulm4" name="material_unload"/>
@@ -221,7 +221,7 @@
 						<MaterialHandlerInterface name="material" id="ml5">
 							<DataItems>
 								<!-- Interfaces -->
-								<!--<DataItem type="BINDING" category="EVENT" id="cmm_bind" name="cmm_binding"/>-->
+								<DataItem type="BINDING" category="EVENT" id="cmm_bind" name="cmm_binding"/>
 								<DataItem type="BINDING_STATE" category="EVENT" id="bs5" name="binding_state_material"/>
 								<DataItem type="MATERIAL_LOAD" subType="REQUEST" category="EVENT" id="rlm5" name="material_load"/>
 								<DataItem type="MATERIAL_UNLOAD" subType="REQUEST" category="EVENT" id="rulm5" name="material_unload"/>
@@ -263,3 +263,4 @@
 
 	</Devices>
 </MTConnectDevices>
+
