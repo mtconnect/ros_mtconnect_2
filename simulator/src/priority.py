@@ -180,14 +180,3 @@ class priority(object):
 
 if __name__ == '__main__':
     a=priority()
-    
-    
-    a.event_list(['cnc','Coordinator', 'binding_state','PREPARING',['cnc1_123',{'priority': '20', 'coordinator': {'cnc1': {'state': ['cnc', 'cnc1', None], 'Task': ['move_material', None], 'SubTask': {'b1': ['LoadBuffer', None, 'r1', 'MaterialLoad', '2'], 'r1': [], 'cnc1': ['UnloadCnc', None, 'r1', 'MaterialUnload', '1']}}}, 'collaborators': {'r1': {'state': ['ROBOT', 'r1', None], 'SubTask': {'UnloadCnc': [['Interface', 'OpenDoor', None, '1', ['cnc1']], ['Interface', 'MoveIn', None, '2', None], ['Interface', 'GrabPart', None, '3', None], ['Interface', 'OpenChuck', None, '4', ['cnc1']], ['Interface', 'MoveOut', None, '5', None], ['Interface', 'CloseDoor', None, '6', ['cnc1']]], 'LoadBuffer': [['Interface', 'MoveIn', None, '1', None], ['Interface', 'ReleasePart', None, '2', None], ['Interface', 'MoveOut', None, '3', None]]}}, 'b1': {'state': ['BUFFER', 'b1', None], 'SubTask': {}}}, 'part_quality': None}],'cnc1'])
-    a.event_list(['cmm','Coordinator', 'binding_state','PREPARING',['cmm1_12de',{'priority': '100', 'coordinator': {'cmm1': {'state': ['cmm', 'cmm1', None], 'Task': ['move_material', None], 'SubTask': {'r1': [], 'cmm1': ['UnloadCmm', None, 'r1', 'MaterialUnload', '1'], 'cnc1': ['LoadCnc', None, 'r1', 'MaterialLoad', '2']}}}, 'collaborators': {'r1': {'state': ['ROBOT', 'r1', None], 'SubTask': {'UnloadCmm': [['Interface', 'MoveIn', None, '1', None], ['Interface', 'GrabPart', None, '2', None], ['Interface', 'MoveOut', None, '3', None]], 'LoadCnc': [['Interface', 'OpenDoor', None, '1', ['cnc1']], ['Interface', 'MoveIn', None, '2', None], ['Interface', 'CloseChuck', None, '3', ['cnc1']], ['Interface', 'ReleasePart', None, '4', None], ['Interface', 'MoveOut', None, '5', None], ['Interface', 'CloseDoor', None, '6', ['cnc1']]]}}, 'cnc1': {'state': ['CNC', 'cnc1', None], 'SubTask': {}}}, 'part_quality': None}],'cmm1'])
-    a.event_list(['buffer','Coordinator','binding_state','PREPARING',['b1_1222',{'priority': '40', 'coordinator': {'b1': {'state': ['buffer', 'b1', None], 'Task': ['move_material', None], 'SubTask': {'b1': ['UnloadBuffer', None, 'r1', 'MaterialUnload', '1'], 'cmm1': ['LoadCmm', None, 'r1', 'MaterialLoad', '2'], 'r1': []}}}, 'collaborators': {'r1': {'state': ['ROBOT', 'r1', None], 'SubTask': {'LoadCmm': [['Interface', 'MoveIn', None, '1', None], ['Interface', 'ReleasePart', None, '2', None], ['Interface', 'MoveOut', None, '3', None]], 'UnloadBuffer': [['Interface', 'MoveIn', None, '1', None], ['Interface', 'GrabPart', None, '2', None], ['Interface', 'MoveOut', None, '3', None]]}}, 'cmm1': {'state': ['CMM', 'cmm1', None], 'SubTask': {}}}, 'part_quality': None}],'b1'])
-
-    print (a.priority_event())
-
-    
-        
-        
