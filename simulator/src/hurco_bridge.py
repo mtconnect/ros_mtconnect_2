@@ -8,14 +8,14 @@ import time
 import urllib3
 
 programStatus = ('Uninitialized', 'Started', 'Completed Successful', 'Completed Error', 'Completed Abort')
-cncEvent = collections.namedtuple('cncEvent', ['openChuck','openDoor','closeChuck','closeDoor','cycle'])
+cncEvent = collections.namedtuple('cncEvent', ['openChuck','openDoor','closeChuck','closeDoor','toolChange','cycle'])
 
 tasks = cncEvent
 tasks.openChuck = 'D:\open_chuck.FNC'
 tasks.closeChuck = 'D:\close_chuck.FNC'
 tasks.openDoor = 'D:\open_door.FNC'
 tasks.closeDoor = 'D:\close_door.FNC'
-#tasks.cycle = 'D:\AMT RH-2.HWM'
+tasks.toolChange = 'D:\AMT RH-2.HWM'
 tasks.cycle = 'D:\FRAME.HWM'
 
 local_vendor = "0025"
