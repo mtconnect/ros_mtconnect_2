@@ -2,6 +2,7 @@ import os, sys
 sys.path.insert(0,os.getcwd()+'\\utils')
 
 from material import *
+from tool import *
 from door import *
 from chuck import *
 from coordinator import *
@@ -101,6 +102,7 @@ class cnc(object):
             def initiate_interfaces(self):
                 self.material_load_interface = MaterialLoad(self)
                 self.material_unload_interface = MaterialUnload(self)
+                self.change_tool_interface = ChangeTool(self)
 
                 if self.sim:
                     self.open_chuck_interface = OpenChuck(self)
@@ -144,6 +146,12 @@ class cnc(object):
                 self.close_door = Event('close_door')
                 self.adapter.add_data_item(self.close_door)
 
+                self.change_tool = Event('change_tool')
+                self.adapter.add_data_item(self.change_tool)
+
+                self.tool_state = Event('tool_state')
+                self.adapter.add_data_item(self.tool_state)
+
                 self.chuck_state = Event('chuck_state')
                 self.adapter.add_data_item(self.chuck_state)
 
@@ -170,6 +178,7 @@ class cnc(object):
                 self.close_chuck.set_value("NOT_READY")
                 self.open_door.set_value("NOT_READY")
                 self.close_door.set_value("NOT_READY")
+                self.change_tool.set_value("NOT_READY")
                 self.material_load.set_value("NOT_READY")
                 self.material_unload.set_value("NOT_READY")
 
@@ -202,6 +211,7 @@ class cnc(object):
                 
 
             def CNC_NOT_READY(self):
+                self.change_tool_interface.superstate.DEACTIVATE()
                 self.open_chuck_interface.superstate.DEACTIVATE()
                 self.close_chuck_interface.superstate.DEACTIVATE()
                 self.open_door_interface.superstate.DEACTIVATE()
@@ -228,6 +238,7 @@ class cnc(object):
                 self.close_chuck_interface.superstate.ACTIVATE()
                 self.open_door_interface.superstate.ACTIVATE()
                 self.close_door_interface.superstate.ACTIVATE()
+                self.change_tool_interface.superstate.ACTIVATE()
                 
                 if self.has_material:
                     self.unloading()
@@ -591,6 +602,18 @@ class cnc(object):
                     except Exception as e:
                         print ("incorrect event")
 			print (e)
+
+		elif name == "ChangeTool" and action!='unavailable':
+                    eval('self.change_tool_interface.superstate.'+action+'()')
+                        
+                    if not self.sim and action == 'active': #where should this be : reconsider later
+                        toolChange_completion = self.cnc_client.load_run_pgm(tasks.toolChange)
+                        if toolChange_completion == True:
+                            time.sleep(3)
+                            eval('self.change_tool_interface.superstate.complete()')
+                        elif toolChange_completion == False:
+                            time.sleep(3)
+                            eval('self.change_tool_interface.superstate.DEFAULT()')
 
                 elif comp == "Controller":
                     
