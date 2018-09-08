@@ -47,6 +47,11 @@
 								<DataItem category="EVENT" type="CLOSE_DOOR" id="ccd" subType="RESPONSE" name="close_door"/>
 							</DataItems>
 						</DoorInterface>
+						<ToolInterface name="change_tool_interface" id="cit">
+							<DataItems>
+								<DataItem category="EVENT" type="CHANGE_TOOL" id="cot" subType="RESPONSE" name="change_tool"/>
+							</DataItems>
+						</ToolInterface>
 					</Components>
 				</Interfaces>
 				<Door name="door" id="dr">
@@ -141,6 +146,11 @@
 								<DataItem type="CLOSE_DOOR" subType="REQUEST" category="EVENT" id="rcd" name="close_door"/>
 							</DataItems>
 						</DoorInterface>
+						<ToolInterface name="change_tool_interface" id="rit">
+							<DataItems>
+								<DataItem category="EVENT" type="CHANGE_TOOL" id="rot" subType="REQUEST" name="change_tool"/>
+							</DataItems>
+						</ToolInterface>
 					</Components>
 				</Interfaces>
 			</Components>
