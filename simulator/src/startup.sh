@@ -23,5 +23,5 @@ sleep 3
 #xterm -e pipenv run python cnc.py &
 #xterm -e pipenv run python cmm.py &
 #xterm -e pipenv run python buffer.py &
-#xterm -e pipenv run python cell.py &
+xterm -e pipenv run python cell.py &
 #xterm -e pipenv run idle -r cell.py &

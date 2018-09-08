@@ -335,7 +335,7 @@ class cnc(object):
                     else:
                         cycle_completion = self.cnc_client.load_run_pgm(tasks.cycle)
                         if cycle_completion == True:
-                            time.sleep(2)
+                            time.sleep(1)
                             func()
                         
 
@@ -555,10 +555,10 @@ class cnc(object):
                         if not self.sim and action == 'active': #where should this be : reconsider later
                             closeDoor_completion = self.cnc_client.load_run_pgm(tasks.closeDoor)
                             if closeDoor_completion == True:
-                                time.sleep(3)
+                                time.sleep(1)
                                 eval('self.close_door_interface.superstate.complete()')
                             elif closeDoor_completion == False:
-                                time.sleep(3)
+                                time.sleep(1)
                                 eval('self.close_door_interface.superstate.DEFAULT()')
                         
                     if 'chuck' in name.lower():
@@ -567,10 +567,10 @@ class cnc(object):
                         if not self.sim and action == 'active': #where should this be : reconsider later
                             closeChuck_completion = self.cnc_client.load_run_pgm(tasks.closeChuck)
                             if closeChuck_completion == True:
-                                time.sleep(3)
+                                time.sleep(1)
                                 eval('self.close_chuck_interface.superstate.complete()')
                             elif closeChuck_completion == False:
-                                time.sleep(3)
+                                time.sleep(1)
                                 eval('self.close_chuck_interface.superstate.DEFAULT()')
                         
                 elif name == "MaterialLoad" and action!='unavailable':

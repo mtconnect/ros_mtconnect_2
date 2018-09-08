@@ -188,8 +188,8 @@ class inputConveyor(object):
                     self.current_part = 'good'
                     return "coordinator"
                 elif part_quality_list == [False,True,True] and self.current_part == 'good':
-                    self.current_part = 'good'
-                    return "collaborator"
+                    self.current_part = 'bad'
+                    return "coordinator"
                 elif part_quality_list == [False,False,True] and self.current_part == 'bad':
                     self.current_part = 'good'
                     return "collaborator"

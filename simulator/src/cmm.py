@@ -42,7 +42,7 @@ class cmm(object):
 
                 self.system = []
                 
-                self.cycle_time = 120
+                self.cycle_time = 10
 
                 self.load_time_limit(20)
                 self.unload_time_limit(20)
@@ -319,7 +319,7 @@ class cmm(object):
                         
                     else:
 
-                        if self.part_quality== 'good' or self.part_quality == 'reworked':
+                        if not self.part_quality or self.part_quality== 'good' or self.part_quality == 'reworked':
                             cycle = self.cmm_client.load_run_pgm(taskcmm.startProgramA)
                         elif self.part_quality == 'bad':
                             cycle = self.cmm_client.load_run_pgm(taskcmm.startProgramB)

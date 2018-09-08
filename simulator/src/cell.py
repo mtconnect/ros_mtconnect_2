@@ -48,7 +48,7 @@ class cell(object):
         self.initiate_cnc('localhost',7897, False)
         #self.initiate_robot('localhost',7996)
         self.initiate_buffer('localhost',7697)
-        self.initiate_cmm('localhost',7597,True)
+        self.initiate_cmm('localhost',7597,False)
         self.initiate_inputConveyor('localhost',7797)
         #self.initiate_outputConveyor('localhost',7496)
 

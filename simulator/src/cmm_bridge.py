@@ -142,7 +142,7 @@ class hexagonClient(object):
         else:
             return self.programStatus
 if __name__ == '__main__':
-    cmm = hexagonClient('192.168.1.41', 5000, 5000)
+    cmm = hexagonClient('192.168.1.102', 5000, 5000)
     cmm.connect()
     #task_execution = cmm.load_run_pgm(taskcmm.getDims)
     #print task_execution
