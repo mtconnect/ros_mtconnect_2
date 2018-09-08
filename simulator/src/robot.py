@@ -29,7 +29,7 @@ import copy
 import requests
 import urllib2
 import xml.etree.ElementTree as ET
-from pympler.asizeof import asizeof
+#from pympler.asizeof import asizeof
 
 RobotEvent = collections.namedtuple('RobotEvent', ['source', 'component', 'name', 'value', 'code', 'text'])
 
@@ -554,7 +554,7 @@ class Robot:
                 if ['release',ev.text,None] not in self.low_level_event_list:
                     self.low_level_event_list.append(['release',ev.text,None])
                     
-                status = self.parent.release(ev.text)
+                status = self.parent.release(ev.text, self.master_tasks[self.master_uuid]['part_quality'])
                 if status != True:
                     self.fault()
                     
@@ -566,7 +566,7 @@ class Robot:
                 if ['grab',ev.text,None] not in self.low_level_event_list:
                     self.low_level_event_list.append(['grab',ev.text,None])
                     
-                status = self.parent.grab(ev.text)
+                status = self.parent.grab(ev.text, self.master_tasks[self.master_uuid]['part_quality'])
                 if status != True:
                     self.fault()
                 print ("Grabbed")
