@@ -5,6 +5,7 @@ from __future__ import absolute_import, division, print_function, unicode_litera
 __metaclass__ = type
 
 from material import *
+from tool import *
 from door import *
 from chuck import *
 from coordinator import *
@@ -98,6 +99,7 @@ class Robot:
             self.close_chuck_interface = CloseChuckRequest(self)
             self.open_door_interface = OpenDoorRequest(self)
             self.close_door_interface = CloseDoorRequest(self)
+            self.change_tool_interface = ChangeToolRequest(self)
 
         def initiate_adapter(self, host, port):
             self.adapter = Adapter((host,port))
@@ -129,6 +131,9 @@ class Robot:
             self.close_door = Event('close_door')
             self.adapter.add_data_item(self.close_door)
 
+            self.change_tool = Event('change_tool')
+            self.adapter.add_data_item(self.change_tool)
+
             self.material_load = Event('material_load')
             self.adapter.add_data_item(self.material_load)
 
@@ -149,6 +154,7 @@ class Robot:
             self.close_chuck.set_value("NOT_READY")
             self.open_door.set_value("NOT_READY")
             self.close_door.set_value("NOT_READY")
+            self.change_tool.set_value("NOT_READY")
             self.material_load.set_value("NOT_READY")
             self.material_unload.set_value("NOT_READY")
             self.material_state.set_value("UNLOADED")
@@ -190,6 +196,7 @@ class Robot:
             self.close_chuck_interface.superstate.start()
             self.open_door_interface.superstate.start()
             self.close_door_interface.superstate.start()
+            self.change_tool_interface.superstate.start()
 
 
         def FAULT(self):
@@ -201,6 +208,7 @@ class Robot:
             self.close_door_interface.superstate.DEACTIVATE()
             self.material_load_interface.superstate.DEACTIVATE()
             self.material_unload_interface.superstate.DEACTIVATE()
+            self.change_tool_interface.superstate.DEACTIVATE()
 
 
             
@@ -416,6 +424,8 @@ class Robot:
                             print ("OpenChuck Request to cnc1")
                         elif 'OpenDoor' in name:
                             print ("OpenDoor Request to cnc1")
+                        elif 'ChangeTool' in name:
+                            print ("ChangeTool Request to cnc1")
                             
                     if self.iscoordinator:
                         self.coordinator.superstate.event(source, comp, name, value, code, text)
@@ -436,7 +446,7 @@ class Robot:
             elif comp == 'internal_event':
                 self.internal_event(ev)
 
-            elif ('Chuck' in name or 'Door' in name) and action!='unavailable':
+            elif ('Chuck' in name or 'Door' in name or 'ChangeTool' in name) and action!='unavailable':
 
                 if 'Chuck' in name:
                     if 'Open' in name:
@@ -449,6 +459,9 @@ class Robot:
                         eval('self.open_door_interface.superstate.'+action+'()')
                     elif 'Close' in name:
                         eval('self.close_door_interface.superstate.'+action+'()')
+
+                elif 'ChangeTool' in name:
+                    eval('self.change_tool_interface.superstate.'+action+'()')
 
 
             elif ev.component.startswith('Controller'):
@@ -476,7 +489,7 @@ class Robot:
                     self.fault()
                 print ("Moved in")
 
-            elif ev.name == "MoveInCT":
+            elif "MoveInCT" in ev.name:
                 print ("Moving In cnc1_t1")
                 
                 if ['move_in','cnc1_t1',self.master_tasks[self.master_uuid]['part_quality']] not in self.low_level_event_list:
@@ -498,7 +511,7 @@ class Robot:
                     self.fault()
                 print ("Moved out")
 
-	    elif ev.name == "MoveOutCT":
+	    elif "MoveOutCT" in ev.name:
                 print ("Moving Out From cnc1_t1")
                 
                 if ['move_out','cnc1_t1',self.master_tasks[self.master_uuid]['part_quality']] not in self.low_level_event_list:
