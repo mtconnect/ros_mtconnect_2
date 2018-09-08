@@ -12,6 +12,9 @@ ACTIONS = [
     'release',
 ]
 
+class MTConnectBridgeException(Exception):
+    pass
+
 class Bridge:
     def __init__(self):
         self.action_client = actionlib.SimpleActionClient("work", DeviceWorkAction)
@@ -20,7 +23,7 @@ class Bridge:
             rospy.logerr("DeviceWork server not available")
 
     def do_work(self, action_type, work_info):
-        rospy.loginfo("Sending '{}' work, data: {}".format(action_type, work_info))
+        rospy.logdebug("Sending '{}' work, data: {}".format(action_type, work_info))
         action_goal = DeviceWorkGoal()
         action_goal.type = action_type
         action_goal.data = work_info
@@ -29,12 +32,12 @@ class Bridge:
 
         goal_state = self.action_client.get_state()
         if goal_state == GoalStatus.PENDING:
-            rospy.logerr("  timed out waiting for work to complete")
             self.action_client.cancel_goal()
+            raise MTConnectBridgeException("timeout")
         elif goal_state == GoalStatus.ABORTED:
-            rospy.logerr("  work was aborted!")
+            raise MTConnectBridgeException("aborted")
         elif goal_state == GoalStatus.SUCCEEDED:
-            rospy.loginfo("  work completed successfully")
+            pass
 
     def spin(self):
         rospy.spin()
