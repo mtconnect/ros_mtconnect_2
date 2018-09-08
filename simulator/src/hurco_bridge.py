@@ -131,12 +131,14 @@ if __name__ == '__main__':
     cnc = hurcoClient('192.168.1.104',4503)
     print ("Connection Successfull")
     task_execution = cnc.load_run_pgm(tasks.openDoor)
+    #time.sleep(2)
+    #task_execution = cnc.load_run_pgm(tasks.toolChange)
     print (task_execution)
     time.sleep(2)
     task_execution = cnc.load_run_pgm(tasks.openChuck)
     print (task_execution)
     time.sleep(2)
-    task_execution = cnc.load_run_pgm(tasks.closeDoor)
+    #task_execution = cnc.load_run_pgm(tasks.closeDoor)
 
 
 

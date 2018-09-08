@@ -127,10 +127,13 @@ class collaborator(object):
                                         
                                         while self.currentSubTaskState != 'active' and val[0] != 'ToolChange':
                                             pass
-                                        
-                                        self.parent.event(self.parent.deviceUuid, 'internal_event', x[1], 'ACTIVATE', None, key)
-                                        self.parent.master_tasks[self.parent.master_uuid]['collaborators'][self.parent.deviceUuid]['SubTask'][val[0]][i][2] = 'COMPLETE'
-                                        
+                                        if val[0] == 'ToolChange':
+
+                                            self.parent.event(self.parent.deviceUuid, 'internal_event', x[1], 'ACTIVATE', None, 'cnc1_t1')
+                                            self.parent.master_tasks[self.parent.master_uuid]['collaborators'][self.parent.deviceUuid]['SubTask'][val[0]][i][2] = 'COMPLETE'
+                                        else:
+                                            self.parent.event(self.parent.deviceUuid, 'internal_event', x[1], 'ACTIVATE', None, key)
+                                            self.parent.master_tasks[self.parent.master_uuid]['collaborators'][self.parent.deviceUuid]['SubTask'][val[0]][i][2] = 'COMPLETE'
                                     else:
                                         self.subTask[x[1]] = subTask.subTask(parent = self.parent , interface = interface, master_task_uuid = self.subTask[val[0]].superstate.task_uuid, collaborators = None, taskName = x[1])
                                         self.subTask[x[1]].create_statemachine()

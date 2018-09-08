@@ -147,9 +147,9 @@ if __name__ == '__main__':
     #task_execution = cmm.load_run_pgm(taskcmm.getDims)
     #print task_execution
     status = cmm.load_run_pgm(taskcmm.getStatus)
-    #print status
-    state = cmm.load_run_pgm(taskcmm.getCmmState)
+    print status.lower()
+    #state = cmm.load_run_pgm(taskcmm.getCmmState)
     #print state
-    task_execution = cmm.load_run_pgm(taskcmm.startProgramA)
-    #time.sleep(0.1)
+    #task_execution = cmm.load_run_pgm(taskcmm.startProgramA)
+    #time.sleep(5)
     #print task_execution

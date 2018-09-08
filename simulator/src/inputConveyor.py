@@ -183,6 +183,8 @@ class inputConveyor(object):
 
                 if self.cycle_count == 1:
                     self.current_part = "reset"
+		if part_quality_list == [True,True,True]:
+    		    self.current_part = 'bad'
 
                 if part_quality_list == [True,True,True] and self.current_part == None:
                     self.current_part = 'good'

@@ -21,12 +21,12 @@ class RobotInterface:
         time.sleep(2)
         return True
 
-    def grab(self, device):
+    def grab(self, device, destination):
         print("Robot grabbing at device={}".format(device))
         time.sleep(2)
         return True
 
-    def release(self, device):
+    def release(self, device, destination):
         print("Robot releasing at device={}".format(device))
         time.sleep(2)
         return True

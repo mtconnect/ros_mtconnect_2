@@ -68,7 +68,7 @@ class cmm(object):
                 
                 self.fail_next = False
 
-                self.part_quality = None
+                self.part_quality = "rework"
 
                 self.pt_ql_seq = []
                 self.lp = {}
@@ -89,8 +89,8 @@ class cmm(object):
 
             def part_quality_sequence(self):
                 self.pt_ql_seq = []
-                self.pt_ql_seq.append(['good', False])
-                self.pt_ql_seq.append(['bad', False])
+                self.pt_ql_seq.append(['good', True])
+                self.pt_ql_seq.append(['bad', True])
                 self.pt_ql_seq.append(['rework', False])
                 self.pt_ql_seq.append(['good', False])
                 self.pt_ql_seq.append(['reworked', False])
@@ -299,7 +299,6 @@ class cmm(object):
                         self.adapter.complete_gather()
 
                         self.part_quality = self.part_quality_next()[1]
-                        
                         if self.part_quality:
                             if self.part_quality == 'rework':
                                 self.coordinator_task = "MoveMaterial_5"
@@ -326,10 +325,13 @@ class cmm(object):
                         elif self.part_quality == 'rework':
                             cycle = self.cmm_client.load_run_pgm(taskcmm.startProgramC)
                             
-                        time.sleep(4)
+                        time.sleep(30)
                         status = (self.cmm_client.load_run_pgm(taskcmm.getStatus)).lower()
+			print (status)
                         while 'good' not in status and 'bad' not in status and 'rework' not in status:
+			    time.sleep(3)
                             status = (self.cmm_client.load_run_pgm(taskcmm.getStatus)).lower()
+			print (status)
                         
                         func()
                     
