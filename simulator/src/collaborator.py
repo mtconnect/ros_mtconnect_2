@@ -78,7 +78,6 @@ class collaborator(object):
                                     self.parent.master_tasks[code]['collaborators'][key]['SubTask'][self.task_name][i][2] = 'COMPLETE'
 
                                     self.currentSubTask = copy.deepcopy(value['coordinator'][text]['SubTask'][self.collaborator_name][0])
-                                
  
                     while self.currentSubTask and self.currentSubTask in self.subTask and hasattr(self.subTask[self.currentSubTask].superstate, 'state') and self.subTask[self.currentSubTask].superstate.state != 'removed':
                         pass
@@ -110,7 +109,6 @@ class collaborator(object):
                 for i,z in enumerate(self.ordered_tasks):
                     key = z[1]
                     val = z[2]
-
                     if val:
                         if self.parent.deviceUuid in val[2]:
                             collabUuid = True
@@ -134,6 +132,7 @@ class collaborator(object):
                                         else:
                                             self.parent.event(self.parent.deviceUuid, 'internal_event', x[1], 'ACTIVATE', None, key)
                                             self.parent.master_tasks[self.parent.master_uuid]['collaborators'][self.parent.deviceUuid]['SubTask'][val[0]][i][2] = 'COMPLETE'
+                                        time.sleep(0.5)
                                     else:
                                         self.subTask[x[1]] = subTask.subTask(parent = self.parent , interface = interface, master_task_uuid = self.subTask[val[0]].superstate.task_uuid, collaborators = None, taskName = x[1])
                                         self.subTask[x[1]].create_statemachine()
@@ -144,7 +143,7 @@ class collaborator(object):
                                         while self.currentSubTask and self.subTask[self.currentSubTask].superstate.state != 'removed':
                                             pass
                                         self.parent.master_tasks[self.parent.master_uuid]['collaborators'][self.parent.deviceUuid]['SubTask'][val[0]][i][2] = 'COMPLETE'
-                                        
+                                        time.sleep(0.5)
                                         
                             self.currentSubTask = copy.deepcopy(val[0])
                             while self.currentSubTask and self.subTask[self.currentSubTask].superstate.state != 'removed':

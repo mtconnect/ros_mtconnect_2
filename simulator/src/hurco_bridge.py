@@ -15,7 +15,7 @@ tasks.openChuck = 'D:\open_chuck.FNC'
 tasks.closeChuck = 'D:\close_chuck.FNC'
 tasks.openDoor = 'D:\open_door.FNC'
 tasks.closeDoor = 'D:\close_door.FNC'
-tasks.cycle = 'D:\AMT RH-2.HWM'
+tasks.cycle = 'D:\AMT RH-3.HWM'
 tasks.toolChange = 'D:\simulate_tps.FNC'
 
 local_vendor = "0025"

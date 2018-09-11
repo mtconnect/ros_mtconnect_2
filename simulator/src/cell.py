@@ -45,7 +45,7 @@ class cell(object):
         self.cell_part_quality = None
         self.current_part = None
         self.cycle_count = 0
-        self.initiate_cnc('localhost',7897, False)
+        self.initiate_cnc('localhost',7897 ,False)
         #self.initiate_robot('localhost',7996)
         self.initiate_buffer('localhost',7697)
         self.initiate_cmm('localhost',7597,False)
@@ -158,9 +158,17 @@ class cell(object):
 
             self.cnc.superstate.enable()
             self.cmm.superstate.enable()
+            self.cnc.superstate.initiate_cnc_client()
+            self.cmm.superstate.initiate_cmm_client()
             self.buffer.superstate.enable()
             time.sleep(7)
-            self.part_arrival()
+
+            if self.cycle_count <4:
+
+                self.part_arrival()
+
+	    else:
+		print ("Restart setup!")
 
             self.current_part = None
 

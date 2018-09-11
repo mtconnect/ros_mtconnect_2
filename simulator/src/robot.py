@@ -316,7 +316,7 @@ class Robot:
 
                 self.initiate_pull_thread()
 
-                print (asizeof(self))
+                #print (asizeof(self))
 
                 print ("robot reset")
 

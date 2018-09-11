@@ -43,7 +43,7 @@ class cnc(object):
 
                 self.system = []
                 
-                self.cycle_time = 10
+                self.cycle_time = 5
 
                 self.load_time_limit(20)
                 self.unload_time_limit(20)
@@ -316,9 +316,9 @@ class cnc(object):
 
                     def func(self = self):
                         
-                        self.adapter.begin_gather()
-                        self.e1.set_value("READY")
-                        self.adapter.complete_gather()
+                        #self.adapter.begin_gather()
+                        #self.e1.set_value("READY")
+                        #self.adapter.complete_gather()
 
                         self.cnc_execution_ready()
                         self.iscoordinator = True
@@ -342,6 +342,10 @@ class cnc(object):
                         self.coordinator.superstate.task_name = "UnloadCnc"
 
                         self.coordinator.superstate.unavailable()
+
+                        self.adapter.begin_gather()
+                        self.e1.set_value("READY")
+                        self.adapter.complete_gather()
 
                     if self.sim:
                         timer_cycling = Timer(self.cycle_time,func)

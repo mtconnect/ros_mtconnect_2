@@ -17,14 +17,9 @@
 				<SubTaskRef order="0">PickUpTool</SubTaskRef>
 				<SubTaskRef order="1">OpenDoor</SubTaskRef>
 				<SubTaskRef order="2">MoveInCT</SubTaskRef>
-				<SubTaskRef order="3">ReleasePart</SubTaskRef>
-				<SubTaskRef order="4">MoveOutCT</SubTaskRef>
-				<SubTaskRef order="5">ChangeTool</SubTaskRef>
-				<SubTaskRef order="6">MoveInCT</SubTaskRef>
-				<SubTaskRef order="7">GrabPart</SubTaskRef>
-				<SubTaskRef order="8">MoveOutCT</SubTaskRef>
-				<SubTaskRef order="9">CloseDoor</SubTaskRef>
-				<SubTaskRef order="90">DropOffTool</SubTaskRef>
+				<SubTaskRef order="3">MoveOutCT</SubTaskRef>
+				<SubTaskRef order="4">CloseDoor</SubTaskRef>
+				<SubTaskRef order="5">DropOffTool</SubTaskRef>
 			</SubTaskRefs>
 		</TaskArchetype>
 	</Assets>
