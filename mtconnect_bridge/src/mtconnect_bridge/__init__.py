@@ -8,4 +8,4 @@ import os
 sys.path.append(os.path.join(os.getenv('HOME'), 'catkin_ws/src/ceccrebot'))
 sys.path.append(os.path.join(os.getenv('HOME'), 'catkin_ws/src/ceccrebot/simulator/src'))
 
-from bridge import Bridge
+from bridge import Bridge, MTConnectBridgeException

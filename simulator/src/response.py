@@ -139,12 +139,14 @@ class Response(object):
                 self.response_state.set_value(self.dest_state)
                 self.adapter.complete_gather()
 
-                self.parent.interface_type(value = 'Response'+self.prefix.lower()+self.dest_state.lower())
+                #self.parent.interface_type(value = 'Response'+self.prefix.lower()+self.dest_state.lower())
 
                 self.adapter.begin_gather()
                 self.interface.set_value("COMPLETE")
                 self.adapter.complete_gather()
-                
+		#time.sleep(0.1)
+
+		self.parent.interface_type(value = 'Response'+self.prefix.lower()+self.dest_state.lower())
                 self.parent.COMPLETED()
                 
                 

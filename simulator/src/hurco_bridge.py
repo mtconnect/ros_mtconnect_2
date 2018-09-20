@@ -15,8 +15,8 @@ tasks.openChuck = 'D:\open_chuck.FNC'
 tasks.closeChuck = 'D:\close_chuck.FNC'
 tasks.openDoor = 'D:\open_door.FNC'
 tasks.closeDoor = 'D:\close_door.FNC'
-tasks.toolChange = 'D:\AMT RH-2.HWM'
-tasks.cycle = 'D:\FRAME.HWM'
+tasks.cycle = 'D:\AMT RH-3.HWM'
+tasks.toolChange = 'D:\simulate_tps.FNC'
 
 local_vendor = "0025"
 local_passwd = "5twOdw/SXwnvLAJg+QbSpDCV2tkak9WaaLHN9AxAs2sKiZYQxQQ2Whwp0JC0WM+LnooyOjxTFmvD2G1/fVsi8g=="
@@ -128,15 +128,17 @@ class hurcoClient(object):
         return True
       
 if __name__ == '__main__':
-    cnc = hurcoClient('192.168.1.42',4503)
+    cnc = hurcoClient('192.168.1.104',4503)
     print ("Connection Successfull")
     task_execution = cnc.load_run_pgm(tasks.openDoor)
+    #time.sleep(2)
+    #task_execution = cnc.load_run_pgm(tasks.toolChange)
     print (task_execution)
     time.sleep(2)
-    task_execution = cnc.load_run_pgm(tasks.closeChuck)
+    task_execution = cnc.load_run_pgm(tasks.openChuck)
     print (task_execution)
     time.sleep(2)
-    task_execution = cnc.load_run_pgm(tasks.closeDoor)
+    #task_execution = cnc.load_run_pgm(tasks.closeDoor)
 
 
 

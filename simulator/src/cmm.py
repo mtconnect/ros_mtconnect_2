@@ -42,7 +42,7 @@ class cmm(object):
 
                 self.system = []
                 
-                self.cycle_time = 120
+                self.cycle_time = 25
 
                 self.load_time_limit(20)
                 self.unload_time_limit(20)
@@ -89,8 +89,8 @@ class cmm(object):
 
             def part_quality_sequence(self):
                 self.pt_ql_seq = []
-                self.pt_ql_seq.append(['good', False])
-                self.pt_ql_seq.append(['bad', False])
+                self.pt_ql_seq.append(['good',False])
+                self.pt_ql_seq.append(['bad',False])
                 self.pt_ql_seq.append(['rework', False])
                 self.pt_ql_seq.append(['good', False])
                 self.pt_ql_seq.append(['reworked', False])
@@ -280,9 +280,9 @@ class cmm(object):
                     self.adapter.complete_gather()
                     
                     def func(self = self):
-                        self.adapter.begin_gather()
-                        self.e1.set_value("READY")
-                        self.adapter.complete_gather()
+                        #self.adapter.begin_gather()
+                        #self.e1.set_value("READY")
+                        #self.adapter.complete_gather()
 
                         self.cmm_execution_ready()
                         self.iscoordinator = True
@@ -299,7 +299,6 @@ class cmm(object):
                         self.adapter.complete_gather()
 
                         self.part_quality = self.part_quality_next()[1]
-                        
                         if self.part_quality:
                             if self.part_quality == 'rework':
                                 self.coordinator_task = "MoveMaterial_5"
@@ -313,23 +312,31 @@ class cmm(object):
                         
                             self.coordinator.superstate.unavailable()
 
+   		        self.adapter.begin_gather()
+                        self.e1.set_value("READY")
+                        self.adapter.complete_gather()
+
+
                     if self.sim:
                         timer_cycling = Timer(self.cycle_time,func)
                         timer_cycling.start()
                         
                     else:
 
-                        if self.part_quality== 'good' or self.part_quality == 'reworked':
+                        if not self.part_quality or self.part_quality== 'good' or self.part_quality == 'reworked':
                             cycle = self.cmm_client.load_run_pgm(taskcmm.startProgramA)
                         elif self.part_quality == 'bad':
                             cycle = self.cmm_client.load_run_pgm(taskcmm.startProgramB)
                         elif self.part_quality == 'rework':
                             cycle = self.cmm_client.load_run_pgm(taskcmm.startProgramC)
                             
-                        time.sleep(4)
+                        time.sleep(30)
                         status = (self.cmm_client.load_run_pgm(taskcmm.getStatus)).lower()
+			print ("before",status)
                         while 'good' not in status and 'bad' not in status and 'rework' not in status:
                             status = (self.cmm_client.load_run_pgm(taskcmm.getStatus)).lower()
+			    time.sleep(3)
+			print ("after",status)
                         
                         func()
                     
@@ -339,6 +346,12 @@ class cmm(object):
                 if not self.has_material:
                     self.material_unload_interface.superstate.DEACTIVATE()
                     self.material_load_interface.superstate.idle()
+
+		def priority_check():
+		    time.sleep(4)
+		    self.priority.collab_check()
+		thread= Thread(target = priority_check)
+		thread.start()
 
             def UNLOADING(self):
                 if self.has_material:

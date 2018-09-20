@@ -41,8 +41,8 @@ class priority(object):
                 self.tasks_check.append([task_list, datetime.datetime.now().isoformat()])
                 self.event_priority_update()
 
-                self.collab_check2()
-		self.commit_check()
+   	        self.collab_check2()
+   		self.commit_check()
 
     def event_priority_update(self):
         for i,x in enumerate(self.tasks_list):
@@ -66,10 +66,18 @@ class priority(object):
 		    elif z!= self.parent.deviceUuid:
 			devices_avail = False
 			break
+		print (devices_avail,'1')
+		if self.parent.deviceUuid in x[1].split('_')[0]:
+		    devices_avail = False
+
+		print (devices_avail,'2')
+
 		if devices_avail == False:
-		    break
+		    continue
 		else:
 		    time.sleep(0.1)
+
+		print (devices_avail,'3')
 
                 for y in x[2]:
                     if (not self.binding_states[y][0] or self.binding_states[y][0].lower() not in ['committing','committed']) and (self.parent.execution[y] != 'active' or y == 'r1'):
@@ -85,7 +93,7 @@ class priority(object):
                         devices_avail = False
                         break
                     devices_avail = True
-                    
+                print (devices_avail,'4')
                 if devices_avail and self.tasks_list and i< len(self.tasks_list):
                     self.priority_task = deepcopy(self.tasks_list[i][3])
 		    self.collaborators = deepcopy(self.tasks_list[i][2])

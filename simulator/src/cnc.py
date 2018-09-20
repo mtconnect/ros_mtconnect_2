@@ -43,7 +43,7 @@ class cnc(object):
 
                 self.system = []
                 
-                self.cycle_time = 180
+                self.cycle_time = 5
 
                 self.load_time_limit(20)
                 self.unload_time_limit(20)
@@ -102,18 +102,21 @@ class cnc(object):
             def initiate_interfaces(self):
                 self.material_load_interface = MaterialLoad(self)
                 self.material_unload_interface = MaterialUnload(self)
-                self.change_tool_interface = ChangeTool(self)
 
                 if self.sim:
                     self.open_chuck_interface = OpenChuck(self)
                     self.close_chuck_interface = CloseChuck(self)
                     self.open_door_interface = OpenDoor(self)
                     self.close_door_interface = CloseDoor(self)
+                    self.change_tool_interface = ChangeTool(self)
+
                 else:
                     self.open_chuck_interface = OpenChuck(self, self.sim)
                     self.close_chuck_interface = CloseChuck(self, self.sim)
                     self.open_door_interface = OpenDoor(self, self.sim)
                     self.close_door_interface = CloseDoor(self, self.sim)
+                    self.change_tool_interface = ChangeTool(self, self.sim)
+
 
             def initiate_adapter(self, host, port):
                 
@@ -313,9 +316,9 @@ class cnc(object):
 
                     def func(self = self):
                         
-                        self.adapter.begin_gather()
-                        self.e1.set_value("READY")
-                        self.adapter.complete_gather()
+                        #self.adapter.begin_gather()
+                        #self.e1.set_value("READY")
+                        #self.adapter.complete_gather()
 
                         self.cnc_execution_ready()
                         self.iscoordinator = True
@@ -340,13 +343,17 @@ class cnc(object):
 
                         self.coordinator.superstate.unavailable()
 
+                        self.adapter.begin_gather()
+                        self.e1.set_value("READY")
+                        self.adapter.complete_gather()
+
                     if self.sim:
                         timer_cycling = Timer(self.cycle_time,func)
                         timer_cycling.start()
                     else:
                         cycle_completion = self.cnc_client.load_run_pgm(tasks.cycle)
                         if cycle_completion == True:
-                            time.sleep(2)
+                            time.sleep(1)
                             func()
                         
 
@@ -566,10 +573,10 @@ class cnc(object):
                         if not self.sim and action == 'active': #where should this be : reconsider later
                             closeDoor_completion = self.cnc_client.load_run_pgm(tasks.closeDoor)
                             if closeDoor_completion == True:
-                                time.sleep(3)
+                                time.sleep(1)
                                 eval('self.close_door_interface.superstate.complete()')
                             elif closeDoor_completion == False:
-                                time.sleep(3)
+                                time.sleep(1)
                                 eval('self.close_door_interface.superstate.DEFAULT()')
                         
                     if 'chuck' in name.lower():
@@ -578,10 +585,10 @@ class cnc(object):
                         if not self.sim and action == 'active': #where should this be : reconsider later
                             closeChuck_completion = self.cnc_client.load_run_pgm(tasks.closeChuck)
                             if closeChuck_completion == True:
-                                time.sleep(3)
+                                time.sleep(1)
                                 eval('self.close_chuck_interface.superstate.complete()')
                             elif closeChuck_completion == False:
-                                time.sleep(3)
+                                time.sleep(1)
                                 eval('self.close_chuck_interface.superstate.DEFAULT()')
                         
                 elif name == "MaterialLoad" and action!='unavailable':
@@ -609,10 +616,10 @@ class cnc(object):
                     if not self.sim and action == 'active': #where should this be : reconsider later
                         toolChange_completion = self.cnc_client.load_run_pgm(tasks.toolChange)
                         if toolChange_completion == True:
-                            time.sleep(3)
+                            time.sleep(2)
                             eval('self.change_tool_interface.superstate.complete()')
                         elif toolChange_completion == False:
-                            time.sleep(3)
+                            time.sleep(2)
                             eval('self.change_tool_interface.superstate.DEFAULT()')
 
                 elif comp == "Controller":
