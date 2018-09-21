@@ -34,9 +34,7 @@ class priority(object):
 
     def event_list(self, event):
         if event:
-            #[task_priority, assetID, device_collaborators, event]
             task_list = [float(event[4][1]['priority']), event[4][0], event[4][1]['coordinator'].keys()+event[4][1]['collaborators'].keys(), event]
-	    #print (self.parent.deviceUuid, task_list[2][0], 'event check')
             if task_list[1] not in str(self.tasks_list) and self.parent.deviceUuid in task_list[2]:
 		self.processing = True
                 self.tasks_list.append(task_list)
@@ -85,7 +83,6 @@ class priority(object):
 			elif self.binding_states[y][1] and self.binding_states[y][0]:
                             if self.binding_states[y][1] in str(self.tasks_list) and self.binding_states[y][1] != x[1] and y!=self.parent.deviceUuid:
                                 devices_avail = False
-                                #print ("device uuid check fail",self.parent.deviceUuid,y,self.binding_states[y][1],x[1])
                                 break
                     else:
                         devices_avail = False
@@ -96,11 +93,9 @@ class priority(object):
 		    self.collaborators = deepcopy(self.tasks_list[i][2])
                     self.tasks_list.pop(i)
                     if self.priority_task[4][0] in str(self.tasks_pop_check):
-			#print ("event already popped once")
                         self.priority_event()
                     self.tasks_pop_check.append([x[3], datetime.datetime.now().isoformat()])
                     break
-            
 
     def collab_check2(self):
         if self.tasks_list and self.parent.iscollaborator and not self.parent.iscoordinator and self.parent.collaborator.superstate.state == 'base:inactive' and self.parent.binding_state_material.value().lower() == 'inactive':
@@ -135,20 +130,16 @@ class priority(object):
 	    while self.parent.binding_state_material.value().lower() == 'committed':
 		if self.binding_states['r1'][1].lower() != self.parent.master_uuid or self.binding_states['r1'][0].lower() == 'inactive':
 		    time.sleep(10)
-		    #print ("task stuck, no success",self.binding_states['r1'][1].lower())
 		    if self.parent.binding_state_material.value().lower() == 'committed' and self.parent.iscoordinator and current_uuid == self.parent.master_uuid:
 		        self.parent.coordinator.superstate.task.superstate.success()
-			#print ("task committed from priority method",self.parent.deviceUuid)
 		    check = True
 		else:
 		    for x in self.current_collaborators:
 			if x not in [self.parent.deviceUuid,'r1']:
 			    if self.binding_states[x][1].lower() != self.parent.master_uuid:
 				time.sleep(10)
-				#print ("task stuck2, no success",self.binding_states[x][1].lower())
 	                        if self.parent.binding_state_material.value().lower() == 'committed' and self.parent.iscoordinator and current_uuid == self.parent.master_uuid:
             		            self.parent.coordinator.superstate.task.superstate.success()
-                        	    #print ("task committed from priority method2",self.parent.deviceUuid)
 				check = True
 
 		if check == True:
@@ -167,7 +158,7 @@ class priority(object):
         self.binding_states['cmm1'] = [None,None,None]
         self.binding_states['b1'] = [None,None,None]
         self.binding_states['r1'] = [None,None,None]
-        
+
     def binding_state(self, device = None, state = None, binding = None, has_material = None):
         if device:
             if state:
@@ -176,9 +167,6 @@ class priority(object):
                 self.binding_states[device][1] = binding
             if has_material != None:
                 self.binding_states[device][2] = has_material
-
-        
-
 
 if __name__ == '__main__':
     a=priority()
