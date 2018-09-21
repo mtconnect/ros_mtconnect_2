@@ -36,7 +36,6 @@ from cnc import cnc
 from robot import Robot
 from buffer import Buffer
 from cmm import cmm
-from outputConveyor import outputConveyor
 
 class cell(object):
 
@@ -45,12 +44,11 @@ class cell(object):
         self.cell_part_quality = None
         self.current_part = None
         self.cycle_count = 0
-        self.initiate_cnc('localhost',7897 ,False)
+        self.initiate_cnc('localhost',7896)
         #self.initiate_robot('localhost',7996)
-        self.initiate_buffer('localhost',7697)
-        self.initiate_cmm('localhost',7597,False)
-        self.initiate_inputConveyor('localhost',7797)
-        #self.initiate_outputConveyor('localhost',7496)
+        self.initiate_buffer('localhost',7696)
+        self.initiate_cmm('localhost',7596)
+        self.initiate_inputConveyor('localhost',7796)
 
     def cell_part(self, value = None, current_part = None, cycle_count = None):
         if value:
@@ -59,11 +57,11 @@ class cell(object):
 
         elif cycle_count == True:
             self.cycle_count = self.cycle_count + 1
-            print ("Cycle count: ", self.cycle_count, ".")            
-        
+            print ("Cycle count: ", self.cycle_count, ".")
+
         elif current_part == True:
             return self.current_part
-        
+
         elif current_part == "reset":
             self.current_part = "reset"
             self.reset_all()
@@ -71,7 +69,7 @@ class cell(object):
         elif current_part:
             self.current_part = current_part
             return self.current_part
-        
+
         else:
             return self.cell_part_quality
 
@@ -85,14 +83,12 @@ class cell(object):
         self.inputConveyor.create_statemachine()
         self.inputConveyor.superstate.load_time_limit(600)
         self.inputConveyor.superstate.unload_time_limit(600)
-        #self.inputConveyor.superstate.enable()
 
     def initiate_cnc(self,host,port,sim = True):
         self.cnc = cnc(host,port,sim)
         self.cnc.create_statemachine()
         self.cnc.superstate.load_time_limit(900)
         self.cnc.superstate.unload_time_limit(900)
-        #self.cnc.superstate.enable()
 
     def initiate_robot(self,host,port, sim = True):
         self.robot = Robot(host,port,RobotInterface(), sim = sim)
@@ -105,21 +101,12 @@ class cell(object):
         self.buffer.create_statemachine()
         self.buffer.superstate.load_time_limit(600)
         self.buffer.superstate.unload_time_limit(600)
-        #self.buffer.superstate.enable()
 
     def initiate_cmm(self,host,port, sim = True):
         self.cmm = cmm(host,port,sim = sim, cell_part=self.cell_part)
         self.cmm.create_statemachine()
         self.cmm.superstate.load_time_limit(900)
         self.cmm.superstate.unload_time_limit(900)
-        #self.cmm.superstate.enable()
-        
-    def initiate_outputConveyor(self,host,port):
-        self.outputConveyor = outputConveyor(host,port)
-        self.outputConveyor.create_statemachine()
-        self.outputConveyor.superstate.load_time_limit(200)
-        self.outputConveyor.superstate.unload_time_limit(200)
-        self.outputConveyor.superstate.enable()
 
     def reset_device(self,device = None):
         if device:
@@ -134,8 +121,6 @@ class cell(object):
             device.superstate.initiate_interfaces()
             device.superstate.events = []
             device.superstate.initiate_pull_thread()
-            #device.superstate.adapter.stop()
-            #time.sleep(2)
 
             print (device.superstate.deviceUuid," reset.")
 
@@ -163,7 +148,7 @@ class cell(object):
             self.buffer.superstate.enable()
             time.sleep(7)
 
-            if self.cycle_count <4:
+            if self.cycle_count <1000:
 
                 self.part_arrival()
 

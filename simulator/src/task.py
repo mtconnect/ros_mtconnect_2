@@ -12,7 +12,6 @@ import functools, time, copy
 import subTask
 import xml.etree.ElementTree as ET
 
-#will be included under assets!?
 
 class interface(object):
 
@@ -39,21 +38,16 @@ class task(object):
                 self.initialize = False
 
             def INACTIVE(self):
-                
                 self.subTask = {}
                 self.currentSubTask = str()
 
                 if not self.initialize:
-                    
                     arch2ins = archetypeToInstance(self.parent.coordinator_task, self.master_task_uuid, self.parent.deviceUuid)
                     self.arch2ins = arch2ins
                     self.parent.master_tasks[self.master_task_uuid] = arch2ins.jsonInstance()
                     self.taskIns = arch2ins.taskIns
-                    
                     self.parent.adapter.addAsset('Task', self.master_task_uuid, arch2ins.taskIns)
-                    
                     self.initialize = True
-                    
                     self.activated()
 
             def PREPARING(self):
@@ -63,22 +57,19 @@ class task(object):
 
                 self.taskIns = assetUpdate(self.taskIns, "State", "PREPARING")
                 self.parent.adapter.addAsset('Task', self.master_task_uuid, self.taskIns)
-                
 
             def prepare(self):
                 quorum = True
-                
-                if True:
-                    for key, value in self.parent.master_tasks[self.master_task_uuid]['collaborators'].iteritems():
-                            
-                        if value['state'][2] == 'PREPARING':
-                            quorum = True
-                        else:
-                            quorum = False
-                            break
-                        
-                    if quorum == True:
-                        self.quorum()
+
+                for key, value in self.parent.master_tasks[self.master_task_uuid]['collaborators'].iteritems():
+                    if value['state'][2] == 'PREPARING':
+                        quorum = True
+                    else:
+                        quorum = False
+                        break
+
+                if quorum == True:
+                    self.quorum()
 
 
             def COMMITTING(self):
@@ -89,20 +80,20 @@ class task(object):
 
                 self.taskIns = assetUpdate(self.taskIns, "State", "COMMITTING")
                 self.parent.adapter.addAsset('Task', self.master_task_uuid, self.taskIns)
-                
+
                 def commit_timer():
                     timer = Timer(self.commit_time_limit,self.void)
                     timer.start()
                     while timer.isAlive():
                         collaborators_commit = False
                         for key, value in self.parent.master_tasks[self.master_task_uuid]['collaborators'].iteritems():
-                            
+
                             if value['state'][2] == 'COMMITTED':
                                 collaborators_commit = True
                             else:
                                 collaborators_commit = False
                                 break
-                            
+
                         if collaborators_commit == True:
                             break
 
@@ -110,17 +101,19 @@ class task(object):
                         self.parent.master_tasks[self.parent.master_uuid]['coordinator'][self.parent.deviceUuid]['Task'][1] = 'COMMITTED'
                         try:
                             self.all_commit()
-                        except:
+                        except Exception as e:
+                            print ("Error while committing:",e)
+                            print ("Retrying in 0.2 s.")
                             time.sleep(0.2)
                             self.all_commit()
                     else:
                         self.no_commit()
-                    
+
                 t = Thread(target = commit_timer)
                 t.start()
 
             def COMMITTED(self):
-                
+
                 self.parent.adapter.begin_gather()
                 self.interface.set_value("COMMITTED")
                 self.parent.adapter.complete_gather()
@@ -129,8 +122,7 @@ class task(object):
 
                 self.taskIns = assetUpdate(self.taskIns, "State", "COMMITTED")
                 self.parent.adapter.addAsset('Task', self.master_task_uuid, self.taskIns)
-            
-                
+
                 for key, value in self.parent.master_tasks[self.master_task_uuid]['coordinator'][self.coordinator.coordinator_name]['SubTask'].iteritems():
                     if key == self.coordinator.coordinator_name:
                         self.subTask[value[0]] = subTask.subTask(parent = self.parent , interface = interface, master_task_uuid = self.master_task_uuid, collaborators = value[2], taskName = self.coordinator.task_name)
@@ -144,7 +136,7 @@ class task(object):
                                 for i,x in enumerate(val['SubTask'][self.coordinator.task_name]):
 
                                     if x and x[4] and self.parent.deviceUuid in x[4]:
-                                    
+
                                         self.subTask[x[1]] = subTask.subTask(parent = self.parent , interface = interface, master_task_uuid = self.subTask[value[0]].superstate.task_uuid, collaborators = x[4],taskName = x[1])
                                         self.subTask[x[1]].create_statemachine()
                                         self.subTask[x[1]].superstate.create()
@@ -153,34 +145,31 @@ class task(object):
                                         while self.subTask[self.currentSubTask].superstate.state != 'removed':
                                             pass
                                         self.parent.master_tasks[self.master_task_uuid]['collaborators'][key]['SubTask'][self.coordinator.task_name][i][2] = 'COMPLETE'
-                                        
+
                                         self.currentSubTask = copy.deepcopy(value[0])
-                        
+
                         while self.subTask[self.currentSubTask].superstate.state != 'removed':
                             pass
                         self.parent.master_tasks[self.master_task_uuid]['coordinator'][self.coordinator.coordinator_name]['SubTask'][self.coordinator.coordinator_name][1] = 'COMPLETE'
-                        
+
             def commit(self):
-                if True: #replacing while loop
-                    success = True
-                    for key, value in self.parent.master_tasks[self.master_task_uuid]['coordinator'][self.coordinator.coordinator_name]['SubTask'].iteritems():
-                        if value:
-                            if value[1] == 'COMPLETE' or value[1] == 'FAIL' or value[1] == '':
-                                if key == self.parent.deviceUuid or self.parent.master_tasks[self.master_task_uuid]['collaborators'][key]['state'][2] == 'INACTIVE':
-                                    success = True
-                                else:
-                                    success = False
-                                    break
+                success = True
+                for key, value in self.parent.master_tasks[self.master_task_uuid]['coordinator'][self.coordinator.coordinator_name]['SubTask'].iteritems():
+                    if value:
+                        if value[1] == 'COMPLETE' or value[1] == 'FAIL' or value[1] == '':
+                            if key == self.parent.deviceUuid or self.parent.master_tasks[self.master_task_uuid]['collaborators'][key]['state'][2] == 'INACTIVE':
+                                success = True
                             else:
                                 success = False
                                 break
-                    if success == True:
-                        self.success()
-                        
+                        else:
+                            success = False
+                            break
+
+                if success == True:
+                    self.success()
 
             def COMPLETE(self):
-                #time.sleep(0.1)
-                
                 self.taskIns = assetUpdate(self.taskIns, "State", "INACTIVE")
                 self.parent.adapter.addAsset('Task', self.master_task_uuid, self.taskIns)
 
@@ -193,8 +182,6 @@ class task(object):
                 self.default()
 
             def FAIL(self):
-                #time.sleep(0.1)
-
                 self.taskIns = assetUpdate(self.taskIns, "State", "INACTIVE")
                 self.parent.adapter.addAsset('Task', self.master_task_uuid, self.taskIns)
                 self.parent.adapter.removeAsset(self.master_task_uuid)
@@ -202,7 +189,7 @@ class task(object):
                 self.parent.adapter.begin_gather()
                 self.interface.set_value("INACTIVE")
                 self.parent.adapter.complete_gather()
-                
+
                 self.default()
 
             def event(self, source, comp, name, value, code = None, text = None):
@@ -210,7 +197,7 @@ class task(object):
                     self.subTask[self.currentSubTask].superstate.event(source, comp, name, value, code, text)
                 elif 'SubTask' in name:
                     self.coordinator.event(source, comp, name, value, code, text)
-                
+
             def void(self):
                 pass
 
@@ -225,7 +212,7 @@ class task(object):
 
                        ['activated', 'base:inactive', 'base:preparing'],
                        ['failure', 'base:inactive', 'base:fail'],
-                       
+
                        ['quorum', 'base:preparing', 'base:committing'],
                        ['all_commit', 'base:committing', 'base:committed'],
                        ['no_commit', 'base:committing', 'base:preparing'],
@@ -242,7 +229,7 @@ class task(object):
                        ]
 
         self.statemachine = Machine(model = self.superstate, states = states, transitions = transitions, initial = 'base',ignore_invalid_triggers=True)
-                       
+
         self.statemachine.on_enter('base:inactive', 'INACTIVE')
         self.statemachine.on_enter('base:preparing', 'PREPARING')
         self.statemachine.on_enter('base:committing', 'COMMITTING')

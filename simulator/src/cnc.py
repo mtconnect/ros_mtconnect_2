@@ -43,7 +43,7 @@ class cnc(object):
 
                 self.system = []
                 
-                self.cycle_time = 5
+                self.cycle_time = 10
 
                 self.load_time_limit(20)
                 self.unload_time_limit(20)
@@ -173,6 +173,7 @@ class cnc(object):
 
                 self.door_state.set_value("CLOSED")
                 self.chuck_state.set_value("OPEN")
+                self.tool_state.set_value("AVAILABLE")
                 self.avail1.set_value("AVAILABLE")
                 self.e1.set_value("READY")
                 self.mode1.set_value("AUTOMATIC")
@@ -424,7 +425,10 @@ class cnc(object):
                         self.door_state.set_value("OPEN")
                     elif "close" in self.interfaceType:
                         self.door_state.set_value("CLOSED")
-
+                    self.adapter.complete_gather()
+                elif "Response" and "tool" in self.interfaceType:
+                    self.adapter.begin_gather()
+                    self.tool_state.set_value("AVAILABLE")
                     self.adapter.complete_gather()
                     
             

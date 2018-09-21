@@ -42,7 +42,7 @@ class cmm(object):
 
                 self.system = []
                 
-                self.cycle_time = 25
+                self.cycle_time = 10
 
                 self.load_time_limit(20)
                 self.unload_time_limit(20)
@@ -346,12 +346,6 @@ class cmm(object):
                 if not self.has_material:
                     self.material_unload_interface.superstate.DEACTIVATE()
                     self.material_load_interface.superstate.idle()
-
-		def priority_check():
-		    time.sleep(4)
-		    self.priority.collab_check()
-		thread= Thread(target = priority_check)
-		thread.start()
 
             def UNLOADING(self):
                 if self.has_material:

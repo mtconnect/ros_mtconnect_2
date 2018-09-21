@@ -243,18 +243,7 @@ class Robot:
 	    else:
 		time.sleep(0.2)
 
-	    thread= Thread(target = self.collaboration_task_check)
-            thread.start()
-
-
-
-        def collaboration_task_check(self):
-	    while self.binding_state_material.value().lower() != 'inactive':
-		pass
-
-            while self.binding_state_material.value().lower() == 'inactive':
-                self.priority.collab_check()
-		time.sleep(4)
+            self.priority.collab_check()
 
         def LOADING(self):
             self.material_unload_interface.superstate.not_ready()
