@@ -20,7 +20,6 @@ from threading import Timer, Thread
 import functools, time, re, copy, uuid
 import requests, urllib2, json
 import xml.etree.ElementTree as ET
-        
 
 class cmm(object):
 
@@ -29,19 +28,19 @@ class cmm(object):
         class statemachineModel(object):
 
             def __init__(self,host,port,sim, cell_part):
-                
+
                 self.initiate_adapter(host,port)
                 self.adapter.start()
 
                 self.sim = sim
                 self.cell_part = cell_part
-                
+
                 self.initiate_dataitems()
 
                 self.initiate_interfaces()
 
                 self.system = []
-                
+
                 self.cycle_time = 10
 
                 self.load_time_limit(20)
@@ -59,13 +58,13 @@ class cmm(object):
                 self.master_uuid = str()
 
                 self.iscoordinator = False
-                
+
                 self.iscollaborator = False
 
                 self.system_normal = True
 
                 self.has_material = False
-                
+
                 self.fail_next = False
 
                 self.part_quality = None
@@ -73,14 +72,14 @@ class cmm(object):
                 self.pt_ql_seq = []
                 self.lp = {}
 
-                self.part_quality_sequence() #updated for Hurco Demo
+                self.part_quality_sequence()
 
                 self.initial_execution_state()
 
                 self.set_priority()
 
                 self.initiate_cmm_client()
-                
+
                 self.initiate_pull_thread()
 
             def set_priority(self):
@@ -110,7 +109,6 @@ class cmm(object):
                     else:
                         self.part_quality_sequence()
                         return self.part_quality_next()
-                        
 
             def initial_execution_state(self):
                 self.execution = {}
@@ -132,7 +130,7 @@ class cmm(object):
                 self.material_unload_interface = MaterialUnload(self)
 
             def initiate_adapter(self, host, port):
-                
+
                 self.adapter = Adapter((host,port))
 
                 self.mode1 = Event('mode')
@@ -157,7 +155,7 @@ class cmm(object):
                 self.adapter.add_data_item(self.material_unload)
 
             def initiate_dataitems(self):
-                
+
                 self.adapter.begin_gather()
 
                 self.avail1.set_value("AVAILABLE")
@@ -189,7 +187,7 @@ class cmm(object):
                 self.lp[request.split('/')[1]] = None
                 self.lp[request.split('/')[1]] = LongPull(response, addr, self)
                 self.lp[request.split('/')[1]].long_pull(func)
-                
+
             def start_pull_asset(self, addr, request, assetId, stream_root):
                 response = urllib2.urlopen(addr+request).read()
                 from_long_pull_asset(self, response, stream_root)
@@ -201,22 +199,22 @@ class cmm(object):
             def ACTIVATE(self):
 
                 if self.mode1.value() == "AUTOMATIC" and self.avail1.value() == "AVAILABLE":
-                    
+
                     self.make_operational()
 
                 elif self.system_normal:
-                    
+
                     self.still_not_ready()
 
                 else:
-                    
+
                     self.faulted()
 
             def OPERATIONAL(self):
 
                 if self.has_material:
                     self.unloading()
-                    
+
                     self.iscoordinator = True
                     self.iscollaborator = False
 
@@ -231,23 +229,23 @@ class cmm(object):
                     self.adapter.complete_gather()
 
                     self.part_quality = self.part_quality_next()[1]
-                    
+
                     if self.part_quality:
                         if self.part_quality == 'rework':
                             self.coordinator_task = "MoveMaterial_5"
                         else:
                             self.coordinator_task = "MoveMaterial_4"+"_"+self.part_quality
-                        
+
                         self.coordinator = coordinator(parent = self, master_task_uuid = master_task_uuid, interface = self.binding_state_material , coordinator_name = self.deviceUuid)
                         self.coordinator.create_statemachine()
-                        
+
                         self.coordinator.superstate.task_name = "UnloadCmm"
-                        
+
                         self.coordinator.superstate.unavailable()
-                    
+
                 elif self.has_material == False:
                     self.loading()
-                    
+
                     self.iscoordinator = False
                     self.iscollaborator = True
                     self.collaborator = collaborator(parent = self, interface = self.binding_state_material, collaborator_name = self.deviceUuid)
@@ -278,19 +276,14 @@ class cmm(object):
                     self.adapter.begin_gather()
                     self.e1.set_value("ACTIVE")
                     self.adapter.complete_gather()
-                    
-                    def func(self = self):
-                        #self.adapter.begin_gather()
-                        #self.e1.set_value("READY")
-                        #self.adapter.complete_gather()
 
+                    def func(self = self):
                         self.cmm_execution_ready()
                         self.iscoordinator = True
                         self.iscollaborator = False
 
                         if self.master_uuid in self.master_tasks:
                             del self.master_tasks[self.master_uuid]
-                    
                         self.master_uuid = self.deviceUuid+'_'+str(uuid.uuid4())
                         master_task_uuid = copy.deepcopy(self.master_uuid)
 
@@ -307,9 +300,8 @@ class cmm(object):
 
                             self.coordinator = coordinator(parent = self, master_task_uuid = master_task_uuid, interface = self.binding_state_material , coordinator_name = self.deviceUuid)
                             self.coordinator.create_statemachine()
-                        
+
                             self.coordinator.superstate.task_name = "UnloadCmm"
-                        
                             self.coordinator.superstate.unavailable()
 
    		        self.adapter.begin_gather()
@@ -320,7 +312,6 @@ class cmm(object):
                     if self.sim:
                         timer_cycling = Timer(self.cycle_time,func)
                         timer_cycling.start()
-                        
                     else:
 
                         if not self.part_quality or self.part_quality== 'good' or self.part_quality == 'reworked':
@@ -329,7 +320,7 @@ class cmm(object):
                             cycle = self.cmm_client.load_run_pgm(taskcmm.startProgramB)
                         elif self.part_quality == 'rework':
                             cycle = self.cmm_client.load_run_pgm(taskcmm.startProgramC)
-                            
+
                         time.sleep(30)
                         status = (self.cmm_client.load_run_pgm(taskcmm.getStatus)).lower()
 			print ("before",status)
@@ -337,10 +328,7 @@ class cmm(object):
                             status = (self.cmm_client.load_run_pgm(taskcmm.getStatus)).lower()
 			    time.sleep(3)
 			print ("after",status)
-                        
                         func()
-                    
-                    
 
             def LOADING(self):
                 if not self.has_material:
@@ -356,7 +344,7 @@ class cmm(object):
                 self.material_load_interface.superstate.DEACTIVATE()
 
             def EXIT_UNLOADING(self):
-                self.material_unload_interface.superstate.DEACTIVATE()              
+                self.material_unload_interface.superstate.DEACTIVATE()
 
             def load_time_limit(self, limit):
                 self.material_load_interface.superstate.processing_time_limit = limit
@@ -384,11 +372,11 @@ class cmm(object):
                         self.collaborator.superstate.task_name = "LoadCmm"
                         self.collaborator.superstate.unavailable()
                         self.priority.collab_check()
-            
+
             def EXITING_IDLE(self):
                 if self.has_material:
                     self.unloading()
-                    
+
                     self.iscoordinator = True
                     self.iscollaborator = False
 
@@ -403,24 +391,22 @@ class cmm(object):
                     self.adapter.complete_gather()
 
                     self.part_quality = self.part_quality_next()[1]
-                            
+
                     if self.part_quality:
                         if self.part_quality == 'rework':
                             self.coordinator_task = "MoveMaterial_5"
                         else:
                             self.coordinator_task = "MoveMaterial_4"+"_"+self.part_quality
 
-                        
+
                         self.coordinator = coordinator(parent = self, master_task_uuid = master_task_uuid, interface = self.binding_state_material , coordinator_name = self.deviceUuid)
                         self.coordinator.create_statemachine()
-                        
+
                         self.coordinator.superstate.task_name = "UnloadCmm"
-                        
                         self.coordinator.superstate.unavailable()
-                    
+
                 else:
                     self.loading()
-                    
                     self.iscoordinator = False
                     self.iscollaborator = True
                     self.collaborator = collaborator(parent = self, interface = self.binding_state_material, collaborator_name = self.deviceUuid)
@@ -428,7 +414,7 @@ class cmm(object):
                     self.collaborator.superstate.task_name = "LoadCmm"
                     self.collaborator.superstate.unavailable()
                     self.priority.collab_check()
-              
+
             def LOADED(self):
                 self.has_material = True
 		timer_timeout = Timer(60,self.collaborator.superstate.completed)
@@ -452,7 +438,7 @@ class cmm(object):
 
 
             def event(self, source, comp, name, value, code = None, text = None):
-                #print "CMM received " + comp + " " + name + " " + value + " from " + source
+
                 self.events.append([source, comp, name, value, code, text])
 
                 action= value.lower()
@@ -476,12 +462,11 @@ class cmm(object):
 
                     elif self.iscollaborator == True:
                         self.collaborator.superstate.event(source, comp, name, value, code, text)
-                    
+
                 elif name == "MaterialLoad" and action!='unavailable':
                     try:
                         if value.lower() == 'ready' and self.state == 'base:operational:idle':
                             eval('self.robot_material_load_ready()')
-                        #print (self.material_load_interface.superstate.state)
                         eval('self.material_load_interface.superstate.'+action+'()')
                     except Exception as e:
 			print ("Incorrect event")
@@ -497,13 +482,11 @@ class cmm(object):
 			print (e)
 
                 elif comp == "Controller":
-                    
                     if name == "ControllerMode":
                         if source.lower() == 'cmm':
                             self.adapter.begin_gather()
                             self.mode1.set_value(value.upper())
                             self.adapter.complete_gather()
-                            
 
                     elif name == "Execution":
                         if source.lower() == 'cmm':
@@ -519,16 +502,14 @@ class cmm(object):
                     if name == "SYSTEM" and action!='unavailable':
                         try:
                             eval('self.'+source.lower()+'_system_'+value.lower()+'()')
-                        except:
-                            "Not a valid trigger"
+                        except Exception as e:
+                            print ("Not a valid Device trigger",e)
 
                     elif name == "Availability":
                         if source.lower() == 'cmm':
                             self.adapter.begin_gather()
                             self.avail1.set_value(value.upper())
                             self.adapter.complete_gather()
-
-                     
 
         self.superstate = statemachineModel(host,port, sim, cell_part)
 
@@ -541,7 +522,7 @@ class cmm(object):
         states = [{'name':'base', 'children':['activated',{'name':'operational', 'children':['loading', 'cycle_start', 'unloading', 'idle']}, {'name':'disabled', 'children':['fault', 'not_ready']}]} ]
 
         transitions= [['start', 'base', 'base:disabled'],
-                      
+
                       ['cmm_controller_mode_automatic', 'base', 'base:activated'],
 
                       ['reset_cmm', 'base', 'base:activated'],
@@ -561,7 +542,7 @@ class cmm(object):
                       ['default', 'base:disabled:fault', 'base:disabled:fault'],
                       ['faulted', 'base:activated', 'base:disabled:fault'],
                       ['cmm_fault', 'base:operational:cycle_start','base:disabled:fault'],
-                      
+
                       ['start', 'base:disabled', 'base:disabled:not_ready'],
                       ['default', 'base:disabled:not_ready', 'base:disabled:not_ready'],
                       ['default', 'base:disabled', 'base:disabled:not_ready'],
@@ -570,7 +551,7 @@ class cmm(object):
                       ['loading', 'base:operational', 'base:operational:loading'],
                       ['default', 'base:operational:loading', 'base:operational:loading'],
                       {'trigger':'complete', 'source':'base:operational:unloading', 'dest':'base:operational:loading','before':'UNLOADED'},
-                    
+
                       ['unloading', 'base:operational', 'base:operational:unloading'],
                       ['default', 'base:operational:unloading', 'base:operational:unloading'],
                       ['cmm_execution_ready', 'base:operational:cycle_start', 'base:operational:unloading'],
@@ -581,14 +562,13 @@ class cmm(object):
                       {'trigger':'robot_material_unload_ready','source':'base:operational:idle','dest':'base:operational', 'after':'EXITING_IDLE'},
                       {'trigger':'robot_material_load_ready','source':'base:operational:idle','dest':'base:operational', 'after':'EXITING_IDLE'},
                       ['default', 'base:operational:idle', 'base:operational:idle'],
-                      
+
                       ['make_operational', 'base:activated', 'base:operational']
-      
-                      
+
                       ]
 
         self.statemachine = Machine(model = self.superstate, states = states, transitions = transitions, initial = 'base',ignore_invalid_triggers=True)            
-            
+
         self.statemachine.on_enter('base:disabled', 'CMM_NOT_READY')
         self.statemachine.on_enter('base:disabled:not_ready', 'CMM_NOT_READY')
         self.statemachine.on_enter('base:disabled:fault', 'CMM_NOT_READY')
@@ -603,34 +583,8 @@ class cmm(object):
 
 
 if __name__ == '__main__':
-    """
-    #collaborator
-    cmm1 = cmm('localhost',7591)
-    cmm1.create_statemachine()
-    cmm1.superstate.has_material = False
-    cmm1.superstate.load_time_limit(200)
-    cmm1.superstate.unload_time_limit(200)
-    time.sleep(7)
-    cmm1.superstate.enable()
-    
-
-    #Coordinator
-    cmm1 = cmm()
-    cmm1.create_statemachine('localhost',7591)
-    cmm1.superstate.has_material = True
-    cmm1.superstate.load_time_limit(200)
-    cmm1.superstate.unload_time_limit(200)
-    
-    time.sleep(15)
-    cmm1.superstate.enable()
-    """
-
     cmm = cmm('localhost',7596)
     cmm.create_statemachine()
     cmm.superstate.load_time_limit(600)
     cmm.superstate.unload_time_limit(600)
     cmm.superstate.enable()
-    
-    
-        
-        

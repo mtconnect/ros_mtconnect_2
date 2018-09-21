@@ -35,7 +35,7 @@ class inputConveyor(object):
                 self.cell_part = cell_part
 
                 self.initiate_interfaces()
-                
+
                 self.system = []
 
                 self.load_time_limit(15)
@@ -55,13 +55,13 @@ class inputConveyor(object):
                 self.master_uuid = str()
 
                 self.iscoordinator = False
-                
+
                 self.iscollaborator = False
-                
+
                 self.system_normal = True
-                                
+
                 self.has_material = False
-                
+
                 self.fail_next = False
 
                 self.internal_buffer = {}
@@ -81,7 +81,7 @@ class inputConveyor(object):
             def set_priority(self):
                 self.priority = None
                 self.priority = priority(self, self.conv1_binding)
-                
+
             def initial_execution_state(self):
                 self.execution = {}
                 self.execution['cnc1'] = None
@@ -100,7 +100,7 @@ class inputConveyor(object):
                 self.internal_buffer['rework'] = True
 
             def initiate_adapter(self, host, port):
-                
+
                 self.adapter = Adapter((host,port))
 
                 self.mode1 = Event('mode')
@@ -123,7 +123,7 @@ class inputConveyor(object):
 
                 self.material_unload = Event('material_unload')
                 self.adapter.add_data_item(self.material_unload)
-                
+
             def initiate_dataitems(self):
 
                 self.adapter.begin_gather()
@@ -147,7 +147,7 @@ class inputConveyor(object):
 
                 self.thread3= Thread(target = self.start_pull,args=("http://localhost:5000","""/cmm/sample?path=//DataItem[@category="EVENT"]&interval=10&count=1000""",from_long_pull))
                 self.thread3.start()
-                
+
             def start_pull(self,addr,request, func, stream = True):
 
                 response = requests.get(addr+request+"&from="+self.nextsequence, stream=stream)
@@ -170,11 +170,11 @@ class inputConveyor(object):
                     self.make_operational()
 
                 elif self.system_normal:
-                    
+
                     self.still_not_ready()
 
                 else:
-                    
+
                     self.faulted()
 
             def part_order(self):
@@ -216,20 +216,18 @@ class inputConveyor(object):
                 else:
                     return None
 
-                
             def OPERATIONAL(self):
                 part_order = self.part_order()
-                    
+
                 if part_order == "coordinator":
-                    #print (self.current_part)
+
                     self.unloading()
-                    
+
                     self.iscoordinator = True
                     self.iscollaborator = False
 
                     if self.master_uuid in self.master_tasks:
                         del self.master_tasks[self.master_uuid]
-                
                     self.master_uuid = self.deviceUuid+'_'+str(uuid.uuid4())
                     master_task_uuid = copy.deepcopy(self.master_uuid)
 
@@ -238,9 +236,9 @@ class inputConveyor(object):
                     self.adapter.begin_gather()
                     self.conv1_binding.set_value(self.master_uuid)
                     self.adapter.complete_gather()
-                            
+
                     self.coordinator_task = "MoveMaterial_1"+"_"+self.current_part
-                    
+
                     self.coordinator = coordinator(parent = self, master_task_uuid = master_task_uuid, interface = self.binding_state_material , coordinator_name = self.deviceUuid)
                     self.coordinator.create_statemachine()
 
@@ -249,9 +247,8 @@ class inputConveyor(object):
                     self.coordinator.superstate.unavailable()
 
                 elif part_order == "collaborator":
-                    #print (self.current_part)
                     self.loading()
-                    
+
                     self.iscoordinator = False
                     self.iscollaborator = True
                     self.collaborator = collaborator(parent = self, interface = self.binding_state_material, collaborator_name = self.deviceUuid)
@@ -285,7 +282,6 @@ class inputConveyor(object):
                 if self.current_part == 'rework':
                     self.cycle_count = self.cycle_count + 1
                     self.cell_part(cycle_count = True)
-                    #print ("Cycle completed !")
 
                 self.material_load_interface.superstate.DEACTIVATE()
 
@@ -301,14 +297,13 @@ class inputConveyor(object):
                 time.sleep(1)
 
             def EXIT_UNLOADING(self):
-                self.has_material = False #look into it later
+                self.has_material = False
                 self.material_unload_interface.superstate.DEACTIVATE()
                 self.internal_buffer[self.current_part] = False
                 while self.binding_state_material.value().lower() != 'inactive':
                     pass
 
                 time.sleep(1)
-                #print (self.cell_part(self.current_part))
 
             def load_time_limit(self, limit):
                 self.material_load_interface.superstate.processing_time_limit = limit
@@ -331,7 +326,7 @@ class inputConveyor(object):
 
             def EXITING_IDLE(self):
                 if self.has_material:
-                    self.has_material = False #look into it later
+                    self.has_material = False
 
 
             def LOADED(self):
@@ -383,17 +378,16 @@ class inputConveyor(object):
                 elif name == "MaterialUnload" and action!= 'unavailable':
                     if value.lower() == 'ready' and self.state == 'base:operational:idle':
                         eval('self.robot_material_unload_ready()')
-                    
+
                     eval('self.material_unload_interface.superstate.'+action+'()')
 
                 elif comp == "Controller":
-                    
+
                     if name == "ControllerMode":
                         if source.lower() == 'conv':
                             self.adapter.begin_gather()
                             self.mode1.set_value(value.upper())
                             self.adapter.complete_gather()
-                            
 
                     elif name == "Execution":
                         if source.lower() == 'conv':
@@ -403,15 +397,14 @@ class inputConveyor(object):
 
                         elif text in self.execution:
                             self.execution[text]  = value.lower()
-                            
 
                 elif comp == "Device":
 
                     if name == "SYSTEM" and action!='unavailable':
                         try:
                             eval('self.'+source.lower()+'_system_'+value.lower()+'()')
-                        except:
-                            "Not a valid trigger"
+                        except Exception as e:
+                            print ("Not a valid Device trigger",e)
 
                     elif name == "Availability":
                         if source.lower() == 'conv':
@@ -431,9 +424,9 @@ class inputConveyor(object):
         states = [{'name':'base', 'children':['activated',{'name':'operational', 'children':['loading', 'unloading', 'idle']}, {'name':'disabled', 'children':['fault', 'not_ready']}]} ]
 
         transitions= [['start', 'base', 'base:disabled'],
-                      
+
                       ['conveyor_controller_mode_automatic', 'base', 'base:activated'],
-                      
+
                       ['enable', 'base', 'base:activated'],
                       ['disable', 'base', 'base:activated'],
                       ['conveyor_controller_mode_manual', 'base', 'base:activated'],
@@ -446,7 +439,7 @@ class inputConveyor(object):
                       ['robot_system_fault', 'base', 'base:disabled:fault'],
                       ['default', 'base:disabled:fault', 'base:disabled:fault'],
                       ['faulted', 'base:activated', 'base:disabled:fault'],
-                      
+
                       ['start', 'base:disabled', 'base:disabled:not_ready'],
                       ['default', 'base:disabled:not_ready', 'base:disabled:not_ready'],
                       ['default', 'base:disabled', 'base:disabled:not_ready'],
@@ -454,27 +447,26 @@ class inputConveyor(object):
 
                       ['loading', 'base:operational', 'base:operational:loading'],
                       ['default', 'base:operational:loading', 'base:operational:loading'],
-                      
+
                       ['unloading', 'base:operational', 'base:operational:unloading'],
                       ['default', 'base:operational:unloading', 'base:operational:unloading'],
-                      
+
                       ['failed', 'base:operational:loading', 'base:operational:idle'],
                       ['failed', 'base:operational:unloading', 'base:operational:idle'],
                       {'trigger':'complete', 'source':'base:operational:unloading', 'dest':'base:operational', 'before':'EXIT_UNLOADING'},
                       {'trigger':'complete', 'source':'base:operational:loading', 'dest':'base:operational', 'before':'EXIT_LOADING'},
-                      
+
                       ['start', 'base:operational', 'base:operational:idle'],
                       {'trigger':'robot_material_unload_ready','source':'base:operational:idle','dest':'base:operational', 'after':'EXITING_IDLE'},
                       {'trigger':'robot_material_load_ready','source':'base:operational:idle','dest':'base:operational', 'after':'EXITING_IDLE'},
                       ['default', 'base:operational:idle', 'base:operational:idle'],
-                      
+
                       ['make_operational', 'base:activated', 'base:operational']
-      
-                      
+
                       ]
 
         self.statemachine = Machine(model = self.superstate, states = states, transitions = transitions, initial = 'base',ignore_invalid_triggers=True)            
-            
+
         self.statemachine.on_enter('base:disabled', 'InputConveyor_NOT_READY')
         self.statemachine.on_enter('base:disabled:not_ready', 'InputConveyor_NOT_READY')
         self.statemachine.on_enter('base:disabled:fault', 'InputConveyor_NOT_READY')
@@ -483,8 +475,6 @@ class inputConveyor(object):
         self.statemachine.on_enter('base:operational:idle','IDLE')
         self.statemachine.on_enter('base:operational:loading', 'LOADING')
         self.statemachine.on_enter('base:operational:unloading', 'UNLOADING')
-
-        
 
 if __name__ == '__main__':
     conv1 = inputConveyor('localhost',7780)

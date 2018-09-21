@@ -18,7 +18,7 @@ from transitions.extensions.nesting import NestedState
 from threading import Timer, Thread
 import functools, time, re, copy
 import xml.etree.ElementTree as ET
-import requests, urllib2, uuid       
+import requests, urllib2, uuid
 
 class Buffer(object):
 
@@ -33,8 +33,7 @@ class Buffer(object):
                 self.initiate_dataitems()
 
                 self.initiate_interfaces()
-                
-                
+
                 self.system = []
 
                 self.load_time_limit(15)
@@ -48,7 +47,7 @@ class Buffer(object):
                 self.master_tasks = {}
 
                 self.deviceUuid = "b1"
-                
+
                 self.buffer = []
 
                 self.lp = {}
@@ -56,15 +55,15 @@ class Buffer(object):
                 self.buffer_size = 100
 
                 self.master_uuid = str()
-                
+
                 self.iscoordinator = False
-                
+
                 self.iscollaborator = False
-                
+
                 self.system_normal = True
-                
+
                 self.has_material = False
-                
+
                 self.fail_next = False
 
                 self.timer_check = str()
@@ -92,7 +91,7 @@ class Buffer(object):
                 self.material_unload_interface = MaterialUnload(self)
 
             def initiate_adapter(self, host, port):
-                
+
                 self.adapter = Adapter((host,port))
 
                 self.mode1 = Event('mode')
@@ -117,7 +116,7 @@ class Buffer(object):
                 self.adapter.add_data_item(self.material_unload)
 
             def initiate_dataitems(self):
-                
+
                 self.adapter.begin_gather()
 
                 self.avail1.set_value("AVAILABLE")
@@ -166,20 +165,18 @@ class Buffer(object):
                     self.faulted()
 
             def buffer_append(self):
-                #add intelligence
-                #part id and destination and priority?
                 if len(self.buffer)<100:
-                    self.buffer.append([len(self.buffer)+1]) #should be part ID
+                    self.buffer.append([len(self.buffer)+1])
 
             def buffer_pop(self):
                 if len(self.buffer)>0:
                     self.buffer.pop(0)
-                
+
             def OPERATIONAL(self):
                 self.make_idle()
 
             def IDLE(self):
-                #decide if collab/coord, initiate both here, if one happens before the other, go ahead with that.
+
                 if len(self.buffer)>0:
                     self.has_material = True
                 else:
@@ -187,12 +184,6 @@ class Buffer(object):
                 if self.binding_state_material.value() == "COMMITTED":
                     self.wait_for_task_completion()
                 else:
-                    """
-                    if len(self.buffer)<99:
-                        self.iscollaborator = True
-                    else:
-                        self.iscollaborator = False
-                    """
                     if self.has_material:
                         self.iscoordinator = True
                         self.iscollaborator = False
@@ -201,23 +192,19 @@ class Buffer(object):
                         self.iscoordinator = False
                         self.iscollaborator = True
                         self.material_unload_interface.superstate.DEACTIVATE()
-                        
 
-                    
                     if not self.has_material and self.binding_state_material.value() != "COMMITTED":
-                        #self.loading()
                         self.collaborator = collaborator(parent = self, interface = self.binding_state_material, collaborator_name = self.deviceUuid)
                         self.collaborator.create_statemachine()
                         self.collaborator.superstate.task_name = "LoadBuffer"
                         self.collaborator.superstate.unavailable()
                         self.material_load_interface.superstate.IDLE()
                         self.priority.collab_check()
-                   
+
                     if self.has_material and self.binding_state_material.value() != "COMMITTED":
-                        #self.unloading()
                         if self.master_uuid in self.master_tasks:
                             del self.master_tasks[self.master_uuid]
-                            
+
                         self.master_uuid = self.deviceUuid+'_'+str(uuid.uuid4())
                         master_task_uuid = copy.deepcopy(self.master_uuid)
                         self.coordinator_task = "MoveMaterial_3"
@@ -226,16 +213,12 @@ class Buffer(object):
                         self.adapter.begin_gather()
                         self.buffer_binding.set_value(master_task_uuid)
                         self.adapter.complete_gather()
-                        
+
                         self.coordinator = coordinator(parent = self, master_task_uuid = master_task_uuid, interface = self.binding_state_material , coordinator_name = self.deviceUuid)
                         self.coordinator.create_statemachine()
                         self.coordinator.superstate.task_name = "UnloadBuffer"
                         self.coordinator.superstate.unavailable()
                         self.material_unload_interface.superstate.IDLE()
-                        
-                        #thread = Thread(target = self.collaborator_check)
-                        #thread.start()
-
 
             def LOADING(self):
                 self.material_unload_interface.superstate.DEACTIVATE()
@@ -247,7 +230,7 @@ class Buffer(object):
                 self.material_load_interface.superstate.DEACTIVATE()
 
             def EXIT_UNLOADING(self):
-                self.material_unload_interface.superstate.DEACTIVATE()              
+                self.material_unload_interface.superstate.DEACTIVATE()
 
             def load_time_limit(self, limit):
                 self.material_load_interface.superstate.processing_time_limit = limit
@@ -262,8 +245,7 @@ class Buffer(object):
                 self.material_unload_interface.superstate.fail_time_limit = limit
 
             def status(self):
-                'state'
-                #return all the states. Necessary for the first draft?
+                pass
 
             def interface_type(self, value = None, subtype = None):
                 self.interfaceType = value
@@ -272,7 +254,6 @@ class Buffer(object):
                 if self.interfaceType == "Request":
                     self.complete()
 
-              
             def LOADED(self):
                 self.buffer_append()
 
@@ -294,10 +275,8 @@ class Buffer(object):
                     if self.binding_state_material.value() != "COMMITTED":
                         time.sleep(1)
                         self.IDLE()
-                
                 thread = Thread(target = check)
                 thread.start()
-                
 
             def UNLOADED(self):
                 self.buffer_pop()
@@ -312,71 +291,34 @@ class Buffer(object):
 
 
             def collaborator_check(self):
-                """
-                def timer_out():
-                    pass
-                timer_check = Timer(5,timer_out)
-                timer_check.start()
-                while timer_check.isAlive():
-                    if self.collaborator.superstate.state == 'base:preparing':
-                        self.iscoordinator = False
-                        self.coordinator.superstate.task.superstate.default()
-                        self.material_unload_interface.superstate.DEACTIVATE()
-                        
-                        timer_check.cancel()
-
-                """
                 while self.iscollaborator and self.iscoordinator:
                     if self.collaborator.superstate.state == 'base:preparing':
                         self.iscoordinator = False
                         self.iscollaborator = True
-                        #self.coordinator.superstate.task.superstate.default()
                         self.material_unload_interface.superstate.DEACTIVATE()
-                        
                     elif self.coordinator.superstate.task.superstate.state == 'base:committing':
                         self.iscollaborator = False
                         self.iscoordinator = True
-                        #self.collaborator.superstate.default()
                         self.material_load_interface.superstate.DEACTIVATE()
-                    
 
             def event(self, source, comp, name, value, code = None, text = None):
                 self.events.append([source, comp, name, value, code, text])
 
                 action= value.lower()
-                
                 if action == "fail":
                     action = "failure"
 
+
                 if comp == "Coordinator" and value.lower() == 'preparing':
                     self.priority.event_list([source, comp, name, value, code, text])
-                    
-                
+
                 if comp == "Task_Collaborator" and self.iscoordinator == True:
-                    """
-                    if value.lower() == 'preparing':
-                        def timer_out():
-                            pass
-                        timer_check = Timer(0.500,timer_out)
-                        timer_check.start()
-                        while timer_check.isAlive():
-                            if self.collaborator.superstate.state == 'base:preparing':
-                                self.iscoordinator = False
-                                #self.coordinator.superstate.task.superstate.default()
-                                self.material_unload_interface.superstate.DEACTIVATE()
-                                
-                                timer_check.cancel()
-                        self.coordinator.superstate.event(source, comp, name, value, code, text)
-                    else:
-                    """
                     self.coordinator.superstate.event(source, comp, name, value, code, text)
 
 
                 elif comp == "Coordinator" and self.iscollaborator == True:
-                    #if self.iscoordinator: self.iscoordinator = False
                     if value.lower() != 'preparing':
                         self.collaborator.superstate.event(source, comp, name, value, code, text)
-                    
 
                 elif 'SubTask' in name:
                     if self.iscoordinator == True:
@@ -384,7 +326,7 @@ class Buffer(object):
 
                     elif self.iscollaborator == True:
                         self.collaborator.superstate.event(source, comp, name, value, code, text)
-                    
+
                 elif name == "MaterialLoad":
                     try:
                         if value.lower() == 'ready' and self.state == 'base:operational:idle':
@@ -404,7 +346,6 @@ class Buffer(object):
 			print (e)
 
                 elif comp == "Controller":
-                    
                     if name == "ControllerMode":
                         if source == 'Buffer':
                             self.adapter.begin_gather()
@@ -430,7 +371,6 @@ class Buffer(object):
                             self.adapter.begin_gather()
                             self.avail1.set_value(value.upper())
                             self.adapter.complete_gather()
-                     
 
         self.superstate = statemachineModel(host,port)
 
@@ -443,7 +383,7 @@ class Buffer(object):
         states = [{'name':'base', 'children':['activated',{'name':'operational', 'children':['loading', 'unloading', 'idle']}, {'name':'disabled', 'children':['fault', 'not_ready']}]} ]
 
         transitions= [['start', 'base', 'base:disabled'],
-                                            
+
                       ['enable', 'base', 'base:activated'],
                       ['disable', 'base', 'base:activated'],
                       ['Buffer_controller_mode_manual', 'base', 'base:activated'],
@@ -458,7 +398,7 @@ class Buffer(object):
                       ['robot_system_fault', 'base', 'base:disabled:fault'],
                       ['default', 'base:disabled:fault', 'base:disabled:fault'],
                       ['faulted', 'base:activated', 'base:disabled:fault'],
-                      
+
                       ['start', 'base:disabled', 'base:disabled:not_ready'],
                       ['default', 'base:disabled:not_ready', 'base:disabled:not_ready'],
                       ['default', 'base:disabled', 'base:disabled:not_ready'],
@@ -466,29 +406,28 @@ class Buffer(object):
 
                       ['loading', 'base:operational', 'base:operational:loading'],
                       ['default', 'base:operational:loading', 'base:operational:loading'],
-                      
+
                       ['unloading', 'base:operational', 'base:operational:unloading'],
                       ['default', 'base:operational:unloading', 'base:operational:unloading'],
-                      
+
                       ['failed', 'base:operational:loading', 'base:operational:idle'],
                       {'trigger':'complete', 'source':'base:operational:unloading', 'dest':'base:operational:idle','before':'UNLOADED'},
-                      
+
                       ['failed', 'base:operational:unloading', 'base:operational:idle'],
-                      
+
                       {'trigger':'complete', 'source':'base:operational:loading', 'dest':'base:operational:idle','before':'LOADED'},
-                      
+
                       ['start', 'base:operational', 'base:operational:idle'],
                       {'trigger':'robot_material_unload_ready','source':'base:operational:idle','dest':'base:operational:unloading'},
                       {'trigger':'robot_material_load_ready','source':'base:operational:idle','dest':'base:operational:loading'},
                       ['default', 'base:operational:idle', 'base:operational:idle'],
-                      
+
                       ['make_operational', 'base:activated', 'base:operational']
-      
-                      
+
                       ]
 
-        self.statemachine = Machine(model = self.superstate, states = states, transitions = transitions, initial = 'base',ignore_invalid_triggers=True)            
-            
+        self.statemachine = Machine(model = self.superstate, states = states, transitions = transitions, initial = 'base',ignore_invalid_triggers=True)
+
         self.statemachine.on_enter('base:disabled', 'BUFFER_NOT_READY')
         self.statemachine.on_enter('base:activated', 'ACTIVATE')
         self.statemachine.on_enter('base:operational', 'OPERATIONAL')
@@ -500,27 +439,6 @@ class Buffer(object):
 
 
 if __name__ == '__main__':
-    """
-    #collaborator
-    b1 = Buffer('localhost',7671)
-    b1.create_statemachine()
-    b1.superstate.has_material = False
-    b1.superstate.load_time_limit(200)
-    b1.superstate.unload_time_limit(200)
-    time.sleep(10)
-    b1.superstate.enable()
-    
-    #Coordinator
-    
-    b1 = Buffer('localhost',7670)
-    b1.create_statemachine()
-    b1.superstate.has_material = True
-    b1.superstate.buffer.append('b1_testrun')
-    b1.superstate.load_time_limit(200)
-    b1.superstate.unload_time_limit(200)
-    time.sleep(10)
-    b1.superstate.enable()
-    """
     b = Buffer('localhost',7696)
     b.create_statemachine()
     b.superstate.load_time_limit(600)
