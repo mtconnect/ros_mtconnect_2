@@ -59,6 +59,11 @@
 						<DataItem type="DOOR_STATE" category="EVENT" id="cdrs" name="door_state"/>
 					</DataItems>
 				</Door>
+                                <Tool name="tool" id="ts">
+                                        <DataItems>
+                                                <DataItem type="TOOL_STATE" category="EVENT" id="cts" name="tool_state"/>
+                                        </DataItems>
+                                </Tool>
 			</Components>
 		</Device>
 		<Device uuid="r1" name="robot" sampleRate="10.0" id="b">
