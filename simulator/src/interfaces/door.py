@@ -1,6 +1,7 @@
 from response import *
 from request import *
 
+"""Request and Response Interfaces for a Door"""
 
 def OpenDoor(parent, simulate = True):
     OpenDoor = Response(parent, parent.adapter, parent.open_door, 'door', 'OPEN', 'UNLATCHED', parent.door_state, rel = True, simulate = simulate)

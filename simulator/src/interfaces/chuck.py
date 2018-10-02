@@ -1,6 +1,8 @@
 from response import *
 from request import *
 
+"""Request and Response Interfaces for a Chuck/Vice/Fixture"""
+
 def OpenChuck(parent, simulate = True):
     OpenChuck = Response(parent, parent.adapter, parent.open_chuck, 'chuck', 'OPEN', 'UNLATCHED', parent.chuck_state, rel = True, simulate = simulate)
     OpenChuck.create_statemachine()

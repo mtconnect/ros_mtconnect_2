@@ -3,13 +3,6 @@ from transitions.extensions.nesting import NestedState
 from threading import Timer, Thread
 import functools, time
 
-#intializing interface here for testing.
-class interface(object):
-    
-    def __init__(self):
-        self.value = ""
-        self.bot_interface_value = ""
-
 class Response(object):
 
     def __init__(self, parent, adapter, interface, prefix, dest_state, transition_state, response_state, rel, simulate = True):
@@ -20,8 +13,6 @@ class Response(object):
         self.prefix = prefix
         self.dest_state = prefix + dest_state
         self.transition_state = prefix + transition_state
-        if rel: self.related = rel
-        else: self.related = rel
         self.simulate = simulate
         self.is_active = True
 
@@ -37,14 +28,17 @@ class Response(object):
                 self.response_state = response_state
                 self.transition_state = transition_state
                 self.simulate = simulate
-                self.fail_reset_delay = 1
+
+                #default fail reset time
+                self.fail_reset_delay = 1.0
                 self.fail_next = False
-                if rel: self.related = rel
-                else: self.related = False
+
+                #default simulated response completion time
                 self.simulated_duration = 1.0
-                #add on later
 
             def check_state_calls(func):
+                #wrapper to check if a method has been called
+
                 @functools.wraps(func)
                 def wrapper(*args, **kwargs):
                     if not wrapper.has_been_called:
@@ -81,17 +75,19 @@ class Response(object):
                     self.interface.set_value("ACTIVE")
                     self.adapter.complete_gather()
                     self.complete()
-                    
+
                 else:
                     self.adapter.begin_gather()
                     self.interface.set_value("ACTIVE")
                     self.response_state.set_value(self.transition_state)
                     self.adapter.complete_gather()
 
+                    #initial state of all the methods: True (called) or False (not called)
                     check_state_list=[
                     self.DEFAULT.has_been_called, self.FAILURE.has_been_called, self.READY.has_been_called, self.NOT_READY.has_been_called, self.COMPLETE.has_been_called
                     ]
                     if self.simulate:
+                        #method for response completion either after a timeout or after a valid trigger is called
                         def sim_duration():
                             timer_processing = Timer(self.simulated_duration,self.complete)
                             timer_processing.start()
@@ -104,7 +100,7 @@ class Response(object):
                                     timer_processing.cancel()
                                     self.DEFAULT()
                                     break
-                            
+
                                 elif self.READY.has_been_called!=check_state_list[2]:
                                     timer_processing.cancel()
                                     self.DEFAULT()
@@ -114,7 +110,7 @@ class Response(object):
                                     timer_processing.cancel()
                                     self.DEFAULT()
                                     break
-                                
+
                         t = Thread(target = sim_duration)
                         t.start()
 
@@ -123,33 +119,27 @@ class Response(object):
                 self.adapter.begin_gather()
                 self.interface.set_value("FAIL")
                 self.adapter.complete_gather()
-                try:
-                    self.parent.FAILED()
-                except:
-                    "Local Spec Testing"
+
+                self.parent.FAILED()
+
                 def fail_reset():
                     time.sleep(self.fail_reset_delay)
                     self.not_ready()
                 t = Thread(target = fail_reset)
                 t.start()
 
-            @check_state_calls  
+            @check_state_calls
             def COMPLETE(self):
                 self.adapter.begin_gather()
                 self.response_state.set_value(self.dest_state)
                 self.adapter.complete_gather()
 
-                #self.parent.interface_type(value = 'Response'+self.prefix.lower()+self.dest_state.lower())
-
                 self.adapter.begin_gather()
                 self.interface.set_value("COMPLETE")
                 self.adapter.complete_gather()
-		#time.sleep(0.1)
 
 		self.parent.interface_type(value = 'Response'+self.prefix.lower()+self.dest_state.lower())
                 self.parent.COMPLETED()
-                
-                
 
             def void(self):
                 pass
@@ -158,7 +148,7 @@ class Response(object):
                 self.is_active = False
                 if self.state!='base:not_ready' and self.state!='base:fail':
                     self.reset()
-                
+
             def ACTIVATE(self):
                 self.is_active = True
                 if self.state!='base:not_ready' and self.state!='base:fail':
@@ -172,9 +162,7 @@ class Response(object):
             def DEFAULT(self):
                 self.default()
 
-        
         self.superstate = statemachineModel(adapter = adapter, interface = interface, parent = parent, prefix = prefix, dest_state = dest_state, transition_state = transition_state, response_state = response_state, rel = rel, simulate = simulate)
-    
 
 
     def create_statemachine(self):
@@ -220,4 +208,3 @@ class Response(object):
         self.statemachine.on_enter('base:active', 'ACTIVE')
         self.statemachine.on_enter('base:fail', 'FAILURE')
         self.statemachine.on_enter('base:complete', 'COMPLETE')
-                                   

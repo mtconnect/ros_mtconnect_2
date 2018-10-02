@@ -1,6 +1,8 @@
 from request import *
 from response import *
 
+"""Request and Response Interfaces for Material Handling"""
+
 def MaterialLoad(parent):
     MaterialLoad = Request(parent, parent.adapter, parent.material_load, rel = True)
     MaterialLoad.create_statemachine()
