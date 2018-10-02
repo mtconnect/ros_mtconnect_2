@@ -91,7 +91,7 @@ class collaborator(object):
                 self.interface.set_value("COMMITTED")
                 self.parent.adapter.complete_gather()
 
-            def commited_init(self):
+            def committed_init(self):
                 collabUuid = False
                 self.ordered_tasks = []
                 for key,val in self.parent.master_tasks[self.parent.master_uuid]['coordinator'][self.parent.master_tasks[self.parent.master_uuid]['coordinator'].keys()[0]]['SubTask'].iteritems():
@@ -185,7 +185,7 @@ class collaborator(object):
                         elif value.lower() == 'committed' and text in self.parent.master_tasks[code]['coordinator']:
                             self.parent.master_tasks[code]['coordinator'][text]['state'][2] = value
 
-                            t1= Thread(target = self.commited_init)
+                            t1= Thread(target = self.committed_init)
                             t1.start()
 
                     elif 'SubTask' in name:

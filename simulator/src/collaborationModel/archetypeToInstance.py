@@ -1,6 +1,6 @@
 import os,sys
 sys.path.insert(0,os.getcwd()+'\\taskArchetype') #child path
-sys.path.insert(0, os.path.dirname(os.getcwd())) #parent
+
 import xml.etree.ElementTree as ET
 import uuid, re
 import datetime, copy
@@ -23,14 +23,11 @@ class archetypeToInstance(object):
             fileOpen = open(os.path.join('taskArchetype', taskArch +'.xml'))
             fileRead = fileOpen.read()
             root = ET.fromstring(fileRead)
-        except:
-            #for mamba
-            fileOpen = open('../src/taskArchetype/'+taskArch+'.xml')
-            fileRead = fileOpen.read()
-            root = ET.fromstring(fileRead)
+            return root
 
-
-        return root
+        except Exception as e:
+            print ("No task archetype found.",e)
+            return
 
     def formatTaskArch(self, taskArch):
         taskFormat = taskArch.split('_')[0]
@@ -99,10 +96,13 @@ class archetypeToInstance(object):
                     collaborators.append(y.attrib['collaboratorId'])
                 taskType = self.formatTaskType(childRoot.findall('.//'+root.tag.split('}')[0]+'}TaskType')[0].text)
 
-                if childRoot.findall('.//'+root.tag.split('}')[0]+'}TaskArchetype')[0].attrib['assetId'] in jsonSubTaskModel[root.findall('.//'+root.tag.split('}')[0]+'}TaskArchetype')[0].attrib['assetId']]:
-                    jsonSubTaskModel[root.findall('.//'+root.tag.split('}')[0]+'}TaskArchetype')[0].attrib['assetId']][childRoot.findall('.//'+root.tag.split('}')[0]+'}TaskArchetype')[0].attrib['assetId']+'2'] = {'order':x.attrib['order'], 'coordinator':childRoot.findall('.//'+root.tag.split('}')[0]+'}Coordinator')[0].attrib['collaboratorId'], 'collaborators':collaborators, 'TaskType':taskType}
+                assetId_child = childRoot.findall('.//'+root.tag.split('}')[0]+'}TaskArchetype')[0].attrib['assetId']
+                assetId_parent = root.findall('.//'+root.tag.split('}')[0]+'}TaskArchetype')[0].attrib['assetId']
+
+                if assetId_child in jsonSubTaskModel[assetId_parent]:
+                    jsonSubTaskModel[assetId_parent][assetId_child+'2'] = {'order':x.attrib['order'], 'coordinator':childRoot.findall('.//'+root.tag.split('}')[0]+'}Coordinator')[0].attrib['collaboratorId'], 'collaborators':collaborators, 'TaskType':taskType}
                 else:
-                    jsonSubTaskModel[root.findall('.//'+root.tag.split('}')[0]+'}TaskArchetype')[0].attrib['assetId']][childRoot.findall('.//'+root.tag.split('}')[0]+'}TaskArchetype')[0].attrib['assetId']] = {'order':x.attrib['order'], 'coordinator':childRoot.findall('.//'+root.tag.split('}')[0]+'}Coordinator')[0].attrib['collaboratorId'], 'collaborators':collaborators, 'TaskType':taskType}
+                    jsonSubTaskModel[assetId_parent][assetId_child] = {'order':x.attrib['order'], 'coordinator':childRoot.findall('.//'+root.tag.split('}')[0]+'}Coordinator')[0].attrib['collaboratorId'], 'collaborators':collaborators, 'TaskType':taskType}
 
                 self.traverse(childRoot,jsonSubTaskModel[root.findall('.//'+root.tag.split('}')[0]+'}TaskArchetype')[0].attrib['assetId']][childRoot.findall('.//'+root.tag.split('}')[0]+'}TaskArchetype')[0].attrib['assetId']])
 
@@ -189,3 +189,4 @@ def update(taskIns, dataitem, value):
 if __name__ == "__main__":
     a2i = archetypeToInstance("MoveMaterial_4_bad","xyz","b1")
     a2i.jsonInstance()
+

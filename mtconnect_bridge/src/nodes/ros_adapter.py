@@ -14,8 +14,8 @@
    limitations under the License."""
     
 import mtconnect_bridge
-from data_item import Event, Sample
-from mtconnect_adapter import Adapter
+from adapter.data_item import Event, Sample
+from adapter.mtconnect_adapter import Adapter
 
 import roslib, rospy
 

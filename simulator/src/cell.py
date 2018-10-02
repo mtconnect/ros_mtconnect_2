@@ -1,8 +1,8 @@
 #!/usr/bin/python
 
 import os, sys
-sys.path.insert(0,os.getcwd()+'\\utils')
 
+"""
 from material import *
 from door import *
 from chuck import *
@@ -27,9 +27,12 @@ from from_long_pull import from_long_pull, from_long_pull_asset
 from transitions.extensions import HierarchicalMachine as Machine
 from transitions.extensions.nesting import NestedState
 from threading import Timer, Thread
+
+"""
 import functools, time, re, copy, uuid
 import requests, urllib2
 import xml.etree.ElementTree as ET
+
 
 from inputConveyor import inputConveyor
 from cnc import cnc

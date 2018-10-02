@@ -1,10 +1,13 @@
+import os,sys
+sys.path.insert(0,os.path.dirname(os.getcwd()))
+
 from threading import Timer, Thread
 import functools, time, re
 import requests, urllib2, collections,datetime
 import xml.etree.ElementTree as ET
 
-from long_pull import LongPull
-from data_item import Event, SimpleCondition, Sample, ThreeDSample
+from adapter.long_pull import LongPull
+from adapter.data_item import Event, SimpleCondition, Sample, ThreeDSample
 from archetypeToInstance import archetypeToInstance
 
 def from_long_pull(self, chunk, addr = None):

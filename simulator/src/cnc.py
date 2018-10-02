@@ -1,27 +1,28 @@
 import os, sys
-sys.path.insert(0,os.getcwd()+'\\utils')
-
-from material import *
-from tool import *
-from door import *
-from chuck import *
-from coordinator import *
-from collaborator import *
-from mtconnect_adapter import Adapter
-from long_pull import LongPull
-from priority import priority
-from data_item import Event, SimpleCondition, Sample, ThreeDSample
-from archetypeToInstance import archetypeToInstance
-from from_long_pull import from_long_pull, from_long_pull_asset
 
 from hurco_bridge import *
+
+from interfaces.material import *
+from interfaces.tool import *
+from interfaces.door import *
+from interfaces.chuck import *
+
+from collaborationModel.collaborator import *
+from collaborationModel.coordinator import *
+from collaborationModel.priority import priority
+from collaborationModel.archetypeToInstance import archetypeToInstance
+from collaborationModel.from_long_pull import from_long_pull, from_long_pull_asset
+
+from adapter.mtconnect_adapter import Adapter
+from adapter.long_pull import LongPull
+from adapter.data_item import Event, SimpleCondition, Sample, ThreeDSample
 
 from transitions.extensions import HierarchicalMachine as Machine
 from transitions.extensions.nesting import NestedState
 from threading import Timer, Thread
-import functools, time, re, copy, uuid
-import requests, urllib2, json
+import functools, time, re, copy
 import xml.etree.ElementTree as ET
+import requests, urllib2, uuid
 
 
 class cnc(object):
