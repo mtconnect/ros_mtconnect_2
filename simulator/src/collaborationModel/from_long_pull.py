@@ -26,12 +26,12 @@ def from_long_pull(self, chunk, addr = None):
 
             for event in events:
                 try:
-
                     if 'Availability' in event.tag or 'Execution' in event.tag or 'ControllerMode' in event.tag:
 
                         thread1= Thread(target = self.event,args=(source.lower(), component, event.tag.split('}')[-1], event.text, None, x.attrib['uuid']))
                         thread1.start()
 
+                    #Update device binding task in priority object
                     elif 'Binding' in event.tag and 'BindingState' not in event.tag:
                         if event.text!='UNAVAILABLE':
                             self.priority.binding_state(x.attrib['uuid'],None, event.text.lower())
@@ -39,10 +39,13 @@ def from_long_pull(self, chunk, addr = None):
                     elif event.text != 'UNAVAILABLE':
                         if ('AssetChanged' in event.tag or 'BindingState' in event.tag or self.binding_state_material.value() == "COMMITTED") and event.text.lower() != 'unavailable':
 
+                            #read asset archetype to create asset instance
                             if 'AssetChanged' in event.tag and event.text not in self.master_tasks:
                                 thread2= Thread(target = self.start_pull_asset,args=(addr,"/asset/",event.text, [event,source,component,x.attrib['uuid']]))
                                 thread2.start()
 
+
+                            #Collaboration related event handling
                             elif 'BindingState' in event.tag:
                                 stream_root = [event,source,component,x.attrib['uuid']]
                                 coord_task_id = self.priority.binding_states[stream_root[3]][1]
@@ -97,6 +100,7 @@ def from_long_pull(self, chunk, addr = None):
                                             self.event(source.lower(), 'Coordinator', 'binding_state', event.text, self.master_uuid,  collabUuid)
 
 
+                            #interfaces related event handling
                             elif self.binding_state_material.value() == "COMMITTED" and self.master_uuid in self.master_tasks:
                                 stream_root = [event,source,component,x.attrib['uuid']]
                                 coord_task_id = self.priority.binding_states[stream_root[3]][1]
@@ -135,13 +139,13 @@ def from_long_pull(self, chunk, addr = None):
                                     if self.binding_state_material.value() == "COMMITTED" and self.master_tasks[self.master_uuid]['coordinator'][self.deviceUuid]['Task'][1] == "COMMITTED":
                                         self.event(source.lower(), component, 'SubTask_'+event.tag.split('}')[-1], event.text, self.master_uuid, collabUuid)
 
-
+                        #makes sure that completed task assets are removed
                         elif 'AssetRemoved' in event.tag and self.binding_state_material.value() == "INACTIVE" and event.text.lower() != 'unavailable':
                             try:
                                 if self.deviceUuid in event.text.split('_')[0]:
                                         self.adapter.removeAsset(event.text)
                             except Exception as e:
-                                print ("THIS CLAUSE IS FOR MAKING SURE THE ASSET IS REMOVED WHEN COMPLETED.")
+                                print ("Error removing asset!")
                                 print (e)
 
                 except Exception as e:
@@ -158,9 +162,7 @@ def from_long_pull_asset(self,chunk, stream_root = None):
         task = root.findall('.//'+xmlns+'Task')[0]
         state = root.findall('.//'+xmlns+'State')[0].text
         parentRef = root.findall('.//'+xmlns+'ParentRef')
-        if self.deviceUuid == 'conv1':
-            if 'cmm1' in root.findall('.//'+xmlns+'Task')[0].attrib['assetId']:
-		pass
+
     else:
         task = None
     if task is not None and state == "PREPARING":
@@ -174,6 +176,7 @@ def from_long_pull_asset(self,chunk, stream_root = None):
                 name = "binding_state"
                 value = state
 
+                #create json task instance from xml task archetype
                 if main_task_uuid not in self.master_tasks and value == "PREPARING":
                     self.master_tasks[main_task_uuid] = archetypeToInstance(main_task_archetype,"uuid", main_task_deviceUuid, main_task_uuid).jsonInstance()
 

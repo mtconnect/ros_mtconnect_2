@@ -42,6 +42,7 @@ class task(object):
                 self.currentSubTask = str()
 
                 if not self.initialize:
+                    #execute only once
                     arch2ins = archetypeToInstance(self.parent.coordinator_task, self.master_task_uuid, self.parent.deviceUuid)
                     self.arch2ins = arch2ins
                     self.parent.master_tasks[self.master_task_uuid] = arch2ins.jsonInstance()
@@ -81,6 +82,7 @@ class task(object):
                 self.taskIns = assetUpdate(self.taskIns, "State", "COMMITTING")
                 self.parent.adapter.addAsset('Task', self.master_task_uuid, self.taskIns)
 
+                #time limit to commit
                 def commit_timer():
                     timer = Timer(self.commit_time_limit,self.void)
                     timer.start()
@@ -123,6 +125,7 @@ class task(object):
                 self.taskIns = assetUpdate(self.taskIns, "State", "COMMITTED")
                 self.parent.adapter.addAsset('Task', self.master_task_uuid, self.taskIns)
 
+                #creates subtask objects wrt the parent device
                 for key, value in self.parent.master_tasks[self.master_task_uuid]['coordinator'][self.coordinator.coordinator_name]['SubTask'].iteritems():
                     if key == self.coordinator.coordinator_name:
                         self.subTask[value[0]] = subTask.subTask(parent = self.parent , interface = interface, master_task_uuid = self.master_task_uuid, collaborators = value[2], taskName = self.coordinator.task_name)
@@ -153,6 +156,7 @@ class task(object):
                         self.parent.master_tasks[self.master_task_uuid]['coordinator'][self.coordinator.coordinator_name]['SubTask'][self.coordinator.coordinator_name][1] = 'COMPLETE'
 
             def commit(self):
+                #check if all the tasks have been completed
                 success = True
                 for key, value in self.parent.master_tasks[self.master_task_uuid]['coordinator'][self.coordinator.coordinator_name]['SubTask'].iteritems():
                     if value:
@@ -170,6 +174,7 @@ class task(object):
                     self.success()
 
             def COMPLETE(self):
+                #update states and remove task asset once completed
                 self.taskIns = assetUpdate(self.taskIns, "State", "INACTIVE")
                 self.parent.adapter.addAsset('Task', self.master_task_uuid, self.taskIns)
 

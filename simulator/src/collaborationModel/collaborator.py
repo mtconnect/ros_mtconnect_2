@@ -52,6 +52,7 @@ class collaborator(object):
                 self.parent.adapter.complete_gather()
 
             def committed(self, value, code, text):
+                #creates subtasks objects wrt the parent device
                 if self.collaborator_name in value['coordinator'][text]['SubTask'] and value['coordinator'][text]['SubTask'][self.collaborator_name]:
                     self.subTask[value['coordinator'][text]['SubTask'][self.collaborator_name][0]] = subTask.subTask(parent = self.parent , interface = interface, master_task_uuid = self.parent.master_uuid, collaborators = value['coordinator'][text]['SubTask'][self.collaborator_name][2], taskName =value['coordinator'][text]['SubTask'][self.collaborator_name][0])
                     self.subTask[value['coordinator'][text]['SubTask'][self.collaborator_name][0]].create_statemachine()
@@ -80,7 +81,7 @@ class collaborator(object):
                         pass
                     self.parent.master_tasks[code]['coordinator'][text]['SubTask'][self.collaborator_name][1] = 'COMPLETE'
 
-
+                    #short term fix wrt toolchange task
                     if 'ToolChange' in str(self.parent.master_tasks[self.parent.master_uuid]):
                         "Wait for completion"
                     else:
@@ -92,6 +93,8 @@ class collaborator(object):
                 self.parent.adapter.complete_gather()
 
             def committed_init(self):
+                #temporarily separate for committed method to better handle internal events: this method handles robot interfaces.
+
                 collabUuid = False
                 self.ordered_tasks = []
                 for key,val in self.parent.master_tasks[self.parent.master_uuid]['coordinator'][self.parent.master_tasks[self.parent.master_uuid]['coordinator'].keys()[0]]['SubTask'].iteritems():
@@ -114,8 +117,9 @@ class collaborator(object):
                             if val[0] in self.parent.master_tasks[self.parent.master_uuid]['collaborators'][self.parent.deviceUuid]['SubTask']:
                                 for i,x in enumerate(self.parent.master_tasks[self.parent.master_uuid]['collaborators'][self.parent.deviceUuid]['SubTask'][val[0]]):
                                     if not x[4]:
-                                        #internal event
+                                        #internal events: no interfaces
 
+                                        #short term fix wrt tool change task
                                         while self.currentSubTaskState != 'active' and val[0] != 'ToolChange':
                                             pass
                                         if val[0] == 'ToolChange':
@@ -126,6 +130,8 @@ class collaborator(object):
                                             self.parent.event(self.parent.deviceUuid, 'internal_event', x[1], 'ACTIVATE', None, key)
                                             self.parent.master_tasks[self.parent.master_uuid]['collaborators'][self.parent.deviceUuid]['SubTask'][val[0]][i][2] = 'COMPLETE'
                                     else:
+
+                                        #interfaces
                                         self.subTask[x[1]] = subTask.subTask(parent = self.parent , interface = interface, master_task_uuid = self.subTask[val[0]].superstate.task_uuid, collaborators = None, taskName = x[1])
                                         self.subTask[x[1]].create_statemachine()
                                         self.subTask[x[1]].superstate.create()
@@ -137,7 +143,10 @@ class collaborator(object):
                                         self.parent.master_tasks[self.parent.master_uuid]['collaborators'][self.parent.deviceUuid]['SubTask'][val[0]][i][2] = 'COMPLETE'
 
                             self.currentSubTask = copy.deepcopy(val[0])
+
                             while self.currentSubTask and self.subTask[self.currentSubTask].superstate.state != 'removed':
+
+                                #short term fix wrt tool change task
                                 if 'Unload' in self.currentSubTask:
                                     self.subTask[self.currentSubTask].superstate.success()
                                     self.parent.material_unload_interface.superstate.complete()
@@ -165,6 +174,7 @@ class collaborator(object):
             def event(self, source, comp, name, value, code = None, text = None):
 
 		try:
+                    #collaboration related event handling
                     if name == 'binding_state' and value.lower() == 'inactive' and self.parent.binding_state_material.value().lower() == 'committed' and self.currentSubTask:
                         self.subTask[self.currentSubTask].superstate.success()
                         time.sleep(0.1)
@@ -188,6 +198,7 @@ class collaborator(object):
                             t1= Thread(target = self.committed_init)
                             t1.start()
 
+                    #interfaces related event handling
                     elif 'SubTask' in name:
                         if 'binding_state' in name and 'ToolChange' in str(self.parent.master_tasks) and value.lower() == 'inactive' and self.parent.binding_state_material.value().lower()=='committed' and text == 'r1':
                             self.subTask[self.currentSubTask].superstate.success()

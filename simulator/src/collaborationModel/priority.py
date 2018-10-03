@@ -33,6 +33,7 @@ class priority(object):
 	self.processing = False
 
     def event_list(self, event):
+        #append valid task to tasks_list and execute the higher priority task
         if event:
             task_list = [float(event[4][1]['priority']), event[4][0], event[4][1]['coordinator'].keys()+event[4][1]['collaborators'].keys(), event]
             if task_list[1] not in str(self.tasks_list) and self.parent.deviceUuid in task_list[2]:
@@ -46,6 +47,7 @@ class priority(object):
 		self.processing = False
 
     def event_priority_update(self):
+        #update priority of tasks with lower priorities
         for i,x in enumerate(self.tasks_list):
             task = deepcopy(self.tasks_list[i])
             task[0] = 2*x[0]
@@ -61,6 +63,7 @@ class priority(object):
             for i,x in enumerate(self.tasks_list):
                 devices_avail = False
 
+                #check if the concerned devices are in valid executiuon state
 		for z in x[2]:
 		    if z!= self.parent.deviceUuid and (self.parent.execution[z] != 'active' or z == 'r1'):
 			devices_avail = True
@@ -75,6 +78,7 @@ class priority(object):
 		else:
 		    time.sleep(0.1)
 
+                #check if the concerned devices are in valid binding states
                 for y in x[2]:
                     if (not self.binding_states[y][0] or self.binding_states[y][0].lower() not in ['committing','committed']) and (self.parent.execution[y] != 'active' or y == 'r1'):
                         if self.binding_states[y][2] and y != x[2][0] and y!='conv1':
@@ -100,6 +104,7 @@ class priority(object):
     def collab_check2(self):
         if self.tasks_list and self.parent.iscollaborator and not self.parent.iscoordinator and self.parent.collaborator.superstate.state == 'base:inactive' and self.parent.binding_state_material.value().lower() == 'inactive':
             self.priority_event()
+            #send priority event back to the parent device
             if self.priority_task and self.priority_task != 'task_queued':
                 event = self.priority_task
                 self.parent.adapter.begin_gather()
@@ -110,6 +115,7 @@ class priority(object):
                 self.parent.collaborator.superstate.event(event[0],event[1],event[2],event[3],event[4],event[5])
 
     def collab_check(self):
+        #check for valid tasks until statemachine is available (inactive)
         def wait():
             while self.parent.binding_state_material.value().lower() != 'inactive':
                 time.sleep(2)
@@ -122,6 +128,8 @@ class priority(object):
         thread.start()
 
     def commit_check(self):
+
+        #check if the device collaborator/coordinator state
 	def all_commit():
 	    self.current_collaborators = self.parent.master_tasks[self.parent.master_uuid]['coordinator'].keys()+self.parent.master_tasks[self.parent.master_uuid]['collaborators'].keys()
 	    current_uuid = deepcopy(self.parent.master_uuid)

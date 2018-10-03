@@ -37,6 +37,7 @@ class subTask(object):
 
                 self.task_uuid = self.parent.deviceUuid+'_'+str(uuid.uuid4())
 
+                #create subtask asset
                 self.arch2ins = archetypeToInstance(self.taskName, self.task_uuid, self.parent.deviceUuid, self.master_task_uuid)
                 self.taskIns = self.arch2ins.addElement('<ParentRef assetId = "' + str(self.master_task_uuid)+'" />')
 
@@ -53,6 +54,7 @@ class subTask(object):
             def COMMITTED(self):
                 self.taskIns = assetUpdate(self.taskIns, "State", "COMMITTED")
                 if self.arch2ins.taskCoordinator == self.parent.deviceUuid:
+                    #add subtask asset to the device
                     self.parent.adapter.addAsset('Task', self.task_uuid, self.taskIns)
 
             def event(self, source, comp, name, value, code = None , text = None):
@@ -73,6 +75,7 @@ class subTask(object):
                         self.parent.event(source, comp, name.split('_')[1], value, code , text)
 
             def COMPLETE(self):
+                #update states and remove asset once subtask is complete
                 self.taskIns = assetUpdate(self.taskIns, "State", "INACTIVE")
                 if self.arch2ins.taskCoordinator == self.parent.deviceUuid:
                     self.parent.adapter.addAsset('Task', self.task_uuid, self.taskIns)

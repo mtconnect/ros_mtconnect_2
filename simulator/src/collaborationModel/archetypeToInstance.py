@@ -1,5 +1,5 @@
 import os,sys
-sys.path.insert(0,os.getcwd()+'\\taskArchetype') #child path
+sys.path.insert(0,os.path.dirname(os.getcwd()))
 
 import xml.etree.ElementTree as ET
 import uuid, re
@@ -41,6 +41,7 @@ class archetypeToInstance(object):
         return ''.join(taskType)
 
     def toInstance(self, deviceUuid = "None"):
+        #from task archetype to task instance
         if type(self.root) == ET.Element:
             taskIns = ET.Element("Task")
             taskIns.attrib["assetId"] = str(self.uuid)
@@ -57,6 +58,8 @@ class archetypeToInstance(object):
             taskType.text = self.formatTaskArch(self.taskArch).upper()
 
             state = ET.SubElement(taskIns, "State")
+
+            #default initial state of the task
             state.text = str("INACTIVE")
 
             coordinator = ET.SubElement(taskIns, "Coordinator")
@@ -76,6 +79,7 @@ class archetypeToInstance(object):
             return None
 
     def addElement(self, string):
+        #add an element to the xml node
         if type(self.taskIns) == ET.Element:
             self.taskIns.append(ET.fromstring(string))
         elif type(self.taskIns) == str:
@@ -85,6 +89,7 @@ class archetypeToInstance(object):
 
 
     def traverse(self, root, jsonSubTaskModel = {}):
+        #traverse through all the subtask to generate a master json task object
         if root.findall('.//'+root.tag.split('}')[0]+'}SubTaskRef'):
             jsonSubTaskModel[root.findall('.//'+root.tag.split('}')[0]+'}TaskArchetype')[0].attrib['assetId']] = {}
 
@@ -112,6 +117,7 @@ class archetypeToInstance(object):
             return jsonSubTaskModel
 
     def jsonInstance(self):
+        #xml to json conversion
         jsonModel = {}
         jsonModel['coordinator']={}
         jsonModel['collaborators']={}
@@ -174,6 +180,7 @@ class archetypeToInstance(object):
 
 
 def update(taskIns, dataitem, value):
+    #update xml element text
     if type(taskIns) == ET.Element:
         if taskIns.findall('.//'+dataitem)[0].text != value:
             taskIns.attrib['timestamp'] = datetime.datetime.now().isoformat() + 'Z'
@@ -188,5 +195,4 @@ def update(taskIns, dataitem, value):
 
 if __name__ == "__main__":
     a2i = archetypeToInstance("MoveMaterial_4_bad","xyz","b1")
-    a2i.jsonInstance()
-
+    print a2i.jsonInstance()

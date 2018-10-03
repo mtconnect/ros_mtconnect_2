@@ -2,13 +2,9 @@ from transitions.extensions import HierarchicalMachine as Machine
 from transitions.extensions.nesting import NestedState
 from threading import Timer, Thread
 import functools, time
-
 import task
 
-class interface(object):
-
-    def __init__(self, value = None):
-        self.value = value
+"""Coordinator class for tasks"""
 
 class coordinator(object):
 
@@ -32,6 +28,7 @@ class coordinator(object):
                 self.parent.adapter.complete_gather()
 
                 if self.initialize:
+                    #create task only once initially when the coordinator is defined
                     time.sleep(0.1)
                     self.task = task.task(parent = self.parent, interface = self.interface, master_task_uuid = self.master_task_uuid, coordinator = self)
                     self.task.create_statemachine()
@@ -51,6 +48,7 @@ class coordinator(object):
                 collab = self.parent.master_tasks[code]['coordinator'][self.coordinator_name]['SubTask'][self.coordinator_name][2]
                 taskType = self.parent.master_tasks[code]['coordinator'][self.coordinator_name]['SubTask'][self.coordinator_name][0]
 
+                #check if the event received is valid
                 if text in collab:
                     try:
                         for x in self.parent.master_tasks[code]['collaborators'][collab]['SubTask'][taskType]:
@@ -70,6 +68,7 @@ class coordinator(object):
 
             def event(self, source, comp, name, value, code = None, text = None):
 		try:
+                    #collaboration related event handling
                     if comp == 'Task_Collaborator':
                         if 'binding_state' in name and value.lower() != 'inactive' and code == self.parent.master_uuid and code in self.parent.master_tasks and text in self.parent.master_tasks[code]['collaborators']:
                             try:
@@ -83,7 +82,7 @@ class coordinator(object):
                             if value.lower() == 'preparing':
                                 self.task.superstate.prepare()
 
-
+                    #interface related event handling
                     elif 'SubTask' in name:
                         def commit_task():
                             if value.lower() == 'fail' or value.lower() == 'complete':
