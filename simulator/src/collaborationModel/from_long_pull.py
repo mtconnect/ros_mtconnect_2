@@ -80,7 +80,7 @@ def from_long_pull(self, chunk, addr = None):
                                         component = stream_root[2]
                                         collabUuid = stream_root[3]
                                         if event.text == 'INACTIVE' and 'ToolChange' in str(self.master_tasks[self.master_uuid]) and collabUuid == 'r1':
-                                            self.event(source.lower(), component, 'SubTask_binding_state', event.text, self.master_uuid, collabUuid)
+                                            self.event(source.lower(), "Coordinator", 'binding_state', event.text, self.master_uuid, collabUuid)
 
                                         elif self.master_tasks[self.master_uuid]['coordinator'][self.master_tasks[self.master_uuid]['coordinator'].keys()[0]]['SubTask'][self.deviceUuid] and collabUuid in self.master_tasks[self.master_uuid]['coordinator'][self.master_tasks[self.master_uuid]['coordinator'].keys()[0]]['SubTask'][self.deviceUuid][2]:
                                             if event.tag.split('}')[-1] in self.master_tasks[self.master_uuid]['coordinator'][self.master_tasks[self.master_uuid]['coordinator'].keys()[0]]['SubTask'][self.deviceUuid][3]:

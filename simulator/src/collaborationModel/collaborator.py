@@ -33,71 +33,31 @@ class collaborator(object):
                 self.currentSubTask = str()
                 self.initialized = False
                 self.currentSubTaskState = None
-                self.concurrent_collaborator = False
-                self.concurrent_task = None
 
             def INACTIVE(self):
-                if self.concurrent_task and self.concurrent_collaborator:
-                    self.parent.enable()
                 self.subTask = {}
                 self.currentSubTask = str()
                 self.parent.adapter.begin_gather()
                 self.interface.set_value("INACTIVE")
                 self.parent.adapter.complete_gather()
 
-
             def PREPARING(self):
                 self.parent.adapter.begin_gather()
                 self.interface.set_value("PREPARING")
                 self.parent.adapter.complete_gather()
-
-            def committed(self, value, code, text):
-                #creates subtasks objects wrt the parent device
-                if self.collaborator_name in value['coordinator'][text]['SubTask'] and value['coordinator'][text]['SubTask'][self.collaborator_name]:
-                    self.subTask[value['coordinator'][text]['SubTask'][self.collaborator_name][0]] = subTask.subTask(parent = self.parent , interface = interface, master_task_uuid = self.parent.master_uuid, collaborators = value['coordinator'][text]['SubTask'][self.collaborator_name][2], taskName =value['coordinator'][text]['SubTask'][self.collaborator_name][0])
-                    self.subTask[value['coordinator'][text]['SubTask'][self.collaborator_name][0]].create_statemachine()
-                    self.subTask[value['coordinator'][text]['SubTask'][self.collaborator_name][0]].superstate.create()
-                    self.currentSubTask = copy.deepcopy(value['coordinator'][text]['SubTask'][self.collaborator_name][0])
-
-                    for key, val in self.parent.master_tasks[code]['collaborators'].iteritems():
-
-                        if self.task_name in val['SubTask'].keys():
-
-                            for i,x in enumerate(val['SubTask'][self.task_name]):
-
-                                if x and x[4] and self.parent.deviceUuid in x[4]:
-                                    self.subTask[x[1]] = subTask.subTask(parent = self.parent , interface = interface, master_task_uuid = self.subTask[value['coordinator'][text]['SubTask'][self.collaborator_name][0]].superstate.task_uuid, collaborators = x[4], taskName = x[1])
-                                    self.subTask[x[1]].create_statemachine()
-                                    self.subTask[x[1]].superstate.create()
-                                    self.currentSubTask = copy.deepcopy(x[1])
-
-                                    while self.currentSubTask and self.currentSubTask in self.subTask and hasattr(self.subTask[self.currentSubTask].superstate,'state') and self.subTask[self.currentSubTask].superstate.state != 'removed':
-                                        pass
-                                    self.parent.master_tasks[code]['collaborators'][key]['SubTask'][self.task_name][i][2] = 'COMPLETE'
-
-                                    self.currentSubTask = copy.deepcopy(value['coordinator'][text]['SubTask'][self.collaborator_name][0])
-
-                    while self.currentSubTask and self.currentSubTask in self.subTask and hasattr(self.subTask[self.currentSubTask].superstate, 'state') and self.subTask[self.currentSubTask].superstate.state != 'removed':
-                        pass
-                    self.parent.master_tasks[code]['coordinator'][text]['SubTask'][self.collaborator_name][1] = 'COMPLETE'
-
-                    #short term fix wrt toolchange task
-                    if 'ToolChange' in str(self.parent.master_tasks[self.parent.master_uuid]):
-                        "Wait for completion"
-                    else:
-                        self.completed()
 
             def COMMITTED(self):
                 self.parent.adapter.begin_gather()
                 self.interface.set_value("COMMITTED")
                 self.parent.adapter.complete_gather()
 
-            def committed_init(self):
-                #temporarily separate for committed method to better handle internal events: this method handles robot interfaces.
-
-                collabUuid = False
+            def committed(self):
+                subTask_collab = False
+                collaborator = False
                 self.ordered_tasks = []
-                for key,val in self.parent.master_tasks[self.parent.master_uuid]['coordinator'][self.parent.master_tasks[self.parent.master_uuid]['coordinator'].keys()[0]]['SubTask'].iteritems():
+                coordinator = self.parent.master_tasks[self.parent.master_uuid]['coordinator'].keys()[0]
+
+                for key,val in self.parent.master_tasks[self.parent.master_uuid]['coordinator'][coordinator]['SubTask'].iteritems():
                     if val:
                         self.ordered_tasks.append([val[4],key,val])
                 self.ordered_tasks.sort()
@@ -106,30 +66,43 @@ class collaborator(object):
                     key = z[1]
                     val = z[2]
                     if val:
-                        if self.parent.deviceUuid in val[2]:
-                            collabUuid = True
+                        if self.collaborator_name in val[2]: #val[2] is the list of collaborators involved in the lowest level task coordinated by key
+                            subTask_collab = True
+
+                        elif self.collaborator_name == key:
+                            collaborator = True
+
+                        elif not collaborator and key == coordinator:
+                            continue
+
+                        elif collaborator and key!= self.collaborator_name:
+                            continue
+
+                        if (collaborator and key == self.collaborator_name) or subTask_collab:
+
                             self.subTask[val[0]] = subTask.subTask(parent = self.parent , interface = interface, master_task_uuid = self.parent.master_uuid, collaborators = None, taskName = val[0])
                             self.subTask[val[0]].create_statemachine()
                             self.subTask[val[0]].superstate.create()
                             self.currentSubTask = copy.deepcopy(val[0])
-                            coord = self.parent.master_tasks[self.parent.master_uuid]['coordinator'].keys()[0]
 
-                            if val[0] in self.parent.master_tasks[self.parent.master_uuid]['collaborators'][self.parent.deviceUuid]['SubTask']:
-                                for i,x in enumerate(self.parent.master_tasks[self.parent.master_uuid]['collaborators'][self.parent.deviceUuid]['SubTask'][val[0]]):
-                                    if not x[4]:
+                            if val[2]:
+                                if val[0] in self.parent.master_tasks[self.parent.master_uuid]['collaborators'][self.collaborator_name]['SubTask']:
+                                    collaborator_name = self.collaborator_name
+                                elif val[2]:
+                                    collaborator_name = val[2]
+                                else:
+                                    collaborator_name = None
+                                    continue
+
+                                for i,x in enumerate(self.parent.master_tasks[self.parent.master_uuid]['collaborators'][collaborator_name]['SubTask'][val[0]]):
+                                    if not x[4] and collaborator_name == self.collaborator_name:
                                         #internal events: no interfaces
-
-                                        #short term fix wrt tool change task
-                                        while self.currentSubTaskState != 'active' and val[0] != 'ToolChange':
+                                        while self.currentSubTaskState != 'active':
                                             pass
-                                        if val[0] == 'ToolChange':
 
-                                            self.parent.event(self.parent.deviceUuid, 'internal_event', x[1], 'ACTIVATE', None, 'cnc1_t1')
-                                            self.parent.master_tasks[self.parent.master_uuid]['collaborators'][self.parent.deviceUuid]['SubTask'][val[0]][i][2] = 'COMPLETE'
-                                        else:
-                                            self.parent.event(self.parent.deviceUuid, 'internal_event', x[1], 'ACTIVATE', None, key)
-                                            self.parent.master_tasks[self.parent.master_uuid]['collaborators'][self.parent.deviceUuid]['SubTask'][val[0]][i][2] = 'COMPLETE'
-                                    else:
+                                        self.parent.event(self.collaborator_name, 'internal_event', x[1], 'ACTIVATE', None, key)
+                                        self.parent.master_tasks[self.parent.master_uuid]['collaborators'][self.collaborator_name]['SubTask'][val[0]][i][2] = 'COMPLETE'
+                                    elif x[4]:
 
                                         #interfaces
                                         self.subTask[x[1]] = subTask.subTask(parent = self.parent , interface = interface, master_task_uuid = self.subTask[val[0]].superstate.task_uuid, collaborators = None, taskName = x[1])
@@ -137,38 +110,34 @@ class collaborator(object):
                                         self.subTask[x[1]].superstate.create()
                                         self.currentSubTask = copy.deepcopy(x[1])
 
-                                        self.parent.event(self.parent.deviceUuid, 'interface_initialization', 'SubTask_'+x[1],'IDLE')
+                                        if subTask_collab:
+                                            self.parent.event(self.collaborator_name, 'interface_initialization', 'SubTask_'+x[1],'IDLE')
                                         while self.currentSubTask and self.subTask[self.currentSubTask].superstate.state != 'removed':
                                             pass
-                                        self.parent.master_tasks[self.parent.master_uuid]['collaborators'][self.parent.deviceUuid]['SubTask'][val[0]][i][2] = 'COMPLETE'
+                                        self.parent.master_tasks[self.parent.master_uuid]['collaborators'][collaborator_name]['SubTask'][val[0]][i][2] = 'COMPLETE'
 
                             self.currentSubTask = copy.deepcopy(val[0])
 
                             while self.currentSubTask and self.subTask[self.currentSubTask].superstate.state != 'removed':
+                                if subTask_collab: break
+                                else: pass
 
-                                #short term fix wrt tool change task
-                                if 'Unload' in self.currentSubTask:
-                                    self.subTask[self.currentSubTask].superstate.success()
-                                    self.parent.material_unload_interface.superstate.complete()
-                                    break
-                                elif 'Load' in self.currentSubTask:
-                                    self.subTask[self.currentSubTask].superstate.success()
+                            if subTask_collab:
+                                self.subTask[self.currentSubTask].superstate.success()
+                                self.parent.event(self.collaborator_name, 'interface_completion', val[3],'COMPLETE')
 
-                                    if 'ToolChange' in str(self.parent.master_tasks[self.parent.master_uuid]):
-                                        self.parent.material_load_interface.superstate.complete()
-                                    break
+                            self.parent.master_tasks[self.parent.master_uuid]['coordinator'][coordinator]['SubTask'][key][1] = 'COMPLETE'
 
-                            self.parent.master_tasks[self.parent.master_uuid]['coordinator'][coord]['SubTask'][key][1] = 'COMPLETE'
-                            self.currentSubTaskState = None
-
-                if collabUuid == True:
-                    self.parent.material_load_interface.superstate.complete()
+                if subTask_collab == True:
                     self.parent.master_tasks[self.parent.master_uuid]['collaborators'][self.parent.deviceUuid]['state'][2] = 'COMPLETE'
                     self.completed()
                     self.parent.IDLE()
 
-                else:
-                    self.committed(self.parent.master_tasks[self.parent.master_uuid],self.parent.master_uuid, self.parent.master_tasks[self.parent.master_uuid]['coordinator'].keys()[0])
+                elif collaborator and len(self.ordered_tasks) == 2:
+                    self.completed()
+
+                elif collaborator:
+                    pass
 
 
             def event(self, source, comp, name, value, code = None, text = None):
@@ -185,27 +154,17 @@ class collaborator(object):
 
                     elif comp == 'Coordinator' and  name == 'binding_state':
                         if value.lower() == 'committing':
-                            if self.parent.deviceUuid != 'r1':
-                                if self.task_name != self.parent.master_tasks[code]['coordinator'][text]['SubTask'][self.parent.deviceUuid][0]:
-                                    self.concurrent_task = self.task_name
-                                    self.task_name = self.parent.master_tasks[code]['coordinator'][text]['SubTask'][self.parent.deviceUuid][0]
-                                    self.concurrent_collaborator =True
                             self.commit()
 
                         elif value.lower() == 'committed' and text in self.parent.master_tasks[code]['coordinator']:
                             self.parent.master_tasks[code]['coordinator'][text]['state'][2] = value
 
-                            t1= Thread(target = self.committed_init)
+                            t1= Thread(target = self.committed)
                             t1.start()
 
                     #interfaces related event handling
                     elif 'SubTask' in name:
-                        if 'binding_state' in name and 'ToolChange' in str(self.parent.master_tasks) and value.lower() == 'inactive' and self.parent.binding_state_material.value().lower()=='committed' and text == 'r1':
-                            self.subTask[self.currentSubTask].superstate.success()
-                            time.sleep(0.1)
-                            self.completed()
-
-                        elif self.currentSubTask and self.currentSubTask in name:
+                        if self.currentSubTask and self.currentSubTask in name:
                             try:
                                 self.subTask[self.currentSubTask].superstate.event(source, comp, name, value, code, text)
                                 if not self.currentSubTaskState and name.split('_')[1] in self.parent.master_tasks[self.parent.master_uuid]['collaborators'][self.parent.deviceUuid]['SubTask']:
