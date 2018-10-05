@@ -70,4 +70,3 @@ if __name__ == "__main__":
 
     thread= Thread(target = lp.long_pull, args = (callback,))
     thread.start()
-    #lp.long_pull(callback)

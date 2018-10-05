@@ -2,33 +2,6 @@
 
 import os, sys
 
-"""
-from material import *
-from door import *
-from chuck import *
-from coordinator import *
-from collaborator import *
-from hurco_bridge import *
-from cmm_bridge import *
-from robot_interface import RobotInterface
-from SocketServer import ThreadingMixIn, TCPServer, BaseRequestHandler
-import threading
-import socket
-import uuid
-from datetime import datetime
-import re
-import struct, gc
-from mtconnect_adapter import Adapter
-from long_pull import LongPull
-from data_item import Event, SimpleCondition, Sample, ThreeDSample
-from archetypeToInstance import archetypeToInstance
-from from_long_pull import from_long_pull, from_long_pull_asset
-
-from transitions.extensions import HierarchicalMachine as Machine
-from transitions.extensions.nesting import NestedState
-from threading import Timer, Thread
-
-"""
 import functools, time, re, copy, uuid
 import requests, urllib2
 import xml.etree.ElementTree as ET
@@ -37,6 +10,7 @@ import xml.etree.ElementTree as ET
 from inputConveyor import inputConveyor
 from cnc import cnc
 from robot import Robot
+from robot_interface import RobotInterface
 from buffer import Buffer
 from cmm import cmm
 
@@ -48,7 +22,7 @@ class cell(object):
         self.current_part = None
         self.cycle_count = 0
         self.initiate_cnc('localhost',7896)
-        #self.initiate_robot('localhost',7996)
+        self.initiate_robot('localhost',7996)
         self.initiate_buffer('localhost',7696)
         self.initiate_cmm('localhost',7596)
         self.initiate_inputConveyor('localhost',7796)
@@ -155,8 +129,8 @@ class cell(object):
 
                 self.part_arrival()
 
-	    else:
-		print ("Restart setup!")
+            else:
+                print ("Restart setup!")
 
             self.current_part = None
 
