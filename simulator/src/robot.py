@@ -211,6 +211,9 @@ class Robot:
             self.make_idle()
 
         def IDLE(self):
+            if self.check_tool_change_req():
+                return
+
             self.adapter.begin_gather()
             self.e1.set_value("READY")
             self.adapter.complete_gather()
@@ -220,25 +223,29 @@ class Robot:
                 self.reset_statemachine()
                 self.reset_required = False
 
-            if self.master_uuid and 'ToolChange' not in str(self.master_tasks[self.master_uuid]):
-                self.material_unload_interface.superstate.not_ready()
-                self.material_load_interface.superstate.not_ready()
-                self.collaborator = collaborator(parent = self, interface = self.binding_state_material, collaborator_name = 'r1')
-                self.collaborator.create_statemachine()
-                time.sleep(0.1)
-                self.collaborator.superstate.unavailable()
-
-            elif not self.master_uuid:
-                self.material_unload_interface.superstate.not_ready()
-                self.material_load_interface.superstate.not_ready()
-                self.collaborator = collaborator(parent = self, interface = self.binding_state_material, collaborator_name = 'r1')
-                self.collaborator.create_statemachine()
-                time.sleep(0.1)
-                self.collaborator.superstate.unavailable()
-	    else:
-		time.sleep(0.2)
+            #toolchange edit
+            self.material_unload_interface.superstate.not_ready()
+            self.material_load_interface.superstate.not_ready()
+            self.collaborator = collaborator(parent = self, interface = self.binding_state_material, collaborator_name = self.deviceUuid)
+            self.collaborator.create_statemachine()
+            time.sleep(0.1)
+            self.collaborator.superstate.unavailable()
 
             self.priority.collab_check()
+
+        def check_tool_change_req(self):
+            if self.master_uuid in self.master_tasks and 'ToolChange' in str(self.master_tasks[self.master_uuid]):
+                def activate():
+                    if self.collaborator:
+                        time.sleep(2)
+                        self.collaborator.superstate.currentSubTaskState = "active"
+                thread = Thread(target=activate)
+                thread.start()
+                print ("Tool Change in Progress")
+                return True
+            else:
+                return False
+
 
         def LOADING(self):
             self.material_unload_interface.superstate.not_ready()
@@ -259,9 +266,11 @@ class Robot:
                     self.priority.binding_state(k,has_material = True)
                     break
 
+            #imts_demo part rotation: reset after every cycle: good->bad->rework part cycle
             if coordinator == 'cmm1' and self.master_tasks[self.master_uuid]['part_quality'] == 'rework':
                 self.reset_required = True
 
+        #imts_demo part rotation: method to reset statemachine after a 3-part cycle is completed
         def reset_statemachine(self):
 
             coordinator = self.master_tasks[self.master_uuid]['coordinator'].keys()[0]
@@ -300,32 +309,9 @@ class Robot:
 
                 print ("robot reset")
 
-        def CHECK_COMPLETION(self):
-            while self.master_tasks[self.master_uuid]['collaborators'][self.deviceUuid]['state'][2] != 'COMPLETE' and 'ToolChange' not in str(self.master_tasks):
-                pass
-
-        def CHECK_COMPLETION_UL(self):
-            coordinator = self.master_tasks[self.master_uuid]['coordinator'].keys()[0]
-            unload_task = self.master_tasks[self.master_uuid]['coordinator'][coordinator]['SubTask'][coordinator][0]
-            test = None
-            while not test:
-                if unload_task in self.master_tasks[self.master_uuid]['collaborators'][self.deviceUuid]['SubTask']:
-                    for x in self.master_tasks[self.master_uuid]['collaborators'][self.deviceUuid]['SubTask'][unload_task]:
-                        if x[2] == 'COMPLETE' and (test== None or test == True):
-                            test = True
-                        else:
-                            test = False
-                else:
-                    test = True
 
         def UNLOADING_COMPLETE(self):
             self.priority.binding_state(self.master_tasks[self.master_uuid]['coordinator'].keys()[0],has_material = False)
-
-        def LOAD_READY(self):
-            pass
-
-        def UNLOAD_READY(self):
-            pass
 
         def COMPLETED(self):
             if "request" in self.interfaceType.lower():
@@ -333,10 +319,8 @@ class Robot:
 
             elif "response" in self.interfaceType.lower() and "material" in self.interfaceType.lower():
                 if "unloaded" not in self.interfaceType.lower():
-                    self.material_state.set_value("LOADED")
                     self.event(self.deviceUuid, 'material_interface', 'SubTask_'+'MaterialUnload','COMPLETE')
                 elif "unloaded" in self.interfaceType.lower():
-                    self.material_state.set_value("UNLOADED")
                     self.event(self.deviceUuid, 'material_interface', 'SubTask_'+'MaterialLoad','COMPLETE')
 
         def event(self, source, comp, name, value, code = None, text = None):
@@ -545,20 +529,19 @@ class Robot:
 
         def material_event(self, ev):
             action = ev.value.lower()
+            timeout = 2.0
             if action == "fail":
                 action = "failure"
 
             if ev.name == "MaterialLoad":
-                if ev.value.lower() == 'complete':
+                eval('self.material_load_interface.superstate.'+action+'()')
+                if ev.value.lower() == 'complete' and ev.component != "interface_completion":
                     self.complete()
-                else:
-                    eval('self.material_load_interface.superstate.'+action+'()')
 
             elif ev.name == "MaterialUnload":
-                if ev.value.lower() == 'complete':
+                eval('self.material_unload_interface.superstate.'+action+'()')
+                if ev.value.lower() == 'complete' and ev.component != "interface_completion":
                     self.complete()
-                else:
-                    eval('self.material_unload_interface.superstate.'+action+'()')
 
             else:
                 pass
@@ -668,13 +651,11 @@ class Robot:
                 'trigger': 'material_unload_ready',
                 'source': 'base:operational:idle',
                 'dest': 'base:operational:unloading',
-                'after': 'UNLOAD_READY'
             },
             {
                 'trigger': 'material_load_ready',
                 'source': 'base:operational:idle',
                 'dest': 'base:operational:loading',
-                'after': 'LOAD_READY'
             },
             {
                 'trigger': 'complete',
