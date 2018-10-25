@@ -94,17 +94,22 @@ class collaborator(object):
                                     collaborator_name = None
                                     continue
 
+                                initialize_tasks = False
+
                                 for i,x in enumerate(self.parent.master_tasks[self.parent.master_uuid]['collaborators'][collaborator_name]['SubTask'][val[0]]):
+
                                     if not x[4] and collaborator_name == self.collaborator_name:
                                         #internal events: no interfaces
-                                        while self.currentSubTaskState != 'active':
+                                        while self.currentSubTaskState != 'active' and not initialize_tasks:
                                             pass
-
+                                        initialize_tasks = True
                                         self.parent.event(self.collaborator_name, 'internal_event', x[1], 'ACTIVATE', None, key)
                                         self.parent.master_tasks[self.parent.master_uuid]['collaborators'][self.collaborator_name]['SubTask'][val[0]][i][2] = 'COMPLETE'
+
                                     elif x[4]:
 
                                         #interfaces
+                                        initialize_tasks = True
                                         self.subTask[x[1]] = subTask.subTask(parent = self.parent , interface = interface, master_task_uuid = self.subTask[val[0]].superstate.task_uuid, collaborators = None, taskName = x[1])
                                         self.subTask[x[1]].create_statemachine()
                                         self.subTask[x[1]].superstate.create()
