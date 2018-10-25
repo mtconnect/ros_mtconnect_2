@@ -118,7 +118,7 @@ class priority(object):
         #check for valid tasks until statemachine is available (inactive)
         def wait():
             while self.parent.binding_state_material.value().lower() != 'inactive':
-                time.sleep(2)
+                pass
             while self.parent.binding_state_material.value().lower() == 'inactive':
                 time.sleep(2)
                 if not self.processing and self.parent.binding_state_material.value().lower() == 'inactive':
