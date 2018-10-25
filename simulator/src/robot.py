@@ -241,7 +241,7 @@ class Robot:
                         self.collaborator.superstate.currentSubTaskState = "active"
                 thread = Thread(target=activate)
                 thread.start()
-                print ("Tool Change in Progress")
+                print ("Tool Change")
                 return True
             else:
                 return False
@@ -499,8 +499,12 @@ class Robot:
 
                 if status == True:
                     self.collaborator.superstate.subTask['ToolChange'].superstate.success()
+                    self.adapter.begin_gather()
+                    self.e1.set_value("READY")
+                    self.adapter.complete_gather()
                 else:
                     self.fault()
+
 
             elif ev.name == "ReleasePart":
                 print ("Releasing the Part onto " + ev.text)
