@@ -31,13 +31,22 @@ def from_long_pull(self, chunk, addr = None):
                         thread1= Thread(target = self.event,args=(source.lower(), component, event.tag.split('}')[-1], event.text, None, x.attrib['uuid']))
                         thread1.start()
 
-                    #Update device binding task in priority object
-                    elif 'Binding' in event.tag and 'BindingState' not in event.tag:
-                        if event.text!='UNAVAILABLE':
-                            self.priority.binding_state(x.attrib['uuid'],None, event.text.lower())
 
                     elif event.text != 'UNAVAILABLE':
-                        if ('AssetChanged' in event.tag or 'BindingState' in event.tag or self.binding_state_material.value() == "COMMITTED") and event.text.lower() != 'unavailable':
+
+                        #Update device binding task in priority object
+                        if 'Binding' in event.tag and 'BindingState' not in event.tag:
+                            self.priority.binding_state(x.attrib['uuid'],None, event.text.lower())
+
+                        elif 'AssetChanged' in event.tag or 'BindingState' in event.tag or self.binding_state_material.value() == "COMMITTED":
+
+                            #device uuid of the collaborator
+                            collabUuid = x.attrib['uuid']
+
+                            coord_task_id = self.priority.binding_states[collabUuid][1]
+                            if self.master_uuid in self.master_tasks:
+                                coordinator = self.master_tasks[self.master_uuid]['coordinator'].keys()[0]
+                                collaborators = self.master_tasks[self.master_uuid]['collaborators'].keys()
 
                             #read asset archetype to create asset instance
                             if 'AssetChanged' in event.tag and event.text not in self.master_tasks:
@@ -47,103 +56,86 @@ def from_long_pull(self, chunk, addr = None):
 
                             #Collaboration related event handling
                             elif 'BindingState' in event.tag:
-                                stream_root = [event,source,component,x.attrib['uuid']]
-                                coord_task_id = self.priority.binding_states[stream_root[3]][1]
-
                                 if event.text == 'PREPARING' or event.text == 'INACTIVE':
-                                    self.priority.binding_state(stream_root[3],event.text, None)
+                                    self.priority.binding_state(collabUuid,event.text, None)
 
-                                if self.iscoordinator:
-                                    event = stream_root[0]
-                                    source = stream_root[1]
-                                    component = stream_root[2]
-                                    collabUuid = stream_root[3]
-                                    if 'BindingState' in event.tag and event.text != "INACTIVE" and coord_task_id == self.master_uuid:
+                                if self.iscoordinator and coord_task_id == self.master_uuid:
+
+                                    #Before committing to the task
+                                    if event.text != "INACTIVE":
                                         self.event(source.lower(), "Task_Collaborator", "binding_state", event.text, self.master_uuid,  collabUuid)
-                                    elif 'BindingState' in event.tag and event.text == "INACTIVE" and self.binding_state_material.value() == "COMMITTED" and coord_task_id == self.master_uuid:
-                                        if self.master_uuid in self.master_tasks and self.master_tasks[self.master_uuid]['coordinator'][self.deviceUuid]['SubTask'][collabUuid]:
+
+                                    #After committing to the task and/or task completion
+                                    elif event.text == "INACTIVE" and self.binding_state_material.value() == "COMMITTED":
+                                        if  self.master_tasks[self.master_uuid]['coordinator'][self.deviceUuid]['SubTask'][collabUuid]:
                                             self.master_tasks[self.master_uuid]['coordinator'][self.deviceUuid]['SubTask'][collabUuid][1] = 'COMPLETE'
                                             self.master_tasks[self.master_uuid]['collaborators'][collabUuid]['state'][2] = 'INACTIVE'
                                             self.coordinator.superstate.task.superstate.commit()
-                                        elif self.master_uuid in self.master_tasks and 'ToolChange' in str(self.master_tasks) and collabUuid == 'r1':
-                                            self.master_tasks[self.master_uuid]['coordinator'][self.deviceUuid]['SubTask']['cnc1'][1] = 'COMPLETE'
-                                            self.coordinator.superstate.task.superstate.success()
+
+                                        elif self.master_uuid in self.master_tasks:
+                                            self.event(source.lower(), "Task_Collaborator", "binding_state", event.text, self.master_uuid,  collabUuid)
+
 
                                 elif self.iscollaborator:
-                                    if self.binding_state_material.value() == "PREPARING" and event.text == 'COMMITTING':# and coord_task_id == self.master_uuid:
-                                        source = stream_root[1]
-                                        collabUuid = stream_root[3]
+
+                                    #Before committing to the task
+                                    if self.binding_state_material.value() == "PREPARING" and event.text == 'COMMITTING' and collabUuid == coordinator:
                                         self.event(source.lower(), "Coordinator", "binding_state", event.text, self.master_uuid,  collabUuid)
-                                    elif self.binding_state_material.value() == "COMMITTED" and self.master_uuid in self.master_tasks:# and coord_task_id == self.master_uuid:
-                                        event = stream_root[0]
-                                        source = stream_root[1]
-                                        component = stream_root[2]
-                                        collabUuid = stream_root[3]
-                                        if event.text == 'INACTIVE' and 'ToolChange' in str(self.master_tasks[self.master_uuid]) and collabUuid == 'r1':
+
+                                    #After committing to the task
+                                    elif self.binding_state_material.value() == "COMMITTED" and self.master_uuid in self.master_tasks:
+                                        if event.text in ['INACTIVE','COMMITTED'] and collabUuid == coordinator:
                                             self.event(source.lower(), "Coordinator", 'binding_state', event.text, self.master_uuid, collabUuid)
-
-                                        elif self.master_tasks[self.master_uuid]['coordinator'][self.master_tasks[self.master_uuid]['coordinator'].keys()[0]]['SubTask'][self.deviceUuid] and collabUuid in self.master_tasks[self.master_uuid]['coordinator'][self.master_tasks[self.master_uuid]['coordinator'].keys()[0]]['SubTask'][self.deviceUuid][2]:
-                                            if event.tag.split('}')[-1] in self.master_tasks[self.master_uuid]['coordinator'][self.master_tasks[self.master_uuid]['coordinator'].keys()[0]]['SubTask'][self.deviceUuid][3]:
-                                                self.event(source.lower(), component, 'SubTask_'+event.tag.split('}')[-1], event.text, self.master_uuid, collabUuid)
-                                            else:
-                                                try:
-                                                    if event.tag.split('}')[-1] in str(self.master_tasks[self.master_uuid]['collaborators'][collabUuid]['SubTask'][self.collaborator.superstate.task_name]):
-                                                        self.event(source.lower(), component, 'SubTask_'+event.tag.split('}')[-1], event.text, self.master_uuid, collabUuid)
-                                                except Exception as e:
-                                                    print ("Invalid Trigger",e)
-
-                                        elif self.master_tasks[self.master_uuid]['collaborators'][self.deviceUuid]['SubTask']  or self.deviceUuid in self.master_tasks[self.master_uuid]['coordinator'][self.master_tasks[self.master_uuid]['coordinator'].keys()[0]]['SubTask'][collabUuid][2]: #single robot case
-                                            if self.binding_state_material.value() == "COMMITTED" and event.text == "COMMITTED":
-                                                if self.master_tasks[self.master_uuid]['coordinator'].keys()[0] == collabUuid:
-                                                    self.event(source.lower(), 'Coordinator', 'binding_state', event.text, self.master_uuid,  collabUuid)
-                                        elif self.master_tasks[self.master_uuid]['collaborators'][self.deviceUuid]:
-                                            self.event(source.lower(), 'Coordinator', 'binding_state', event.text, self.master_uuid,  collabUuid)
 
 
                             #interfaces related event handling
                             elif self.binding_state_material.value() == "COMMITTED" and self.master_uuid in self.master_tasks:
-                                stream_root = [event,source,component,x.attrib['uuid']]
-                                coord_task_id = self.priority.binding_states[stream_root[3]][1]
-                                if self.iscollaborator:# and coord_task_id == self.master_uuid:
-                                    event = stream_root[0]
-                                    source = stream_root[1]
-                                    component = stream_root[2]
-                                    collabUuid = stream_root[3]
-                                    if self.master_tasks[self.master_uuid]['coordinator'][self.master_tasks[self.master_uuid]['coordinator'].keys()[0]]['SubTask'][self.deviceUuid] and collabUuid in self.master_tasks[self.master_uuid]['coordinator'][self.master_tasks[self.master_uuid]['coordinator'].keys()[0]]['SubTask'][self.deviceUuid][2]:
-                                        if event.tag.split('}')[-1] in self.master_tasks[self.master_uuid]['coordinator'][self.master_tasks[self.master_uuid]['coordinator'].keys()[0]]['SubTask'][self.deviceUuid][3]:
-                                            self.event(source.lower(), component, 'SubTask_'+event.tag.split('}')[-1], event.text, self.master_uuid, collabUuid)
-                                        else:
-                                            try:
-                                                if event.tag.split('}')[-1] in str(self.master_tasks[self.master_uuid]['collaborators'][collabUuid]['SubTask'][self.collaborator.superstate.task_name]):
-                                                    self.event(source.lower(), component, 'SubTask_'+event.tag.split('}')[-1], event.text, self.master_uuid, collabUuid)
-                                            except Exception as e:
-                                                print ("Invalid Trigger",e)
 
-                                    elif self.master_tasks[self.master_uuid]['collaborators'][self.deviceUuid]['SubTask'] or self.deviceUuid in self.master_tasks[self.master_uuid]['coordinator'][self.master_tasks[self.master_uuid]['coordinator'].keys()[0]]['SubTask'][collabUuid][2]: #single robot case
-                                        if self.binding_state_material.value() == "COMMITTED" and event.text == "COMMITTED":
-                                            if self.master_tasks[self.master_uuid]['coordinator'].keys()[0] == collabUuid:
-                                                self.event(source.lower(), 'Coordinator', 'binding_state', event.text, self.master_uuid,  collabUuid)
-                                        elif (collabUuid in self.master_tasks[self.master_uuid]['coordinator'][self.master_tasks[self.master_uuid]['coordinator'].keys()[0]]['SubTask'] or collabUuid in self.master_tasks[self.master_uuid]['coordinator'].keys()[0]):
-                                            coord = self.master_tasks[self.master_uuid]['coordinator'].keys()[0]
-                                            if self.master_tasks[self.master_uuid]['coordinator'][coord]['SubTask'][coord][1] != 'COMPLETE':
-                                                self.event(source.lower(), component, 'SubTask_'+event.tag.split('}')[-1], event.text, self.master_uuid,  collabUuid)
+                                event_name = event.tag.split('}')[-1]
 
-                                            elif self.master_tasks[self.master_uuid]['coordinator'][coord]['SubTask'][coord][1] == 'COMPLETE' and coord!=collabUuid:
-                                                self.event(source.lower(), component, 'SubTask_'+event.tag.split('}')[-1], event.text, self.master_uuid,  collabUuid)
+                                if self.iscollaborator:
 
-                                elif self.iscoordinator and self.master_uuid in self.master_tasks:# and coord_task_id == self.master_uuid:
-                                    event = stream_root[0]
-                                    source = stream_root[1]
-                                    component = stream_root[2]
-                                    collabUuid = stream_root[3]
-                                    if self.binding_state_material.value() == "COMMITTED" and self.master_tasks[self.master_uuid]['coordinator'][self.deviceUuid]['Task'][1] == "COMMITTED":
-                                        self.event(source.lower(), component, 'SubTask_'+event.tag.split('}')[-1], event.text, self.master_uuid, collabUuid)
+                                    device_tasks = self.master_tasks[self.master_uuid]['coordinator'][coordinator]['SubTask'][self.deviceUuid]
+                                    device_subtasks = self.master_tasks[self.master_uuid]['collaborators'][self.deviceUuid]['SubTask']
+
+                                    if device_tasks: device_collaborators = device_tasks[2]
+                                    else: device_collaborators = None
+                                    current_device_subtask = self.collaborator.superstate.task_name
+
+                                    if collabUuid in collaborators+[coordinator]:
+                                        collab_tasks = self.master_tasks[self.master_uuid]['coordinator'][coordinator]['SubTask'][collabUuid]
+                                    else:
+                                        collab_tasks = None
+
+                                    if collabUuid != coordinator and collabUuid in collaborators:
+                                        collab_subtasks = self.master_tasks[self.master_uuid]['collaborators'][collabUuid]['SubTask']
+                                    else:
+                                        collab_subtasks = None
+
+                                    if collab_tasks: collab_collaborators = collab_tasks[2]
+                                    else: collab_collaborators = None
+
+                                    if device_tasks and collabUuid in device_collaborators:
+
+                                        if event_name == device_tasks[3] or event_name in str(collab_subtasks[device_tasks[0]]):
+                                            self.event(source.lower(), component, 'SubTask_'+event_name, event.text, self.master_uuid, collabUuid)
+
+                                    elif device_subtasks and collab_collaborators: #Robot / low level collaborator
+
+                                        if collab_tasks and self.deviceUuid in collab_collaborators:
+                                            self.event(source.lower(), component, 'SubTask_'+event_name, event.text, self.master_uuid, collabUuid)
+
+
+                                elif self.iscoordinator:
+
+                                    self.event(source.lower(), component, 'SubTask_'+event_name, event.text, self.master_uuid, collabUuid)
 
                         #makes sure that completed task assets are removed
-                        elif 'AssetRemoved' in event.tag and self.binding_state_material.value() == "INACTIVE" and event.text.lower() != 'unavailable':
+                        elif 'AssetRemoved' in event.tag and self.binding_state_material.value() == "INACTIVE":
                             try:
                                 if self.deviceUuid in event.text.split('_')[0]:
-                                        self.adapter.removeAsset(event.text)
+                                    self.adapter.removeAsset(event.text)
+
                             except Exception as e:
                                 print ("Error removing asset!")
                                 print (e)
@@ -153,34 +145,38 @@ def from_long_pull(self, chunk, addr = None):
 
 
 def from_long_pull_asset(self,chunk, stream_root = None):
+
     root=ET.fromstring(chunk)
     xmlns =root.tag.split('}')[0]+'}'
-    task = root.findall('.//'+xmlns+'Task')
+    task_element = root.findall('.//'+xmlns+'Task')
     parentRef = None
-    state = None
-    if task:
+    value = None
+
+    if task_element:
         task = root.findall('.//'+xmlns+'Task')[0]
-        state = root.findall('.//'+xmlns+'State')[0].text
+        value = root.findall('.//'+xmlns+'State')[0].text
         parentRef = root.findall('.//'+xmlns+'ParentRef')
 
     else:
         task = None
-    if task is not None and state == "PREPARING":
+
+    if task is not None and value == "PREPARING":
+
         for x in root.findall('.//'+xmlns+'Collaborator'):
+
             if x.attrib['collaboratorId'] == self.deviceUuid:
+
                 main_task_archetype = root.findall('.//'+xmlns+'AssetArchetypeRef')[0].attrib['assetId']
                 main_task_uuid = root.findall('.//'+xmlns+'Task')[0].attrib['assetId']
                 main_task_deviceUuid = root.findall('.//'+xmlns+'Task')[0].attrib['deviceUuid']
                 coordinator = root.findall('.//'+xmlns+'Coordinator')[0]
                 component = "Coordinator"
                 name = "binding_state"
-                value = state
 
                 #create json task instance from xml task archetype
-                if main_task_uuid not in self.master_tasks and value == "PREPARING":
+                if main_task_uuid not in self.master_tasks:
                     self.master_tasks[main_task_uuid] = archetypeToInstance(main_task_archetype,"uuid", main_task_deviceUuid, main_task_uuid).jsonInstance()
 
-                if value == "PREPARING":
-                    self.event(coordinator.text, component, name, value, [main_task_uuid, self.master_tasks[main_task_uuid]],  coordinator.attrib['collaboratorId'])
+                self.event(coordinator.text, component, name, value, [main_task_uuid, self.master_tasks[main_task_uuid]],  coordinator.attrib['collaboratorId'])
 
                 break
