@@ -365,14 +365,6 @@ class cmm(object):
             def COMPLETED(self):
                 if self.interfaceType == "Request":
                     self.complete()
-                    if self.has_material == False:
-                        self.iscoordinator = False
-                        self.iscollaborator = True
-                        self.collaborator = collaborator(parent = self, interface = self.binding_state_material, collaborator_name = self.deviceUuid)
-                        self.collaborator.create_statemachine()
-                        self.collaborator.superstate.task_name = "LoadCmm"
-                        self.collaborator.superstate.unavailable()
-                        self.priority.collab_check()
 
             def EXITING_IDLE(self):
                 if self.has_material:
@@ -427,8 +419,27 @@ class cmm(object):
 
             def UNLOADED(self):
                 self.has_material = False
-                while self.binding_state_material.value() == "COMMITTED":
-                    pass
+                #while self.binding_state_material.value() == "COMMITTED" and 'ToolChange' not in str(self.master_tasks[self.master_uuid]):
+                #    pass
+
+            def IN_TRANSITION(self):
+               if 'ToolChange' not in str(self.master_tasks[self.master_uuid]):
+                   while self.binding_state_material.value() == "COMMITTED":
+                       pass
+
+                   self.transition_unloading()
+
+
+            def EXIT_TRANSITION(self):
+                if self.has_material == False:
+                    self.iscoordinator = False
+                    self.iscollaborator = True
+                    self.collaborator = collaborator(parent = self, interface = self.binding_state_material, collaborator_name = self.deviceUuid)
+                    self.collaborator.create_statemachine()
+                    self.collaborator.superstate.task_name = "LoadCmm"
+                    self.collaborator.superstate.unavailable()
+                    self.priority.collab_check()
+
 
             def FAILED(self):
                 if "Request" in self.interfaceType:
@@ -449,6 +460,14 @@ class cmm(object):
 
                 if comp == "Coordinator" and value.lower() == 'preparing':
                     self.priority.event_list([source, comp, name, value, code, text])
+
+                #tool_change: to be updated
+                elif self.iscoordinator and self.master_uuid in self.master_tasks and 'ToolChange' in str(self.master_tasks[self.master_uuid]) and text == 'r1':
+                    if value == 'INACTIVE' and self.binding_state_material.value() == "COMMITTED":
+                        self.master_tasks[self.master_uuid]['coordinator'][self.deviceUuid]['SubTask']['cnc1'][1] = 'COMPLETE'
+                        self.coordinator.superstate.task.superstate.success()
+                        self.transition_unloading()
+
 
                 if comp == "Task_Collaborator" and action!='unavailable':
                     self.coordinator.superstate.event(source, comp, name, value, code, text)
@@ -520,7 +539,7 @@ class cmm(object):
 
     def create_statemachine(self):
         NestedState.separator = ':'
-        states = [{'name':'base', 'children':['activated',{'name':'operational', 'children':['loading', 'cycle_start', 'unloading', 'idle']}, {'name':'disabled', 'children':['fault', 'not_ready']}]} ]
+        states = [{'name':'base', 'children':['activated',{'name':'operational', 'children':['loading', 'cycle_start', 'unloading', 'idle', 'in_transition']}, {'name':'disabled', 'children':['fault', 'not_ready']}]} ]
 
         transitions= [['start', 'base', 'base:disabled'],
 
@@ -538,6 +557,10 @@ class cmm(object):
                       ['default', 'base:operational:cycle_start', 'base:operational:cycle_start'],
                       {'trigger':'complete', 'source':'base:operational:loading', 'dest':'base:operational:cycle_start', 'before':'LOADED'},
 
+                      #['transition_loading', 'base:operational:in_transition', 'base:operational:loading'],
+                      ['transition_unloading', 'base:operational:in_transition', 'base:operational:loading'],
+
+
                       ['fault', 'base', 'base:disabled:fault'],
                       ['robot_system_fault', 'base', 'base:disabled:fault'],
                       ['default', 'base:disabled:fault', 'base:disabled:fault'],
@@ -551,7 +574,9 @@ class cmm(object):
 
                       ['loading', 'base:operational', 'base:operational:loading'],
                       ['default', 'base:operational:loading', 'base:operational:loading'],
-                      {'trigger':'complete', 'source':'base:operational:unloading', 'dest':'base:operational:loading','before':'UNLOADED'},
+                      #{'trigger':'complete', 'source':'base:operational:unloading', 'dest':'base:operational:loading','before':'UNLOADED'},
+
+                      {'trigger':'complete', 'source':'base:operational:unloading', 'dest':'base:operational:in_transition','before':'UNLOADED'},
 
                       ['unloading', 'base:operational', 'base:operational:unloading'],
                       ['default', 'base:operational:unloading', 'base:operational:unloading'],
@@ -581,6 +606,9 @@ class cmm(object):
         self.statemachine.on_exit('base:operational:loading', 'EXIT_LOADING')
         self.statemachine.on_enter('base:operational:unloading', 'UNLOADING')
         self.statemachine.on_exit('base:operational:unloading', 'EXIT_UNLOADING')
+        self.statemachine.on_enter('base:operational:in_transition', 'IN_TRANSITION')
+        self.statemachine.on_exit('base:operational:in_transition', 'EXIT_TRANSITION')
+
 
 
 if __name__ == '__main__':
