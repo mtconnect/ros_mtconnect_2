@@ -22,6 +22,7 @@ class cell(object):
         self.current_part = None
         self.cycle_count = 0
         self.initiate_cnc('localhost',7896)
+        #Comment the robot initiation when simulating/executing with RViz
         self.initiate_robot('localhost',7996)
         self.initiate_buffer('localhost',7696)
         self.initiate_cmm('localhost',7596)
