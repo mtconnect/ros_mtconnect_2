@@ -51,18 +51,18 @@ class cnc(object):
 
                 self.load_failed_time_limit(2)
                 self.unload_failed_time_limit(2)
-                self.nextsequence = '1'
+                self.next_sequence = '1'
                 self.events = []
 
                 self.master_tasks ={}
 
-                self.deviceUuid = "cnc1"
+                self.device_uuid = "cnc1"
 
                 self.master_uuid = str()
 
-                self.iscoordinator = False
+                self.is_coordinator = False
 
-                self.iscollaborator = False
+                self.is_collaborator = False
 
                 self.system_normal = True
 
@@ -80,7 +80,7 @@ class cnc(object):
 
                 self.initiate_cnc_client()
 
-                self.initiate_pull_thread()
+                #self.initiate_pull_thread()
 
             def set_priority(self):
                 self.priority = None
@@ -97,7 +97,7 @@ class cnc(object):
             def initiate_cnc_client(self):
                 if not self.sim:
                     configFile = open('configFiles/clients.cfg','r')
-                    device = json.loads(configFile.read())['devices'][self.deviceUuid]
+                    device = json.loads(configFile.read())['devices'][self.device_uuid]
                     self.cnc_client = hurcoClient(str(device['host']),int(device['port']))
 
             def initiate_interfaces(self):
@@ -205,7 +205,7 @@ class cnc(object):
 
             def start_pull(self,addr,request, func, stream = True):
 
-                response = requests.get(addr+request+"&from="+self.nextsequence, stream=stream)
+                response = requests.get(addr+request+"&from="+self.next_sequence, stream=stream)
                 self.lp[request.split('/')[1]] = None
                 self.lp[request.split('/')[1]] = LongPull(response, addr, self)
                 self.lp[request.split('/')[1]].long_pull(func)
@@ -248,13 +248,13 @@ class cnc(object):
                 if self.has_material:
                     self.unloading()
 
-                    self.iscoordinator = True
-                    self.iscollaborator = False
+                    self.is_coordinator = True
+                    self.is_collaborator = False
 
                     if self.master_uuid in self.master_tasks:
                         del self.master_tasks[self.master_uuid]
 
-                    self.master_uuid = self.deviceUuid+'_'+str(uuid.uuid4())
+                    self.master_uuid = self.device_uuid+'_'+str(uuid.uuid4())
 
                     master_task_uuid = copy.deepcopy(self.master_uuid)
 
@@ -265,7 +265,7 @@ class cnc(object):
 
                     self.coordinator_task = "MoveMaterial_2"
 
-                    self.coordinator = coordinator(parent = self, master_task_uuid = master_task_uuid, interface = self.binding_state_material , coordinator_name = self.deviceUuid)
+                    self.coordinator = coordinator(parent = self, master_task_uuid = master_task_uuid, interface = self.binding_state_material , coordinator_name = self.device_uuid)
                     self.coordinator.create_statemachine()
 
 
@@ -276,8 +276,8 @@ class cnc(object):
                 elif self.has_material == False:
                     self.loading()
 
-                    self.iscoordinator = False
-                    self.iscollaborator = True
+                    self.is_coordinator = False
+                    self.is_collaborator = True
                     self.collaborator = collaborator(parent = self, interface = self.binding_state_material, collaborator_name = 'cnc1')
                     self.collaborator.create_statemachine()
                     self.collaborator.superstate.task_name = "LoadCnc"
@@ -316,13 +316,13 @@ class cnc(object):
 
                     def func(self = self):
                         self.cnc_execution_ready()
-                        self.iscoordinator = True
-                        self.iscollaborator = False
+                        self.is_coordinator = True
+                        self.is_collaborator = False
 
                         if self.master_uuid in self.master_tasks:
                             del self.master_tasks[self.master_uuid]
 
-                        self.master_uuid = self.deviceUuid+'_'+str(uuid.uuid4())
+                        self.master_uuid = self.device_uuid+'_'+str(uuid.uuid4())
                         master_task_uuid = copy.deepcopy(self.master_uuid)
                         self.coordinator_task = "MoveMaterial_2"
 
@@ -330,7 +330,7 @@ class cnc(object):
                         self.cnc_binding.set_value(master_task_uuid)
                         self.adapter.complete_gather()
 
-                        self.coordinator = coordinator(parent = self, master_task_uuid = master_task_uuid, interface = self.binding_state_material , coordinator_name = self.deviceUuid)
+                        self.coordinator = coordinator(parent = self, master_task_uuid = master_task_uuid, interface = self.binding_state_material , coordinator_name = self.device_uuid)
                         self.coordinator.create_statemachine()
 
 
@@ -393,8 +393,8 @@ class cnc(object):
                 if self.interfaceType == "Request":
                     self.complete()
                     if self.has_material == False:
-                        self.iscoordinator = False
-                        self.iscollaborator = True
+                        self.is_coordinator = False
+                        self.is_collaborator = True
                         self.collaborator = collaborator(parent = self, interface = self.binding_state_material, collaborator_name = 'cnc1')
                         self.collaborator.create_statemachine()
                         self.collaborator.superstate.task_name = "LoadCnc"
@@ -426,13 +426,13 @@ class cnc(object):
 
                 if self.has_material:
                     self.unloading()
-                    self.iscoordinator = True
-                    self.iscollaborator = False
+                    self.is_coordinator = True
+                    self.is_collaborator = False
 
                     if self.master_uuid in self.master_tasks:
                         del self.master_tasks[self.master_uuid]
 
-                    self.master_uuid = self.deviceUuid+'_'+str(uuid.uuid4())
+                    self.master_uuid = self.device_uuid+'_'+str(uuid.uuid4())
                     master_task_uuid = copy.deepcopy(self.master_uuid)
 
                     self.adapter.begin_gather()
@@ -441,7 +441,7 @@ class cnc(object):
 
                     self.coordinator_task = "MoveMaterial_2"
 
-                    self.coordinator = coordinator(parent = self, master_task_uuid = master_task_uuid, interface = self.binding_state_material , coordinator_name = self.deviceUuid)
+                    self.coordinator = coordinator(parent = self, master_task_uuid = master_task_uuid, interface = self.binding_state_material , coordinator_name = self.device_uuid)
                     self.coordinator.create_statemachine()
 
                     self.coordinator.superstate.task_name = "UnloadCnc"
@@ -450,8 +450,8 @@ class cnc(object):
 
                 else:
                     self.loading()
-                    self.iscoordinator = False
-                    self.iscollaborator = True
+                    self.is_coordinator = False
+                    self.is_collaborator = True
                     self.collaborator = collaborator(parent = self, interface = self.binding_state_material, collaborator_name = 'cnc1')
                     self.collaborator.create_statemachine()
                     self.collaborator.superstate.task_name = "LoadCnc"
@@ -505,10 +505,10 @@ class cnc(object):
                         self.collaborator.superstate.event(source, comp, name, value, code, text)
 
                 elif 'SubTask' in name and action!='unavailable':
-                    if self.iscoordinator == True:
+                    if self.is_coordinator == True:
                         self.coordinator.superstate.event(source, comp, name, value, code, text)
 
-                    elif self.iscollaborator == True:
+                    elif self.is_collaborator == True:
                         self.collaborator.superstate.event(source, comp, name, value, code, text)
 
                 elif "Open" in name and action!='unavailable':

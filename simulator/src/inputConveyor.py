@@ -40,7 +40,7 @@ class inputConveyor(object):
 
                 self.load_time_limit(15)
                 self.unload_time_limit(15)
-                self.nextsequence='1'
+                self.next_sequence='1'
                 self.load_failed_time_limit(2)
                 self.unload_failed_time_limit(2)
 
@@ -50,13 +50,13 @@ class inputConveyor(object):
 
                 self.master_tasks = {}
 
-                self.deviceUuid = "conv1"
+                self.device_uuid = "conv1"
 
                 self.master_uuid = str()
 
-                self.iscoordinator = False
+                self.is_coordinator = False
 
-                self.iscollaborator = False
+                self.is_collaborator = False
 
                 self.system_normal = True
 
@@ -76,7 +76,7 @@ class inputConveyor(object):
 
                 self.initiate_internal_buffer()
 
-                self.initiate_pull_thread()
+                #self.initiate_pull_thread()
 
             def set_priority(self):
                 self.priority = None
@@ -150,7 +150,7 @@ class inputConveyor(object):
 
             def start_pull(self,addr,request, func, stream = True):
 
-                response = requests.get(addr+request+"&from="+self.nextsequence, stream=stream)
+                response = requests.get(addr+request+"&from="+self.next_sequence, stream=stream)
                 self.lp[request.split('/')[1]] = None
                 self.lp[request.split('/')[1]] = LongPull(response, addr, self)
                 self.lp[request.split('/')[1]].long_pull(func)
@@ -223,12 +223,12 @@ class inputConveyor(object):
 
                     self.unloading()
 
-                    self.iscoordinator = True
-                    self.iscollaborator = False
+                    self.is_coordinator = True
+                    self.is_collaborator = False
 
                     if self.master_uuid in self.master_tasks:
                         del self.master_tasks[self.master_uuid]
-                    self.master_uuid = self.deviceUuid+'_'+str(uuid.uuid4())
+                    self.master_uuid = self.device_uuid+'_'+str(uuid.uuid4())
                     master_task_uuid = copy.deepcopy(self.master_uuid)
 
 
@@ -239,7 +239,7 @@ class inputConveyor(object):
 
                     self.coordinator_task = "MoveMaterial_1"+"_"+self.current_part
 
-                    self.coordinator = coordinator(parent = self, master_task_uuid = master_task_uuid, interface = self.binding_state_material , coordinator_name = self.deviceUuid)
+                    self.coordinator = coordinator(parent = self, master_task_uuid = master_task_uuid, interface = self.binding_state_material , coordinator_name = self.device_uuid)
                     self.coordinator.create_statemachine()
 
                     self.coordinator.superstate.task_name = "UnloadConv"
@@ -249,9 +249,9 @@ class inputConveyor(object):
                 elif part_order == "collaborator":
                     self.loading()
 
-                    self.iscoordinator = False
-                    self.iscollaborator = True
-                    self.collaborator = collaborator(parent = self, interface = self.binding_state_material, collaborator_name = self.deviceUuid)
+                    self.is_coordinator = False
+                    self.is_collaborator = True
+                    self.collaborator = collaborator(parent = self, interface = self.binding_state_material, collaborator_name = self.device_uuid)
                     self.collaborator.create_statemachine()
                     self.collaborator.superstate.task_name = "LoadConv"
                     self.collaborator.superstate.unavailable()
@@ -363,10 +363,10 @@ class inputConveyor(object):
                         self.collaborator.superstate.event(source, comp, name, value, code, text)
 
                 elif 'SubTask' in name and action!= 'unavailable':
-                    if self.iscoordinator == True:
+                    if self.is_coordinator == True:
                         self.coordinator.superstate.event(source, comp, name, value, code, text)
 
-                    elif self.iscollaborator == True:
+                    elif self.is_collaborator == True:
                         self.collaborator.superstate.event(source, comp, name, value, code, text)
 
                 elif name == "MaterialLoad" and action!= 'unavailable':

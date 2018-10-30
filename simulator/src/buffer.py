@@ -37,7 +37,7 @@ class Buffer(object):
 
                 self.load_time_limit(15)
                 self.unload_time_limit(15)
-                self.nextsequence='1'
+                self.next_sequence='1'
                 self.load_failed_time_limit(2)
                 self.unload_failed_time_limit(2)
 
@@ -45,7 +45,7 @@ class Buffer(object):
 
                 self.master_tasks = {}
 
-                self.deviceUuid = "b1"
+                self.device_uuid = "b1"
 
                 self.buffer = []
 
@@ -55,9 +55,9 @@ class Buffer(object):
 
                 self.master_uuid = str()
 
-                self.iscoordinator = False
+                self.is_coordinator = False
 
-                self.iscollaborator = False
+                self.is_collaborator = False
 
                 self.system_normal = True
 
@@ -71,7 +71,7 @@ class Buffer(object):
 
                 self.set_priority()
 
-                self.initiate_pull_thread()
+                #self.initiate_pull_thread()
 
             def set_priority(self):
                 self.priority = None
@@ -140,7 +140,7 @@ class Buffer(object):
 
             def start_pull(self,addr,request, func, stream = True):
 
-                response = requests.get(addr+request+"&from="+self.nextsequence, stream=stream)
+                response = requests.get(addr+request+"&from="+self.next_sequence, stream=stream)
                 self.lp[request.split('/')[1]] = None
                 self.lp[request.split('/')[1]] = LongPull(response, addr, self)
                 self.lp[request.split('/')[1]].long_pull(func)
@@ -184,16 +184,16 @@ class Buffer(object):
                     self.wait_for_task_completion()
                 else:
                     if self.has_material:
-                        self.iscoordinator = True
-                        self.iscollaborator = False
+                        self.is_coordinator = True
+                        self.is_collaborator = False
                         self.material_load_interface.superstate.DEACTIVATE()
                     else:
-                        self.iscoordinator = False
-                        self.iscollaborator = True
+                        self.is_coordinator = False
+                        self.is_collaborator = True
                         self.material_unload_interface.superstate.DEACTIVATE()
 
                     if not self.has_material and self.binding_state_material.value() != "COMMITTED":
-                        self.collaborator = collaborator(parent = self, interface = self.binding_state_material, collaborator_name = self.deviceUuid)
+                        self.collaborator = collaborator(parent = self, interface = self.binding_state_material, collaborator_name = self.device_uuid)
                         self.collaborator.create_statemachine()
                         self.collaborator.superstate.task_name = "LoadBuffer"
                         self.collaborator.superstate.unavailable()
@@ -204,7 +204,7 @@ class Buffer(object):
                         if self.master_uuid in self.master_tasks:
                             del self.master_tasks[self.master_uuid]
 
-                        self.master_uuid = self.deviceUuid+'_'+str(uuid.uuid4())
+                        self.master_uuid = self.device_uuid+'_'+str(uuid.uuid4())
                         master_task_uuid = copy.deepcopy(self.master_uuid)
                         self.coordinator_task = "MoveMaterial_3"
 
@@ -213,7 +213,7 @@ class Buffer(object):
                         self.buffer_binding.set_value(master_task_uuid)
                         self.adapter.complete_gather()
 
-                        self.coordinator = coordinator(parent = self, master_task_uuid = master_task_uuid, interface = self.binding_state_material , coordinator_name = self.deviceUuid)
+                        self.coordinator = coordinator(parent = self, master_task_uuid = master_task_uuid, interface = self.binding_state_material , coordinator_name = self.device_uuid)
                         self.coordinator.create_statemachine()
                         self.coordinator.superstate.task_name = "UnloadBuffer"
                         self.coordinator.superstate.unavailable()
@@ -290,14 +290,14 @@ class Buffer(object):
 
 
             def collaborator_check(self):
-                while self.iscollaborator and self.iscoordinator:
+                while self.is_collaborator and self.is_coordinator:
                     if self.collaborator.superstate.state == 'base:preparing':
-                        self.iscoordinator = False
-                        self.iscollaborator = True
+                        self.is_coordinator = False
+                        self.is_collaborator = True
                         self.material_unload_interface.superstate.DEACTIVATE()
                     elif self.coordinator.superstate.task.superstate.state == 'base:committing':
-                        self.iscollaborator = False
-                        self.iscoordinator = True
+                        self.is_collaborator = False
+                        self.is_coordinator = True
                         self.material_load_interface.superstate.DEACTIVATE()
 
             def event(self, source, comp, name, value, code = None, text = None):
@@ -311,19 +311,19 @@ class Buffer(object):
                 if comp == "Coordinator" and value.lower() == 'preparing':
                     self.priority.event_list([source, comp, name, value, code, text])
 
-                if comp == "Task_Collaborator" and self.iscoordinator == True:
+                if comp == "Task_Collaborator" and self.is_coordinator == True:
                     self.coordinator.superstate.event(source, comp, name, value, code, text)
 
 
-                elif comp == "Coordinator" and self.iscollaborator == True:
+                elif comp == "Coordinator" and self.is_collaborator == True:
                     if value.lower() != 'preparing':
                         self.collaborator.superstate.event(source, comp, name, value, code, text)
 
                 elif 'SubTask' in name:
-                    if self.iscoordinator == True:
+                    if self.is_coordinator == True:
                         self.coordinator.superstate.event(source, comp, name, value, code, text)
 
-                    elif self.iscollaborator == True:
+                    elif self.is_collaborator == True:
                         self.collaborator.superstate.event(source, comp, name, value, code, text)
 
                 elif name == "MaterialLoad":

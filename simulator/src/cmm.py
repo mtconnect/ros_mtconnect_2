@@ -46,7 +46,7 @@ class cmm(object):
 
                 self.load_time_limit(20)
                 self.unload_time_limit(20)
-                self.nextsequence ='1'
+                self.next_sequence ='1'
                 self.load_failed_time_limit(2)
                 self.unload_failed_time_limit(2)
 
@@ -54,13 +54,13 @@ class cmm(object):
 
                 self.master_tasks ={}
 
-                self.deviceUuid = "cmm1"
+                self.device_uuid = "cmm1"
 
                 self.master_uuid = str()
 
-                self.iscoordinator = False
+                self.is_coordinator = False
 
-                self.iscollaborator = False
+                self.is_collaborator = False
 
                 self.system_normal = True
 
@@ -81,7 +81,7 @@ class cmm(object):
 
                 self.initiate_cmm_client()
 
-                self.initiate_pull_thread()
+                #self.initiate_pull_thread()
 
             def set_priority(self):
                 self.priority = None
@@ -122,7 +122,7 @@ class cmm(object):
             def initiate_cmm_client(self):
                 if not self.sim:
 		    configFile = open('configFiles/clients.cfg','r')
-		    device = json.loads(configFile.read())['devices'][self.deviceUuid]
+		    device = json.loads(configFile.read())['devices'][self.device_uuid]
                     self.cmm_client = hexagonClient(str(device['host']), int(device['port']),int(device['port']))
                     self.cmm_client.connect()
 
@@ -184,7 +184,7 @@ class cmm(object):
 
             def start_pull(self,addr,request, func, stream = True):
 
-                response = requests.get(addr+request+"&from="+self.nextsequence, stream=stream)
+                response = requests.get(addr+request+"&from="+self.next_sequence, stream=stream)
                 self.lp[request.split('/')[1]] = None
                 self.lp[request.split('/')[1]] = LongPull(response, addr, self)
                 self.lp[request.split('/')[1]].long_pull(func)
@@ -216,13 +216,13 @@ class cmm(object):
                 if self.has_material:
                     self.unloading()
 
-                    self.iscoordinator = True
-                    self.iscollaborator = False
+                    self.is_coordinator = True
+                    self.is_collaborator = False
 
                     if self.master_uuid in self.master_tasks:
                         del self.master_tasks[self.master_uuid]
 
-                    self.master_uuid = self.deviceUuid+'_'+str(uuid.uuid4())
+                    self.master_uuid = self.device_uuid+'_'+str(uuid.uuid4())
                     master_task_uuid = copy.deepcopy(self.master_uuid)
 
                     self.adapter.begin_gather()
@@ -237,7 +237,7 @@ class cmm(object):
                         else:
                             self.coordinator_task = "MoveMaterial_4"+"_"+self.part_quality
 
-                        self.coordinator = coordinator(parent = self, master_task_uuid = master_task_uuid, interface = self.binding_state_material , coordinator_name = self.deviceUuid)
+                        self.coordinator = coordinator(parent = self, master_task_uuid = master_task_uuid, interface = self.binding_state_material , coordinator_name = self.device_uuid)
                         self.coordinator.create_statemachine()
 
                         self.coordinator.superstate.task_name = "UnloadCmm"
@@ -247,9 +247,9 @@ class cmm(object):
                 elif self.has_material == False:
                     self.loading()
 
-                    self.iscoordinator = False
-                    self.iscollaborator = True
-                    self.collaborator = collaborator(parent = self, interface = self.binding_state_material, collaborator_name = self.deviceUuid)
+                    self.is_coordinator = False
+                    self.is_collaborator = True
+                    self.collaborator = collaborator(parent = self, interface = self.binding_state_material, collaborator_name = self.device_uuid)
                     self.collaborator.create_statemachine()
                     self.collaborator.superstate.task_name = "LoadCmm"
                     self.collaborator.superstate.unavailable()
@@ -280,12 +280,12 @@ class cmm(object):
 
                     def func(self = self):
                         self.cmm_execution_ready()
-                        self.iscoordinator = True
-                        self.iscollaborator = False
+                        self.is_coordinator = True
+                        self.is_collaborator = False
 
                         if self.master_uuid in self.master_tasks:
                             del self.master_tasks[self.master_uuid]
-                        self.master_uuid = self.deviceUuid+'_'+str(uuid.uuid4())
+                        self.master_uuid = self.device_uuid+'_'+str(uuid.uuid4())
                         master_task_uuid = copy.deepcopy(self.master_uuid)
 
                         self.adapter.begin_gather()
@@ -299,7 +299,7 @@ class cmm(object):
                             else:
                                 self.coordinator_task = "MoveMaterial_4"+"_"+self.part_quality
 
-                            self.coordinator = coordinator(parent = self, master_task_uuid = master_task_uuid, interface = self.binding_state_material , coordinator_name = self.deviceUuid)
+                            self.coordinator = coordinator(parent = self, master_task_uuid = master_task_uuid, interface = self.binding_state_material , coordinator_name = self.device_uuid)
                             self.coordinator.create_statemachine()
 
                             self.coordinator.superstate.task_name = "UnloadCmm"
@@ -370,13 +370,13 @@ class cmm(object):
                 if self.has_material:
                     self.unloading()
 
-                    self.iscoordinator = True
-                    self.iscollaborator = False
+                    self.is_coordinator = True
+                    self.is_collaborator = False
 
                     if self.master_uuid in self.master_tasks:
                         del self.master_tasks[self.master_uuid]
 
-                    self.master_uuid = self.deviceUuid+'_'+str(uuid.uuid4())
+                    self.master_uuid = self.device_uuid+'_'+str(uuid.uuid4())
                     master_task_uuid = copy.deepcopy(self.master_uuid)
 
                     self.adapter.begin_gather()
@@ -392,7 +392,7 @@ class cmm(object):
                             self.coordinator_task = "MoveMaterial_4"+"_"+self.part_quality
 
 
-                        self.coordinator = coordinator(parent = self, master_task_uuid = master_task_uuid, interface = self.binding_state_material , coordinator_name = self.deviceUuid)
+                        self.coordinator = coordinator(parent = self, master_task_uuid = master_task_uuid, interface = self.binding_state_material , coordinator_name = self.device_uuid)
                         self.coordinator.create_statemachine()
 
                         self.coordinator.superstate.task_name = "UnloadCmm"
@@ -400,9 +400,9 @@ class cmm(object):
 
                 else:
                     self.loading()
-                    self.iscoordinator = False
-                    self.iscollaborator = True
-                    self.collaborator = collaborator(parent = self, interface = self.binding_state_material, collaborator_name = self.deviceUuid)
+                    self.is_coordinator = False
+                    self.is_collaborator = True
+                    self.collaborator = collaborator(parent = self, interface = self.binding_state_material, collaborator_name = self.device_uuid)
                     self.collaborator.create_statemachine()
                     self.collaborator.superstate.task_name = "LoadCmm"
                     self.collaborator.superstate.unavailable()
@@ -432,9 +432,9 @@ class cmm(object):
 
             def EXIT_TRANSITION(self):
                 if self.has_material == False:
-                    self.iscoordinator = False
-                    self.iscollaborator = True
-                    self.collaborator = collaborator(parent = self, interface = self.binding_state_material, collaborator_name = self.deviceUuid)
+                    self.is_coordinator = False
+                    self.is_collaborator = True
+                    self.collaborator = collaborator(parent = self, interface = self.binding_state_material, collaborator_name = self.device_uuid)
                     self.collaborator.create_statemachine()
                     self.collaborator.superstate.task_name = "LoadCmm"
                     self.collaborator.superstate.unavailable()
@@ -462,9 +462,9 @@ class cmm(object):
                     self.priority.event_list([source, comp, name, value, code, text])
 
                 #tool_change: to be updated
-                elif self.iscoordinator and self.master_uuid in self.master_tasks and 'ToolChange' in str(self.master_tasks[self.master_uuid]) and text == 'r1':
+                elif self.is_coordinator and self.master_uuid in self.master_tasks and 'ToolChange' in str(self.master_tasks[self.master_uuid]) and text == 'r1':
                     if value == 'INACTIVE' and self.binding_state_material.value() == "COMMITTED":
-                        self.master_tasks[self.master_uuid]['coordinator'][self.deviceUuid]['SubTask']['cnc1'][1] = 'COMPLETE'
+                        self.master_tasks[self.master_uuid]['coordinator'][self.device_uuid]['SubTask']['cnc1'][1] = 'COMPLETE'
                         self.coordinator.superstate.task.superstate.success()
                         self.transition_unloading()
 
@@ -477,10 +477,10 @@ class cmm(object):
                         self.collaborator.superstate.event(source, comp, name, value, code, text)
 
                 elif 'SubTask' in name and action!='unavailable':
-                    if self.iscoordinator == True:
+                    if self.is_coordinator == True:
                         self.coordinator.superstate.event(source, comp, name, value, code, text)
 
-                    elif self.iscollaborator == True:
+                    elif self.is_collaborator == True:
                         self.collaborator.superstate.event(source, comp, name, value, code, text)
 
                 elif name == "MaterialLoad" and action!='unavailable':

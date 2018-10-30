@@ -51,8 +51,8 @@ class Robot:
             self.lp ={}
 
             self.master_tasks ={}
-            self.nextsequence='1'
-            self.deviceUuid = "r1"
+            self.next_sequence='1'
+            self.device_uuid = "r1"
 
             # Maximum amount of time for material handling to complete before marking it complete regardless
             self.material_load_interface.superstate.simulated_duration = 900
@@ -60,9 +60,9 @@ class Robot:
 
             self.master_uuid = str()
 
-            self.iscoordinator = False
+            self.is_coordinator = False
 
-            self.iscollaborator = True
+            self.is_collaborator = True
 
             self.fail_next = False
 
@@ -74,7 +74,7 @@ class Robot:
 
             self.low_level_event_list = []
 
-            self.initiate_pull_thread()
+            #self.initiate_pull_thread()
 
         def set_priority(self):
             self.priority = None
@@ -176,7 +176,7 @@ class Robot:
 
         def start_pull(self,addr,request, func, stream = True):
 
-            response = requests.get(addr+request+"&from="+self.nextsequence, stream=stream)
+            response = requests.get(addr+request+"&from="+self.next_sequence, stream=stream)
             self.lp[request.split('/')[1]] = None
             self.lp[request.split('/')[1]] = LongPull(response, addr, self)
             self.lp[request.split('/')[1]].long_pull(func)
@@ -226,7 +226,7 @@ class Robot:
             #toolchange edit
             self.material_unload_interface.superstate.not_ready()
             self.material_load_interface.superstate.not_ready()
-            self.collaborator = collaborator(parent = self, interface = self.binding_state_material, collaborator_name = self.deviceUuid)
+            self.collaborator = collaborator(parent = self, interface = self.binding_state_material, collaborator_name = self.device_uuid)
             self.collaborator.create_statemachine()
             time.sleep(0.1)
             self.collaborator.superstate.unavailable()
@@ -292,7 +292,7 @@ class Robot:
                 nsr = ET.fromstring(nsx)
                 ns = nsr[0].attrib['nextSequence']
 
-                self.nextsequence = ns
+                self.next_sequence = ns
 
                 self.priority = None
 
@@ -319,9 +319,9 @@ class Robot:
 
             elif "response" in self.interfaceType.lower() and "material" in self.interfaceType.lower():
                 if "unloaded" not in self.interfaceType.lower():
-                    self.event(self.deviceUuid, 'material_interface', 'SubTask_'+'MaterialUnload','COMPLETE')
+                    self.event(self.device_uuid, 'material_interface', 'SubTask_'+'MaterialUnload','COMPLETE')
                 elif "unloaded" in self.interfaceType.lower():
-                    self.event(self.deviceUuid, 'material_interface', 'SubTask_'+'MaterialLoad','COMPLETE')
+                    self.event(self.device_uuid, 'material_interface', 'SubTask_'+'MaterialLoad','COMPLETE')
 
         def event(self, source, comp, name, value, code = None, text = None):
             ev = RobotEvent(source, comp, name, value, code, text)
@@ -363,7 +363,7 @@ class Robot:
 
             elif 'SubTask' in name and action!='unavailable':
                 try:
-                    if comp == 'interface_initialization' and source == self.deviceUuid:
+                    if comp == 'interface_initialization' and source == self.device_uuid:
                         if 'CloseChuck' in name:
                             print ("CloseChuck Request to cnc1")
                         elif 'CloseDoor' in name:
@@ -375,10 +375,10 @@ class Robot:
                         elif 'ChangeTool' in name:
                             print ("ChangeTool Request to cnc1")
 
-                    if self.iscoordinator:
+                    if self.is_coordinator:
                         self.coordinator.superstate.event(source, comp, name, value, code, text)
 
-                    elif self.iscollaborator:
+                    elif self.is_collaborator:
                         self.collaborator.superstate.event(source, comp, name, value, code, text)
 
                 except Exception as e:
