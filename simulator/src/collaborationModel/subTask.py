@@ -35,25 +35,25 @@ class subTask(object):
             def INACTIVE(self):
                 self.activated()
 
-                self.task_uuid = self.parent.deviceUuid+'_'+str(uuid.uuid4())
+                self.task_uuid = self.parent.device_uuid+'_'+str(uuid.uuid4())
 
                 #create subtask asset
-                self.arch2ins = archetypeToInstance(self.taskName, self.task_uuid, self.parent.deviceUuid, self.master_task_uuid)
+                self.arch2ins = archetypeToInstance(self.taskName, self.task_uuid, self.parent.device_uuid, self.master_task_uuid)
                 self.taskIns = self.arch2ins.addElement('<ParentRef assetId = "' + str(self.master_task_uuid)+'" />')
 
-                if self.arch2ins.taskCoordinator == self.parent.deviceUuid: self.parent.adapter.addAsset('Task', self.task_uuid, self.taskIns)
+                if self.arch2ins.taskCoordinator == self.parent.device_uuid: self.parent.adapter.addAsset('Task', self.task_uuid, self.taskIns)
 
                 self.quorum()
 
             def COMMITTING(self):
                 self.taskIns = assetUpdate(self.taskIns, "State", "COMMITTING")
-                if self.arch2ins.taskCoordinator == self.parent.deviceUuid:
+                if self.arch2ins.taskCoordinator == self.parent.device_uuid:
                     self.parent.adapter.addAsset('Task', self.task_uuid, self.taskIns)
                 self.all_commit()
 
             def COMMITTED(self):
                 self.taskIns = assetUpdate(self.taskIns, "State", "COMMITTED")
-                if self.arch2ins.taskCoordinator == self.parent.deviceUuid:
+                if self.arch2ins.taskCoordinator == self.parent.device_uuid:
                     #add subtask asset to the device
                     self.parent.adapter.addAsset('Task', self.task_uuid, self.taskIns)
 
@@ -77,20 +77,20 @@ class subTask(object):
             def COMPLETE(self):
                 #update states and remove asset once subtask is complete
                 self.taskIns = assetUpdate(self.taskIns, "State", "INACTIVE")
-                if self.arch2ins.taskCoordinator == self.parent.deviceUuid:
+                if self.arch2ins.taskCoordinator == self.parent.device_uuid:
                     self.parent.adapter.addAsset('Task', self.task_uuid, self.taskIns)
 
-                if self.arch2ins.taskCoordinator == self.parent.deviceUuid:
+                if self.arch2ins.taskCoordinator == self.parent.device_uuid:
                     self.parent.adapter.removeAsset(self.task_uuid)
 
                 self.default()
 
             def FAIL(self):
                 self.taskIns = assetUpdate(self.taskIns, "State", "INACTIVE")
-                if self.arch2ins.taskCoordinator == self.parent.deviceUuid:
+                if self.arch2ins.taskCoordinator == self.parent.device_uuid:
                     self.parent.adapter.addAsset('Task', self.task_uuid, self.taskIns)
 
-                if self.arch2ins.taskCoordinator == self.parent.deviceUuid:
+                if self.arch2ins.taskCoordinator == self.parent.device_uuid:
                     self.parent.adapter.removeAsset(self.task_uuid)
 
                 self.default()

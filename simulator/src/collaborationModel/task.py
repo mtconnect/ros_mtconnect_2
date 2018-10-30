@@ -43,7 +43,7 @@ class task(object):
 
                 if not self.initialize:
                     #execute only once
-                    arch2ins = archetypeToInstance(self.parent.coordinator_task, self.master_task_uuid, self.parent.deviceUuid)
+                    arch2ins = archetypeToInstance(self.parent.coordinator_task, self.master_task_uuid, self.parent.device_uuid)
                     self.arch2ins = arch2ins
                     self.parent.master_tasks[self.master_task_uuid] = arch2ins.jsonInstance()
                     self.taskIns = arch2ins.taskIns
@@ -97,10 +97,11 @@ class task(object):
                                 break
 
                         if collaborators_commit == True:
+                            timer.cancel()
                             break
 
                     if collaborators_commit == True:
-                        self.parent.master_tasks[self.parent.master_uuid]['coordinator'][self.parent.deviceUuid]['Task'][1] = 'COMMITTED'
+                        self.parent.master_tasks[self.parent.master_uuid]['coordinator'][self.parent.device_uuid]['Task'][1] = 'COMMITTED'
                         try:
                             self.all_commit()
                         except Exception as e:
@@ -112,6 +113,7 @@ class task(object):
                         self.no_commit()
 
                 t = Thread(target = commit_timer)
+                t.daemon = True
                 t.start()
 
             def COMMITTED(self):
@@ -138,7 +140,7 @@ class task(object):
                             if self.coordinator.task_name in val['SubTask']:
                                 for i,x in enumerate(val['SubTask'][self.coordinator.task_name]):
 
-                                    if x and x[4] and self.parent.deviceUuid in x[4]:
+                                    if x and x[4] and self.parent.device_uuid in x[4]:
 
                                         self.subTask[x[1]] = subTask.subTask(parent = self.parent , interface = interface, master_task_uuid = self.subTask[value[0]].superstate.task_uuid, collaborators = x[4],taskName = x[1])
                                         self.subTask[x[1]].create_statemachine()
@@ -161,7 +163,7 @@ class task(object):
                 for key, value in self.parent.master_tasks[self.master_task_uuid]['coordinator'][self.coordinator.coordinator_name]['SubTask'].iteritems():
                     if value:
                         if value[1] == 'COMPLETE' or value[1] == 'FAIL' or value[1] == '':
-                            if key == self.parent.deviceUuid or self.parent.master_tasks[self.master_task_uuid]['collaborators'][key]['state'][2] == 'INACTIVE':
+                            if key == self.parent.device_uuid or self.parent.master_tasks[self.master_task_uuid]['collaborators'][key]['state'][2] == 'INACTIVE':
                                 success = True
                             else:
                                 success = False

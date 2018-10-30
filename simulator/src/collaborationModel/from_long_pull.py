@@ -59,7 +59,7 @@ def from_long_pull(self, chunk, addr = None):
                                 if event.text == 'PREPARING' or event.text == 'INACTIVE':
                                     self.priority.binding_state(collabUuid,event.text, None)
 
-                                if self.iscoordinator and coord_task_id == self.master_uuid:
+                                if self.is_coordinator and coord_task_id == self.master_uuid:
 
                                     #Before committing to the task
                                     if event.text != "INACTIVE":
@@ -67,16 +67,11 @@ def from_long_pull(self, chunk, addr = None):
 
                                     #After committing to the task and/or task completion
                                     elif event.text == "INACTIVE" and self.binding_state_material.value() == "COMMITTED":
-                                        if  self.master_tasks[self.master_uuid]['coordinator'][self.deviceUuid]['SubTask'][collabUuid]:
-                                            self.master_tasks[self.master_uuid]['coordinator'][self.deviceUuid]['SubTask'][collabUuid][1] = 'COMPLETE'
-                                            self.master_tasks[self.master_uuid]['collaborators'][collabUuid]['state'][2] = 'INACTIVE'
-                                            self.coordinator.superstate.task.superstate.commit()
-
-                                        elif self.master_uuid in self.master_tasks:
+                                        if self.master_uuid in self.master_tasks:
                                             self.event(source.lower(), "Task_Collaborator", "binding_state", event.text, self.master_uuid,  collabUuid)
 
 
-                                elif self.iscollaborator:
+                                elif self.is_collaborator:
 
                                     #Before committing to the task
                                     if self.binding_state_material.value() == "PREPARING" and event.text == 'COMMITTING' and collabUuid == coordinator:
@@ -93,10 +88,10 @@ def from_long_pull(self, chunk, addr = None):
 
                                 event_name = event.tag.split('}')[-1]
 
-                                if self.iscollaborator:
+                                if self.is_collaborator:
 
-                                    device_tasks = self.master_tasks[self.master_uuid]['coordinator'][coordinator]['SubTask'][self.deviceUuid]
-                                    device_subtasks = self.master_tasks[self.master_uuid]['collaborators'][self.deviceUuid]['SubTask']
+                                    device_tasks = self.master_tasks[self.master_uuid]['coordinator'][coordinator]['SubTask'][self.device_uuid]
+                                    device_subtasks = self.master_tasks[self.master_uuid]['collaborators'][self.device_uuid]['SubTask']
 
                                     if device_tasks: device_collaborators = device_tasks[2]
                                     else: device_collaborators = None
@@ -122,18 +117,18 @@ def from_long_pull(self, chunk, addr = None):
 
                                     elif device_subtasks and collab_collaborators: #Robot / low level collaborator
 
-                                        if collab_tasks and self.deviceUuid in collab_collaborators:
+                                        if collab_tasks and self.device_uuid in collab_collaborators:
                                             self.event(source.lower(), component, 'SubTask_'+event_name, event.text, self.master_uuid, collabUuid)
 
 
-                                elif self.iscoordinator:
+                                elif self.is_coordinator:
 
                                     self.event(source.lower(), component, 'SubTask_'+event_name, event.text, self.master_uuid, collabUuid)
 
                         #makes sure that completed task assets are removed
                         elif 'AssetRemoved' in event.tag and self.binding_state_material.value() == "INACTIVE":
                             try:
-                                if self.deviceUuid in event.text.split('_')[0]:
+                                if self.device_uuid in event.text.split('_')[0]:
                                     self.adapter.removeAsset(event.text)
 
                             except Exception as e:
@@ -141,7 +136,7 @@ def from_long_pull(self, chunk, addr = None):
                                 print (e)
 
                 except Exception as e:
-                    print ("Invalid Event in ", self.deviceUuid, " from ",e)
+                    print ("Invalid Event in ", self.device_uuid, " from ",e)
 
 
 def from_long_pull_asset(self,chunk, stream_root = None):
@@ -164,18 +159,18 @@ def from_long_pull_asset(self,chunk, stream_root = None):
 
         for x in root.findall('.//'+xmlns+'Collaborator'):
 
-            if x.attrib['collaboratorId'] == self.deviceUuid:
+            if x.attrib['collaboratorId'] == self.device_uuid:
 
                 main_task_archetype = root.findall('.//'+xmlns+'AssetArchetypeRef')[0].attrib['assetId']
                 main_task_uuid = root.findall('.//'+xmlns+'Task')[0].attrib['assetId']
-                main_task_deviceUuid = root.findall('.//'+xmlns+'Task')[0].attrib['deviceUuid']
+                main_task_device_uuid = root.findall('.//'+xmlns+'Task')[0].attrib['deviceUuid']
                 coordinator = root.findall('.//'+xmlns+'Coordinator')[0]
                 component = "Coordinator"
                 name = "binding_state"
 
                 #create json task instance from xml task archetype
                 if main_task_uuid not in self.master_tasks:
-                    self.master_tasks[main_task_uuid] = archetypeToInstance(main_task_archetype,"uuid", main_task_deviceUuid, main_task_uuid).jsonInstance()
+                    self.master_tasks[main_task_uuid] = archetypeToInstance(main_task_archetype,"uuid", main_task_device_uuid, main_task_uuid).jsonInstance()
 
                 self.event(coordinator.text, component, name, value, [main_task_uuid, self.master_tasks[main_task_uuid]],  coordinator.attrib['collaboratorId'])
 
