@@ -120,6 +120,7 @@ class Response(object):
                 self.interface.set_value("FAIL")
                 self.adapter.complete_gather()
 
+                self.parent.interface_type(value = 'Response')
                 self.parent.FAILED()
 
                 def fail_reset():
