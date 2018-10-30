@@ -82,6 +82,16 @@ class coordinator(object):
                             if value.lower() == 'preparing':
                                 self.task.superstate.prepare()
 
+                        elif value.lower() == "inactive" and self.interface.value().lower() == "committed":
+                            if self.parent.master_tasks[code]['coordinator'][self.parent.device_uuid]['SubTask'][text]:
+                                self.parent.master_tasks[code]['coordinator'][self.parent.device_uuid]['SubTask'][text][1] = 'COMPLETE'
+
+                            if self.parent.master_tasks[code]['collaborators'][text]['state'][2] == 'COMMITTED':
+                                self.parent.master_tasks[code]['collaborators'][text]['state'][2] = 'INACTIVE'
+
+                            self.task.superstate.commit()
+
+
                     #interface related event handling
                     elif 'SubTask' in name:
                         def commit_task():
