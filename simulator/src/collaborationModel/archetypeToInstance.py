@@ -1,6 +1,8 @@
 import os,sys
 sys.path.insert(0,os.path.dirname(os.getcwd()))
 
+path = '/home/ssingh/catkin_workspace/src/ceccrebot/simulator/src'
+
 import xml.etree.ElementTree as ET
 import uuid, re
 import datetime, copy
@@ -20,7 +22,7 @@ class archetypeToInstance(object):
 
     def readArchetype(self, taskArch):
         try:
-            fileOpen = open(os.path.join('taskArchetype', taskArch +'.xml'))
+            fileOpen = open(os.path.join(path,'taskArchetype', taskArch +'.xml'))
             fileRead = fileOpen.read()
             root = ET.fromstring(fileRead)
             return root
