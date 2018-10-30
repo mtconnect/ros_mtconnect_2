@@ -29,6 +29,7 @@ class collaborator(object):
                 self.parent = parent
                 self.collaborator_name = collaborator_name
                 self.task_name = None
+                self.commit_time_limit = 120.0
                 self.subTask = {}
                 self.currentSubTask = str()
                 self.initialized = False
@@ -50,6 +51,12 @@ class collaborator(object):
                 self.parent.adapter.begin_gather()
                 self.interface.set_value("COMMITTED")
                 self.parent.adapter.complete_gather()
+
+                self.timer_commit()
+
+            def timer_commit(self):
+                self.commit_timer = Timer(self.commit_time_limit,self.no_commit)
+                self.commit_timer.start()
 
             def committed(self):
                 subTask_collab = False
@@ -134,7 +141,7 @@ class collaborator(object):
                             self.parent.master_tasks[self.parent.master_uuid]['coordinator'][coordinator]['SubTask'][key][1] = 'COMPLETE'
 
                 if subTask_collab == True:
-                    self.parent.master_tasks[self.parent.master_uuid]['collaborators'][self.parent.deviceUuid]['state'][2] = 'COMPLETE'
+                    self.parent.master_tasks[self.parent.master_uuid]['collaborators'][self.parent.device_uuid]['state'][2] = 'COMPLETE'
                     self.completed()
                     self.parent.IDLE()
 
@@ -149,10 +156,13 @@ class collaborator(object):
 
 		try:
                     #collaboration related event handling
-                    if name == 'binding_state' and value.lower() == 'inactive' and self.parent.binding_state_material.value().lower() == 'committed' and self.currentSubTask:
-                        self.subTask[self.currentSubTask].superstate.success()
-                        time.sleep(0.1)
-                        self.completed()
+                    if comp == 'Coordinator' and name == 'binding_state' and value.lower() == 'inactive' and self.interface.value().lower() == 'committed':
+                        if self.currentSubTask:
+                            self.subTask[self.currentSubTask].superstate.success()
+                            time.sleep(0.1)
+                            self.completed()
+                        else:
+                            self.failed()
                     elif comp == 'Coordinator' and name == 'binding_state' and value.lower() == 'preparing':
                         self.parent.master_tasks[code[0]] = code[1]
                         self.task_created()
@@ -164,7 +174,9 @@ class collaborator(object):
                         elif value.lower() == 'committed' and text in self.parent.master_tasks[code]['coordinator']:
                             self.parent.master_tasks[code]['coordinator'][text]['state'][2] = value
 
+                            self.commit_timer.cancel()
                             t1= Thread(target = self.committed)
+                            t1.daemon = True
                             t1.start()
 
                     #interfaces related event handling
@@ -172,7 +184,7 @@ class collaborator(object):
                         if self.currentSubTask and self.currentSubTask in name:
                             try:
                                 self.subTask[self.currentSubTask].superstate.event(source, comp, name, value, code, text)
-                                if not self.currentSubTaskState and name.split('_')[1] in self.parent.master_tasks[self.parent.master_uuid]['collaborators'][self.parent.deviceUuid]['SubTask']:
+                                if not self.currentSubTaskState and name.split('_')[1] in self.parent.master_tasks[self.parent.master_uuid]['collaborators'][self.parent.device_uuid]['SubTask']:
                                     self.currentSubTaskState = value.lower()
 
                             except Exception as e:
@@ -180,7 +192,7 @@ class collaborator(object):
 				print ("Retrying in 0.500 sec")
                                 time.sleep(0.500)
                                 self.parent.event(source, comp, name, value, code, text)
-                                if not self.currentSubTaskState and name.split('_')[1] in self.parent.master_tasks[self.parent.master_uuid]['collaborators'][self.parent.deviceUuid]['SubTask']:
+                                if not self.currentSubTaskState and name.split('_')[1] in self.parent.master_tasks[self.parent.master_uuid]['collaborators'][self.parent.device_uuid]['SubTask']:
                                     self.currentSubTaskState = value.lower()
 
                         elif self.subTask:
@@ -204,7 +216,7 @@ class collaborator(object):
                                     self.currentSubTaskState = value.lower()
                                 else:
                                     collab = None
-                                    if k == self.parent.deviceUuid:
+                                    if k == self.parent.device_uuid:
                                         if v: collab = v[2]
 
                                     if collab and self.parent.master_tasks[self.parent.master_uuid]['collaborators'][collab]['SubTask'][self.task_name]:
@@ -212,15 +224,6 @@ class collaborator(object):
                                             if name.split('_')[-1] == t[1]:
                                                 self.parent.event(source, comp, name.split('_')[-1], value, code, text)
                                                 break
-                        else:
-                            "Not a valid SubTask"
-                    else:
-
-                        if value.lower() == 'complete' and None:
-
-                            self.parent.adapter.begin_gather()
-                            self.interface.set_value("INACTIVE")
-                            self.parent.adapter.complete_gather()
 
 		except Exception as e:
                     print ("Error processing collaborator event:")
@@ -239,6 +242,7 @@ class collaborator(object):
                        ['task_created', 'base:inactive', 'base:preparing'],
 
                        ['commit', 'base:preparing', 'base:committed'],
+                       ['no_commit', 'base:committed', 'base:preparing'],
 
                        ['completed', 'base:committed', 'base:inactive'],
                        ['failed', 'base:committed', 'base:inactive'],
