@@ -157,6 +157,7 @@ class priority(object):
 
 	if self.parent.is_coordinator:
 	    thread = Thread(target = all_commit)
+            thread.daemon =True
 	    thread.start()
 
 
