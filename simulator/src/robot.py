@@ -33,7 +33,7 @@ import requests, urllib2, uuid
 RobotEvent = collections.namedtuple('RobotEvent', ['source', 'component', 'name', 'value', 'code', 'text'])
 
 class Robot:
-    class StateModel:
+    class StateMachineModel:
         """The model for MTConnect behavior in the robot."""
         def __init__(self,host,port,parent,sim):
 
@@ -48,10 +48,12 @@ class Robot:
             self.initiate_interfaces()
             self.events = []
 
-            self.lp ={}
+            self.lp = {}
 
-            self.master_tasks ={}
-            self.next_sequence='1'
+            self.master_tasks = {}
+
+            self.next_sequence = str('1')
+
             self.device_uuid = "r1"
 
             # Maximum amount of time for material handling to complete before marking it complete regardless
@@ -74,7 +76,7 @@ class Robot:
 
             self.low_level_event_list = []
 
-            #self.initiate_pull_thread()
+            self.initiate_pull_thread()
 
         def set_priority(self):
             self.priority = None
@@ -159,16 +161,44 @@ class Robot:
 
         def initiate_pull_thread(self):
 
-            self.thread= Thread(target = self.start_pull,args=("http://localhost:5000","""/cnc/sample?path=//DataItem[@category="EVENT"]&interval=10&count=1000""",from_long_pull))
+            self.thread= Thread(
+                target = self.start_pull,
+                args=(
+                    "http://localhost:5000",
+                    """/cnc/sample?path=//DataItem[@category="EVENT"]&interval=10&count=1000""",
+                    from_long_pull
+                    )
+                )
             self.thread.start()
 
-            self.thread2= Thread(target = self.start_pull,args=("http://localhost:5000","""/conv/sample?path=//DataItem[@category="EVENT"]&interval=10&count=1000""",from_long_pull))
+            self.thread2= Thread(
+                target = self.start_pull,
+                args=(
+                    "http://localhost:5000",
+                    """/conv/sample?path=//DataItem[@category="EVENT"]&interval=10&count=1000""",
+                    from_long_pull
+                    )
+                )
             self.thread2.start()
 
-            self.thread3= Thread(target = self.start_pull,args=("http://localhost:5000","""/buffer/sample?path=//DataItem[@category="EVENT"]&interval=10&count=1000""",from_long_pull))
+            self.thread3= Thread(
+                target = self.start_pull,
+                args=(
+                    "http://localhost:5000",
+                    """/buffer/sample?path=//DataItem[@category="EVENT"]&interval=10&count=1000""",
+                    from_long_pull
+                    )
+                )
             self.thread3.start()
 
-            self.thread4= Thread(target = self.start_pull,args=("http://localhost:5000","""/cmm/sample?path=//DataItem[@category="EVENT"]&interval=10&count=1000""",from_long_pull))
+            self.thread4= Thread(
+                target = self.start_pull,
+                args=(
+                    "http://localhost:5000",
+                    """/cmm/sample?path=//DataItem[@category="EVENT"]&interval=10&count=1000""",
+                    from_long_pull
+                    )
+                )
             self.thread4.start()
 
         def interface_type(self, value = None, subtype = None):
@@ -211,48 +241,49 @@ class Robot:
             self.make_idle()
 
         def IDLE(self):
-            if self.check_tool_change_req():
+            if self.binding_state_material.value() == 'COMMITTED':
+                self.TRANSITION()
+                self.LOADING()
                 return
 
-            self.adapter.begin_gather()
-            self.e1.set_value("READY")
-            self.adapter.complete_gather()
+            if not self.check_tool_change_req():
+                self.adapter.begin_gather()
+                self.e1.set_value("READY")
+                self.adapter.complete_gather()
 
             if self.reset_required:
                 time.sleep(2)
                 self.reset_statemachine()
                 self.reset_required = False
 
-            #toolchange edit
-            self.material_unload_interface.superstate.not_ready()
-            self.material_load_interface.superstate.not_ready()
-            self.collaborator = collaborator(parent = self, interface = self.binding_state_material, collaborator_name = self.device_uuid)
-            self.collaborator.create_statemachine()
-            time.sleep(0.1)
-            self.collaborator.superstate.unavailable()
+            if not self.check_tool_change_req() or getattr(self,'collaborator',None) == None:
 
-            self.priority.collab_check()
+                self.material_unload_interface.superstate.not_ready()
+                self.material_load_interface.superstate.not_ready()
+                self.collaborator = collaborator(
+                    parent = self,
+                    interface = self.binding_state_material,
+                    collaborator_name = self.device_uuid
+                    )
+
+                self.collaborator.superstate.unavailable()
+
+                self.priority.collab_check()
 
         def check_tool_change_req(self):
             if self.master_uuid in self.master_tasks and 'ToolChange' in str(self.master_tasks[self.master_uuid]):
-                def activate():
-                    if self.collaborator:
-                        time.sleep(2)
-                        self.collaborator.superstate.currentSubTaskState = "active"
-                thread = Thread(target=activate)
-                thread.start()
-                print ("Tool Change")
                 return True
             else:
-                return False
+                return
 
 
         def LOADING(self):
-            self.material_unload_interface.superstate.not_ready()
-            self.material_load_interface.superstate.ready()
+            if self.state == 'base:operational:loading':
+                if self.collaborator.superstate.currentSubTaskType == "MaterialLoad":
+                    self.material_load_interface.superstate.ready()
+
 
         def UNLOADING(self):
-            self.material_load_interface.superstate.not_ready()
             self.material_unload_interface.superstate.ready()
             self.adapter.begin_gather()
             self.e1.set_value("ACTIVE")
@@ -265,10 +296,24 @@ class Robot:
                 if 'MaterialLoad' in v:
                     self.priority.binding_state(k,has_material = True)
                     break
+            self.material_load_interface.superstate.not_ready()
+
+        def IN_TRANSITION(self):
+            if 'ToolChange' not in str(self.master_tasks[self.master_uuid]):
+                self.complete()
+
+        def TRANSITION(self):
+            if self.collaborator.superstate.currentSubTask == 'ToolChange':
+                self.event('robot','ToolInterface','SubTask_ToolChange','ACTIVE',self.master_uuid,'r1')
+
+
+        def EXIT_TRANSITION(self):
+            coordinator = self.master_tasks[self.master_uuid]['coordinator'].keys()[0]
 
             #imts_demo part rotation: reset after every cycle: good->bad->rework part cycle
             if coordinator == 'cmm1' and self.master_tasks[self.master_uuid]['part_quality'] == 'rework':
                 self.reset_required = True
+
 
         #imts_demo part rotation: method to reset statemachine after a 3-part cycle is completed
         def reset_statemachine(self):
@@ -288,11 +333,11 @@ class Robot:
                 for k,v in self.lp.iteritems():
                     self.lp[k]._response = None
 
-                nsx = urllib2.urlopen("http://localhost:5000/current").read()
-                nsr = ET.fromstring(nsx)
-                ns = nsr[0].attrib['nextSequence']
+                nextsequence_string = urllib2.urlopen("http://localhost:5000/current").read()
+                nextsequence_root = ET.fromstring(nextsequence_string)
+                nextsequence = nextsequence_root[0].attrib['nextSequence']
 
-                self.next_sequence = ns
+                self.next_sequence = nextsequence
 
                 self.priority = None
 
@@ -312,6 +357,7 @@ class Robot:
 
         def UNLOADING_COMPLETE(self):
             self.priority.binding_state(self.master_tasks[self.master_uuid]['coordinator'].keys()[0],has_material = False)
+            self.material_unload_interface.superstate.not_ready()
 
         def COMPLETED(self):
             if "request" in self.interfaceType.lower():
@@ -323,7 +369,11 @@ class Robot:
                 elif "unloaded" in self.interfaceType.lower():
                     self.event(self.device_uuid, 'material_interface', 'SubTask_'+'MaterialLoad','COMPLETE')
 
+        def FAILED(self):
+            pass
+
         def event(self, source, comp, name, value, code = None, text = None):
+
             ev = RobotEvent(source, comp, name, value, code, text)
 
             self.events.append(ev)
@@ -389,6 +439,10 @@ class Robot:
 
             elif ev.name.startswith('Material') and action!='unavailable':
                 self.material_event(ev)
+
+            elif ev.name.startswith('ToolChange') and action!='unavailable':
+                if comp == 'interface_completion':
+                    self.complete()
 
             elif comp == 'internal_event':
                 self.internal_event(ev)
@@ -582,24 +636,17 @@ class Robot:
             else:
                 raise(Exception('Unknown Device event: ' + str(ev)))
 
-        #end StateModel class definition
+        #end StateMachineModel class definition
 
     def __init__(self,host,port,parent=None,sim=True):
-        self.superstate = Robot.StateModel(host,port,parent,sim)
-        self.statemachine = self.create_state_machine(self.superstate)
+        self.superstate = Robot.StateMachineModel(host,port,parent,sim)
+        self.statemachine = self.create_statemachine(self.superstate)
 
     def draw(self):
         self.statemachine.get_graph().draw('robot.png', prog='dot')
 
-    def set_state_trigger(self, state, callback):
-        """
-        Allows a user to set a function to be called when the device enters a particular state. Returns a function
-        that the user should call at the end of the callback to signal that the callback is done.
-        """
-        self.statemachine.on_enter(state, callback)
-
     @staticmethod
-    def create_state_machine(state_machine_model):
+    def create_statemachine(state_machine_model):
         """Create and initialize the robot state machine"""
 
         NestedState.separator = ':'
@@ -612,14 +659,9 @@ class Robot:
                         'name': 'operational',
                         'children': [
                             'idle',
-                            {
-                                'name': 'loading',
-                                'children': ['moving_in', 'waiting_chuck', 'moving_out']
-                            },
-                            {
-                                'name': 'unloading',
-                                'children': ['moving_in', 'waiting_chuck', 'moving_out']
-                            }
+                            'loading',
+                            'unloading',
+                            'in_transition'
                         ]
                     },
                     {
@@ -663,16 +705,20 @@ class Robot:
             },
             {
                 'trigger': 'complete',
-                'source': 'base:operational:loading',
-                'dest': 'base:operational:idle',
-                'before': 'LOADING_COMPLETE',
-            },
-            {
-                'trigger': 'complete',
                 'source': 'base:operational:unloading',
                 'dest': 'base:operational:loading',
                 'before': 'UNLOADING_COMPLETE'
             },
+
+            ['complete', 'base:operational:in_transition', 'base:operational:idle'],
+
+            {
+                'trigger':'complete',
+                'source':'base:operational:loading',
+                'dest':'base:operational:in_transition',
+                'before':'LOADING_COMPLETE'
+            },
+
 
         ]
 
@@ -690,6 +736,8 @@ class Robot:
         statemachine.on_enter('base:operational:loading', 'LOADING')
         statemachine.on_enter('base:operational:unloading', 'UNLOADING')
         statemachine.on_enter('base:disabled:fault', 'FAULT')
+        statemachine.on_enter('base:operational:in_transition', 'IN_TRANSITION')
+        statemachine.on_exit('base:operational:in_transition', 'EXIT_TRANSITION')
 
         return statemachine
 

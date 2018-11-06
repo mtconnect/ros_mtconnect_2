@@ -6,6 +6,7 @@ import functools, time, re, copy, uuid
 import requests, urllib2
 import xml.etree.ElementTree as ET
 
+from threading import Thread
 
 from inputConveyor import inputConveyor
 from cnc import cnc
@@ -42,7 +43,11 @@ class cell(object):
 
         elif current_part == "reset":
             self.current_part = "reset"
-            self.reset_all()
+
+            #Pause after completion
+            thread = Thread(target = self.reset_all)
+            thread.daemon =True
+            thread.start()
 
         elif current_part:
             self.current_part = current_part
@@ -58,13 +63,11 @@ class cell(object):
 
     def initiate_inputConveyor(self,host,port):
         self.inputConveyor = inputConveyor(host,port,cell_part=self.cell_part)
-        self.inputConveyor.create_statemachine()
         self.inputConveyor.superstate.load_time_limit(600)
         self.inputConveyor.superstate.unload_time_limit(600)
 
     def initiate_cnc(self,host,port,sim = True):
         self.cnc = cnc(host,port,sim)
-        self.cnc.create_statemachine()
         self.cnc.superstate.load_time_limit(900)
         self.cnc.superstate.unload_time_limit(900)
 
@@ -76,13 +79,11 @@ class cell(object):
 
     def initiate_buffer(self,host,port):
         self.buffer = Buffer(host,port)
-        self.buffer.create_statemachine()
         self.buffer.superstate.load_time_limit(600)
         self.buffer.superstate.unload_time_limit(600)
 
     def initiate_cmm(self,host,port, sim = True):
         self.cmm = cmm(host,port,sim = sim, cell_part=self.cell_part)
-        self.cmm.create_statemachine()
         self.cmm.superstate.load_time_limit(900)
         self.cmm.superstate.unload_time_limit(900)
 
@@ -100,10 +101,12 @@ class cell(object):
             device.superstate.events = []
             device.superstate.initiate_pull_thread()
 
-            print (device.superstate.deviceUuid," reset.")
+            print (device.superstate.device_uuid," reset.")
 
     def reset_all(self):
+
         if self.current_part == "reset":
+            time.sleep(3)
             nsx = urllib2.urlopen("http://localhost:5000/current").read()
             nsr = ET.fromstring(nsx)
             ns = nsr[0].attrib['nextSequence']
@@ -128,7 +131,8 @@ class cell(object):
 
             if self.cycle_count <1000:
 
-                self.part_arrival()
+                #self.part_arrival() #Uncomment for continuous cycles
+                pass
 
             else:
                 print ("Restart setup!")
