@@ -3,13 +3,21 @@ from expects import *
 import os,sys
 sys.path.insert(0,os.path.dirname(os.getcwd())+'/src')
 
-from src.adapter.data_item import Event
 from src.interfaces.request import *
 
-#Taking a CNC statemachine to test out request interface behavior
-from src.cnc import cnc
-CNC = cnc('localhost',7878)
-CNC.create_statemachine()
+from mock import Mock, MagicMock
+from threading import enumerate
+CNC = Mock(return_value = True)
+
+class Event(object):
+    def __init__(self):
+        self._value = "NOT_READY"
+    def set_value(self,a):
+        self._value = a
+    def value(self):
+        return self._value
+
+CNC.superstate.material_unload = Event()
 
 with description('request'):
     with before.each:
@@ -27,14 +35,9 @@ with description('request'):
 
     with context('state machine'):
         with before.each:
-            #Initialize the state machine
-            self.request.create_statemachine()
-
-            self.request.adapter.begin_gather()
-            self.request.interface.set_value('NOT_READY')
-            self.request.adapter.complete_gather()
-
             self.request.superstate.start()
+            self.request.superstate.fail_time_limit = 0
+
 
         with it('should have a statemachine'):
             expect(self.request.statemachine).to(be_a(Machine))
@@ -82,6 +85,7 @@ with description('request'):
             expect(self.request.interface.value()).to(equal('READY'))
 
         with it('should become fail from active when failure'):
+            self.request.superstate.fail_time_limit = 1
             self.request.superstate.activate()
             self.request.superstate.failure()
             expect(self.request.superstate.state).to(equal('base:fail'))
@@ -102,55 +106,64 @@ with description('request'):
             expect(self.request.interface.value()).to(equal('READY'))
 
         with it('should become processing from active when active interface event is received'):
-            self.request.superstate.activate()
+            self.request.superstate.PROCESSING = Mock()
 
+            self.request.superstate.activate()
             self.request.superstate.active() #event processing from the parent
             expect(self.request.superstate.state).to(equal('base:processing'))
 
-            #Ending the thread: Not part of the test
-            self.request.superstate.complete()
-            time.sleep(1)
-            self.request.parent.binding_state_material.set_value("UNAVAILABLE")
-
         with it('should become fail from processing when unrecognized event'):
-            self.request.superstate.activate()
+            self.request.superstate.fail_time_limit = 1
+            self.request.superstate.processing_time_limit = 1
 
+            self.request.superstate.activate()
             self.request.superstate.active()
+
             expect(self.request.superstate.state).to(equal('base:processing'))
 
-            self.request.superstate.IDLE()
-            time.sleep(0.2)
+            self.request.superstate.idle()
+
             expect(self.request.superstate.state).to(equal('base:fail'))
             expect(self.request.interface.value()).to(equal('FAIL'))
 
         with it('should become fail from processing when timeout'):
-            self.request.superstate.processing_time_limit = 1
+            self.request.superstate.processing_time_limit = 0
+            self.request.superstate.fail_time_limit = 1
+
             self.request.superstate.activate()
-
             self.request.superstate.active()
-            expect(self.request.superstate.state).to(equal('base:processing'))
+            #expect(self.request.superstate.state).to(equal('base:processing')) #Test this when processing_time_limit is greater than 0 and add a sleep after
 
-            time.sleep(1.5) #Simulation for timeout
             expect(self.request.superstate.state).to(equal('base:fail'))
             expect(self.request.interface.value()).to(equal('FAIL'))
 
         with it('should become ready from fail when unrecognized event'):
+            self.request.superstate.fail_time_limit = 1
+
             self.request.superstate.activate()
             self.request.superstate.failure()
 
             expect(self.request.superstate.state).to(equal('base:fail'))
             expect(self.request.interface.value()).to(equal('FAIL'))
 
-            self.request.superstate.IDLE()
-            time.sleep(0.2)
+            self.request.superstate.idle()
+
             expect(self.request.superstate.state).to(equal('base:ready'))
             expect(self.request.interface.value()).to(equal('READY'))
 
         with it('should become ready from fail when timeout'):
-            self.request.superstate.fail_time_limit = 1
+            self.request.superstate.fail_time_limit = 0
             self.request.superstate.activate()
             self.request.superstate.failure()
 
-            time.sleep(1.5) #Simulation for timeout
+            #timeout # add timeout
             expect(self.request.superstate.state).to(equal('base:ready'))
             expect(self.request.interface.value()).to(equal('READY'))
+
+
+        with it('should become not ready when complete'):
+            self.request.superstate.processing_time_limit = 1
+            self.request.superstate.activate()
+            self.request.superstate.active()
+            self.request.superstate.complete()
+            expect(self.request.superstate.state).to(equal('base:not_ready'))
