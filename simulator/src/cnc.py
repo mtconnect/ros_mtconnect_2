@@ -73,6 +73,7 @@ class cnc:
 
             self.fail_next = False
 
+            #long pull dict for maintaining agent threads for other devices
             self.lp = {}
 
             self.wait_for_completion = False
@@ -193,6 +194,7 @@ class cnc:
             self.adapter.complete_gather()
 
         def initiate_pull_thread(self):
+            #Pull MTconnect data from other devices
 
             self.thread= Thread(
                 target = self.start_pull,
@@ -300,7 +302,7 @@ class cnc:
                     interface = self.binding_state_material,
                     coordinator_name = self.device_uuid
                     )
-                
+
                 self.coordinator.superstate.task_name = "UnloadCnc"
 
                 self.coordinator.superstate.unavailable()
@@ -370,7 +372,7 @@ class cnc:
                         interface = self.binding_state_material,
                         coordinator_name = self.device_uuid
                         )
-                    
+
                     self.coordinator.superstate.task_name = "UnloadCnc"
 
                     self.coordinator.superstate.unavailable()
@@ -399,20 +401,6 @@ class cnc:
         def UNLOADING(self):
             if self.has_material:
                 self.material_unload_interface.superstate.idle()
-
-        def EXIT_LOADING(self):
-            #self.material_load_interface.superstate.DEACTIVATE()
-            pass
-
-        def EXIT_UNLOADING(self):
-            #self.material_unload_interface.superstate.DEACTIVATE()
-            pass
-
-        def timer_thread(self, input_time):
-            def timer(input_time):
-                time.sleep(input_time)
-            thread= Thread(target = timer,args=(input_time,))
-            thread.start()
 
         def load_time_limit(self, limit):
             self.material_load_interface.superstate.processing_time_limit = limit
@@ -487,7 +475,7 @@ class cnc:
                     interface = self.binding_state_material,
                     coordinator_name = self.device_uuid
                     )
-                
+
                 self.coordinator.superstate.task_name = "UnloadCnc"
 
                 self.coordinator.superstate.unavailable()
@@ -561,7 +549,7 @@ class cnc:
             elif comp == "Coordinator" and action!='unavailable':
                 if value.lower() == 'committed':
                     self.collaborator.superstate.event(source, comp, name, value, code, text)
-                    if self.master_uuid in self.master_tasks and 'ToolChange' in str(self.master_tasks[self.master_uuid]):
+                    if 'ToolChange' in str(self.master_tasks[self.master_uuid]):
                         self.event('robot','ToolInterface','SubTask_ToolChange','ACTIVE',self.master_uuid,'r1')
 
                 elif value.lower() != 'preparing':
@@ -577,11 +565,13 @@ class cnc:
             elif "Open" in name and action!='unavailable':
                 if 'door' in name.lower():
                     eval('self.open_door_interface.superstate.'+action+'()')
+
                     if not self.sim and action == 'active':
                         openDoor_completion = self.cnc_client.load_run_pgm(tasks.openDoor)
                         if openDoor_completion == True:
                             time.sleep(2)
                             eval('self.open_door_interface.superstate.complete()')
+
                         elif openDoor_completion == False:
                             time.sleep(2)
                             eval('self.open_door_interface.superstate.DEFAULT()')
@@ -594,6 +584,7 @@ class cnc:
                         if openChuck_completion == True:
                             time.sleep(2)
                             eval('self.open_chuck_interface.superstate.complete()')
+
                         elif openChuck_completion == False:
                             time.sleep(2)
                             eval('self.open_chuck_interface.superstate.DEFAULT()')
@@ -601,11 +592,13 @@ class cnc:
             elif "Close" in name and action!='unavailable':
                 if 'door' in name.lower():
                     eval('self.close_door_interface.superstate.'+action+'()')
+
                     if not self.sim and action == 'active':
                         closeDoor_completion = self.cnc_client.load_run_pgm(tasks.closeDoor)
                         if closeDoor_completion == True:
                             time.sleep(1)
                             eval('self.close_door_interface.superstate.complete()')
+
                         elif closeDoor_completion == False:
                             time.sleep(1)
                             eval('self.close_door_interface.superstate.DEFAULT()')
@@ -614,9 +607,11 @@ class cnc:
                     eval('self.close_chuck_interface.superstate.'+action+'()')
                     if not self.sim and action == 'active':
                         closeChuck_completion = self.cnc_client.load_run_pgm(tasks.closeChuck)
+
                         if closeChuck_completion == True:
                             time.sleep(1)
                             eval('self.close_chuck_interface.superstate.complete()')
+
                         elif closeChuck_completion == False:
                             time.sleep(1)
                             eval('self.close_chuck_interface.superstate.DEFAULT()')
@@ -626,6 +621,7 @@ class cnc:
                     if action=='ready' and self.state =='base:operational:idle':
                         eval('self.robot_material_load_ready()')
                     eval('self.material_load_interface.superstate.'+action+'()')
+
                 except Exception as e:
                     print ("Incorrect event")
                     print (e)
@@ -635,6 +631,7 @@ class cnc:
                     if action =='ready' and self.state =='base:operational:idle':
                         eval('self.robot_material_unload_ready()')
                     eval('self.material_unload_interface.superstate.'+action+'()')
+
                 except Exception as e:
                     print ("incorrect event")
                     print (e)
@@ -647,6 +644,7 @@ class cnc:
                     if toolChange_completion == True:
                         time.sleep(2)
                         eval('self.change_tool_interface.superstate.complete()')
+
                     elif toolChange_completion == False:
                         time.sleep(2)
                         eval('self.change_tool_interface.superstate.DEFAULT()')
@@ -672,6 +670,7 @@ class cnc:
                 if name == "SYSTEM" and action!='unavailable':
                     try:
                         eval('self.'+source.lower()+'_system_'+value.lower()+'()')
+
                     except Exception as e:
                         print ("Not a valid Device trigger",e)
 
@@ -806,9 +805,7 @@ class cnc:
         statemachine.on_enter('base:operational:idle','IDLE')
         statemachine.on_enter('base:operational:cycle_start', 'CYCLING')
         statemachine.on_enter('base:operational:loading', 'LOADING')
-        statemachine.on_exit('base:operational:loading', 'EXIT_LOADING')
         statemachine.on_enter('base:operational:unloading', 'UNLOADING')
-        statemachine.on_exit('base:operational:unloading', 'EXIT_UNLOADING')
         statemachine.on_enter('base:operational:in_transition', 'IN_TRANSITION')
         statemachine.on_exit('base:operational:in_transition', 'EXIT_TRANSITION')
 

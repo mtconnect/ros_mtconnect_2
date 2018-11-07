@@ -38,7 +38,9 @@ class Buffer:
 
             self.load_time_limit(15)
             self.unload_time_limit(15)
-            self.next_sequence='1'
+
+            self.next_sequence = str(1)
+
             self.load_failed_time_limit(2)
             self.unload_failed_time_limit(2)
 
@@ -50,6 +52,7 @@ class Buffer:
 
             self.buffer = []
 
+            #long pull dict for maintaining agent threads for other devices
             self.lp = {}
 
             self.buffer_size = 100
@@ -129,6 +132,7 @@ class Buffer:
             self.adapter.complete_gather()
 
         def initiate_pull_thread(self):
+            #Pull MTConnect data from other devices
 
             self.thread = Thread(
                 target = self.start_pull,
@@ -247,22 +251,6 @@ class Buffer:
                     self.coordinator.superstate.unavailable()
                     self.material_unload_interface.superstate.IDLE()
 
-        def LOADING(self):
-            #self.material_unload_interface.superstate.DEACTIVATE()
-            pass
-
-        def UNLOADING(self):
-            #self.material_load_interface.superstate.DEACTIVATE()
-            pass
-
-        def EXIT_LOADING(self):
-            #self.material_load_interface.superstate.DEACTIVATE()
-            pass
-
-        def EXIT_UNLOADING(self):
-            #self.material_unload_interface.superstate.DEACTIVATE()
-            pass
-
         def load_time_limit(self, limit):
             self.material_load_interface.superstate.processing_time_limit = limit
 
@@ -341,6 +329,7 @@ class Buffer:
                     if value.lower() == 'ready' and self.state == 'base:operational:idle':
                         eval('self.robot_material_load_ready()')
                     eval('self.material_load_interface.superstate.'+action+'()')
+
                 except Exception as e:
                     print ("Incorrect Event")
                     print (e)
@@ -350,12 +339,14 @@ class Buffer:
                     if value.lower() == 'ready' and self.state == 'base:operational:idle':
                         eval('self.robot_material_unload_ready()')
                     eval('self.material_unload_interface.superstate.'+action+'()')
+
                 except Exception as e:
                     print ("Incorrect Event")
                     print (e)
 
             elif comp == "Controller":
                 if name == "ControllerMode":
+
                     if source == 'Buffer':
                         self.adapter.begin_gather()
                         self.mode1.set_value(value.upper())
@@ -371,7 +362,6 @@ class Buffer:
                         self.execution[text]  = value.lower()
 
             elif comp == "Device":
-
                 if name == "SYSTEM":
                     eval('self.'+source+'_system_'+value.lower()+'()')
 
@@ -503,10 +493,6 @@ class Buffer:
         statemachine.on_enter('base:activated', 'ACTIVATE')
         statemachine.on_enter('base:operational', 'OPERATIONAL')
         statemachine.on_enter('base:operational:idle','IDLE')
-        statemachine.on_enter('base:operational:loading', 'LOADING')
-        statemachine.on_exit('base:operational:loading', 'EXIT_LOADING')
-        statemachine.on_enter('base:operational:unloading', 'UNLOADING')
-        statemachine.on_exit('base:operational:unloading', 'EXIT_UNLOADING')
         statemachine.on_enter('base:operational:in_transition', 'IN_TRANSITION')
         statemachine.on_exit('base:operational:in_transition', 'EXIT_TRANSITION')
 

@@ -66,13 +66,16 @@ class collaborator:
             self.commit_timer.start()
 
         def committed(self):
+            #creates 'self.subtasks' list for device specific tasks
             self.subTask_collab = False
             collaborator = False
             self.ordered_tasks = []
             self.subTasks = []
             self.task_coordinator = self.parent.master_tasks[self.parent.master_uuid]['coordinator'].keys()[0]
 
-            for key,val in self.parent.master_tasks[self.parent.master_uuid]['coordinator'][self.task_coordinator]['SubTask'].iteritems():
+            master_task = self.parent.master_tasks[self.parent.master_uuid]
+
+            for key,val in master_task['coordinator'][self.task_coordinator]['SubTask'].iteritems():
                 if val:
                     self.ordered_tasks.append([val[4],key,val])
 
@@ -83,7 +86,8 @@ class collaborator:
                 val = z[2]
 
                 if val:
-                    if self.collaborator_name in val[2]: #val[2] is the list of collaborators involved in the lowest level task coordinated by key
+                    if self.collaborator_name in val[2]:
+                        #val[2] is the list of collaborators involved in the lowest level task coordinated by key
                         self.subTask_collab = True
 
                     elif self.collaborator_name == key:
@@ -97,6 +101,7 @@ class collaborator:
 
                     if (collaborator and key == self.collaborator_name) or self.subTask_collab:
 
+                        #top level tasks
                         self.subTask[val[0]] = subTask.subTask(
                             parent = self.parent,
                             interface = interface,
@@ -108,7 +113,7 @@ class collaborator:
                         self.subTask[val[0]].superstate.create()
 
                         if val[2]:
-                            if val[0] in self.parent.master_tasks[self.parent.master_uuid]['collaborators'][self.collaborator_name]['SubTask']:
+                            if val[0] in master_task['collaborators'][self.collaborator_name]['SubTask']:
                                 self.subtask_collaborator_name = self.collaborator_name
                             elif val[2]:
                                 self.subtask_collaborator_name = val[2]
@@ -116,13 +121,13 @@ class collaborator:
                                 self.subtask_collaborator_name = None
                                 continue
 
-                            currentSubTaskList = self.parent.master_tasks[self.parent.master_uuid]['collaborators'][self.subtask_collaborator_name]['SubTask'][val[0]]
+                            currentSubTaskList = master_task['collaborators'][self.subtask_collaborator_name]['SubTask'][val[0]]
 
                             for i,x in enumerate(currentSubTaskList):
 
                                 if x[4]:
 
-                                    #interfaces
+                                    #low level tasks; interfaces only
                                     self.subTask[x[1]] = subTask.subTask(
                                         parent = self.parent,
                                         interface = interface,
@@ -144,13 +149,21 @@ class collaborator:
 
 
         def current_subtask_check(self, source = None, comp= None, name =None, value=None, code = None, text = None):
+            #event handling once committed
 
-            if value == "ACTIVE" and self.currentSubTaskState == "ACTIVE" and name.split('_')[-1] in str(self.ordered_tasks):
+            if (value == "ACTIVE"
+                and self.currentSubTaskState == "ACTIVE"
+                and name.split('_')[-1] in str(self.ordered_tasks)
+                ):
+
+                #if an untimely event received; send for retry
                 if self.currentSubTaskType not in name:
                     return "RETRY"
-                else: pass
+                else:
+                    pass
 
             if self.currentSubTaskState != 'ACTIVE' or self.currentSubTaskType in name:
+                #top level task management; activation and completion
 
                 if self.currentSubTask in self.subTask and self.currentSubTaskType in name:
                     self.subTask[self.currentSubTask].superstate.event(source, comp, name, value, code, text)
@@ -158,9 +171,16 @@ class collaborator:
                     if value.lower() == 'active':
                         self.currentSubTaskState = value
 
-                    elif self.currentSubTaskList and (self.currentSubTaskList[-1][2] == 'COMPLETE' or not self.currentSubTaskList[-1][4]) and not self.subTask_collab:
+                    elif (self.currentSubTaskList
+                          and (self.currentSubTaskList[-1][2] == 'COMPLETE'
+                               or not self.currentSubTaskList[-1][4])
+                          and not self.subTask_collab
+                          ):
 
-                        if self.subTask[self.currentSubTask].superstate.state == 'removed' and code in self.parent.master_tasks:
+                        if (self.subTask[self.currentSubTask].superstate.state == 'removed'
+                            and code in self.parent.master_tasks
+                            ):
+
                             self.parent.master_tasks[code]['coordinator'][self.task_coordinator]['SubTask'][self.collaborator_key][1] = 'COMPLETE'
 
                             if self.currentSubTask == self.ordered_tasks[-1][2][0]:
@@ -168,6 +188,8 @@ class collaborator:
 
 
             if self.currentSubTaskList and self.currentSubTaskState == "ACTIVE" and not self.activate:
+                #low level task management
+
                 for i,x in enumerate(self.currentSubTaskList):
 
                     if x[4] and self.currentSubTaskList[i][2] == 'READY':
@@ -182,11 +204,16 @@ class collaborator:
                         else:
                             break
 
-                    elif not x[4] and self.collaborator_name == self.subtask_collaborator_name and not self.currentSubTaskList[i][2]:
+                    elif (not x[4]
+                          and self.collaborator_name == self.subtask_collaborator_name
+                          and not self.currentSubTaskList[i][2]
+                          ):
+                        #internal tasks management; activation and completion
+
                         self.activate = True
                         self.currentSubTaskList[i][2] = 'COMPLETE'
                         self.parent.event(self.collaborator_name, 'internal_event',x[1],'ACTIVATE',None,self.collaborator_key)
-                        self.parent.master_tasks[self.parent.master_uuid]['collaborators'][self.collaborator_name]['SubTask'][self.currentSubTask][i][2] = 'COMPLETE'
+                        self.parent.master_tasks[code]['collaborators'][self.collaborator_name]['SubTask'][self.currentSubTask][i][2] = 'COMPLETE'
                         self.activate = False
 
                     elif x[4] and not self.currentSubTaskList[i][2] and self.subTask_collab:
@@ -200,6 +227,7 @@ class collaborator:
 
 
             if self.subTask_collab and self.currentSubTaskList[-1][2] == 'COMPLETE' and not self.interface_completion:
+                #top level task completion for low level task collaborators
 
                 self.subTask[self.currentSubTask].superstate.success()
                 self.interface_completion =True
@@ -232,8 +260,13 @@ class collaborator:
         def event(self, source, comp, name, value, code = None, text = None):
 
             try:
-                #collaboration related event handling
-                if comp == 'Coordinator' and name == 'binding_state' and value.lower() == 'inactive' and self.interface.value().lower() == 'committed':
+                #collaboration binding related event handling
+                if (comp == 'Coordinator'
+                    and name == 'binding_state'
+                    and value.lower() == 'inactive'
+                    and self.interface.value().lower() == 'committed'
+                    ):
+
                     if self.currentSubTask:
                         self.subTask[self.currentSubTask].superstate.success()
 
@@ -274,12 +307,10 @@ class collaborator:
                             print (source, comp, name, value, code, text)
                             time.sleep(0.500)
                             self.parent.event(source, comp, name, value, code, text)
-                            if not self.currentSubTaskState and name.split('_')[1] in self.parent.master_tasks[self.parent.master_uuid]['collaborators'][self.collaborator_name]['SubTask']:
-                                self.currentSubTaskState = value.lower()
 
                     elif self.subTask:
 
-                        for k,v in self.parent.master_tasks[self.parent.master_uuid]['coordinator'][self.parent.master_tasks[self.parent.master_uuid]['coordinator'].keys()[0]]['SubTask'].iteritems():
+                        for k,v in self.parent.master_tasks[self.parent.master_uuid]['coordinator'][self.task_coordinator]['SubTask'].iteritems():
 
                             if v and name.split('_')[-1] in v[3] and v[0] in self.subTask:
                                 try:
@@ -301,6 +332,7 @@ class collaborator:
                                     if v: collab = v[2]
 
                                 if collab and self.parent.master_tasks[self.parent.master_uuid]['collaborators'][collab]['SubTask'][self.task_name]:
+
                                     for t in self.parent.master_tasks[self.parent.master_uuid]['collaborators'][collab]['SubTask'][self.task_name]:
                                         if name.split('_')[-1] == t[1]:
                                             self.parent.event(source, comp, name.split('_')[-1], value, code, text)

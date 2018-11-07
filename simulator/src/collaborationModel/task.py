@@ -45,7 +45,7 @@ class task:
             self.currentSubTask = str()
 
             if not self.initialize:
-                #execute only once
+                #execute only once when initiated
                 arch2ins = archetypeToInstance(self.parent.coordinator_task, self.master_task_uuid, self.coordinator.coordinator_name)
                 self.arch2ins = arch2ins
                 self.parent.master_tasks[self.master_task_uuid] = arch2ins.jsonInstance()
@@ -87,8 +87,8 @@ class task:
 
             self.timer_commit()
 
-        #time limit to commit
         def timer_commit(self):
+            #time limit to commit
             if not self.commit_time_limit:
                 self.no_commit()
             self.commit_timer = Timer(self.commit_time_limit,self.no_commit)
@@ -97,6 +97,7 @@ class task:
 
 
         def commit_check(self):
+            #check if all collaborators committed in time
             if self.commit_timer.isAlive():
                 collaborators_commit = False
 
@@ -136,11 +137,12 @@ class task:
             self.committed()
 
         def committed(self):
+            #creates 'self.subtasks' list for device specific tasks
 
-            #creates subtask objects wrt the parent device
             for key, value in self.parent.master_tasks[self.master_task_uuid]['coordinator'][self.coordinator.coordinator_name]['SubTask'].iteritems():
                 if key == self.coordinator.coordinator_name:
 
+                    #top level tasks
                     self.subTask[value[0]] = subTask.subTask(
                         parent = self.parent,
                         interface = interface,
@@ -161,6 +163,7 @@ class task:
 
                                 if x and x[4] and self.coordinator.coordinator_name in x[4]:
 
+                                    #low level tasks; interfaces only
                                     self.subTask[x[1]] = subTask.subTask(
                                         parent = self.parent,
                                         interface = interface,
@@ -183,8 +186,10 @@ class task:
 
 
         def current_subtask_check(self, source, comp, name, value, code = None, text = None):
+            #event handling once committed
 
             if self.currentSubTaskState != 'ACTIVE' or self.currentSubTaskType in name:
+                #top level task management; activation and completion
 
                 if self.currentSubTask in self.subTask:
                     self.subTask[self.currentSubTask].superstate.event(source, comp, name, value, code, text)
@@ -200,6 +205,7 @@ class task:
 
 
             if self.currentSubTaskList and self.currentSubTaskState == "ACTIVE":
+                #low level task management
 
                 for i,x in enumerate(self.currentSubTaskList):
 
@@ -214,6 +220,7 @@ class task:
                             break
 
                     elif not x[4] and not self.currentSubTaskList[i][2]:
+                        #internal tasks management; activation and completion
                         self.currentSubTaskList[i][2] = 'COMPLETE'
 
                     elif x[4] and not self.currentSubTaskList[i][2]:
@@ -228,7 +235,10 @@ class task:
                 if value:
                     if value[1] == 'COMPLETE' or value[1] == 'FAIL' or value[1] == '':
 
-                        if key == self.coordinator.coordinator_name or self.parent.master_tasks[self.master_task_uuid]['collaborators'][key]['state'][2] == 'INACTIVE':
+                        if (key == self.coordinator.coordinator_name
+                            or self.parent.master_tasks[self.master_task_uuid]['collaborators'][key]['state'][2] == 'INACTIVE'
+                            ):
+
                             success = True
                         else:
                             success = False
@@ -286,7 +296,7 @@ class task:
     def __init__(self, parent, interface, master_task_uuid, coordinator):
         self.superstate = task.StateMachineModel(parent, interface, master_task_uuid, coordinator)
         self.statemachine = self.create_statemachine(self.superstate)
-        
+
     def create_statemachine(self, state_machine_model):
         NestedState.separator = ':'
 

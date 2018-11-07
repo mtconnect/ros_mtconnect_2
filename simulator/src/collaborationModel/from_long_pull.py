@@ -25,8 +25,8 @@ def from_long_pull(self, chunk, addr = None):
                 continue
 
             for event in events:
-                if True: #try:
-                    if 'Availability' in event.tag or 'Execution' in event.tag or 'ControllerMode' in event.tag:
+                try:
+                    if ('Availability' or 'Execution' or 'ControllerMode') in event.tag:
                         self.event(source.lower(), component, event.tag.split('}')[-1], event.text, None, x.attrib['uuid'])
 
                     elif event.text != 'UNAVAILABLE':
@@ -48,7 +48,6 @@ def from_long_pull(self, chunk, addr = None):
                             #read asset archetype to create asset instance
                             if 'AssetChanged' in event.tag and event.text not in self.master_tasks:
                                 self.start_pull_asset(addr,"/asset/",event.text, [event,source,component,x.attrib['uuid']])
-
 
                             #Collaboration related event handling
                             elif 'BindingState' in event.tag:
@@ -74,7 +73,10 @@ def from_long_pull(self, chunk, addr = None):
                                         self.event(source.lower(), "Coordinator", "binding_state", event.text, self.master_uuid,  collabUuid)
 
                                     #After committing to the task
-                                    elif (self.binding_state_material.value() == "COMMITTED" or self.master_uuid == coord_task_id) and self.master_uuid in self.master_tasks:
+                                    elif ((self.binding_state_material.value() == "COMMITTED" or self.master_uuid == coord_task_id)
+                                          and self.master_uuid in self.master_tasks
+                                          ):
+
                                         if event.text in ['INACTIVE','COMMITTED'] and collabUuid == coordinator:
                                             self.event(source.lower(), "Coordinator", 'binding_state', event.text, self.master_uuid, collabUuid)
 
@@ -131,7 +133,7 @@ def from_long_pull(self, chunk, addr = None):
                                 print ("Error removing asset!")
                                 print (e)
 
-                if False: #except Exception as e:
+                except Exception as e:
                     print ("Invalid Event in ", self.device_uuid, " from ",e)
 
 

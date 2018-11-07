@@ -35,6 +35,7 @@ class cmm:
             self.adapter.start()
 
             self.sim = sim
+
             self.cell_part = cell_part
 
             self.initiate_dataitems()
@@ -47,7 +48,9 @@ class cmm:
 
             self.load_time_limit(20)
             self.unload_time_limit(20)
-            self.next_sequence ='1'
+
+            self.next_sequence = str(1)
+
             self.load_failed_time_limit(2)
             self.unload_failed_time_limit(2)
 
@@ -71,7 +74,10 @@ class cmm:
 
             self.part_quality = None
 
+            #List for part's expected quality sequence; IMTS
             self.pt_ql_seq = []
+
+            #long pull dict for maintaining agent threads for other devices
             self.lp = {}
 
             self.part_quality_sequence()
@@ -126,7 +132,11 @@ class cmm:
             if not self.sim:
                 configFile = open('configFiles/clients.cfg','r')
                 device = json.loads(configFile.read())['devices'][self.device_uuid]
-                self.cmm_client = hexagonClient(str(device['host']), int(device['port']),int(device['port']))
+                self.cmm_client = hexagonClient(
+                    str(device['host']),
+                    int(device['port']),
+                    int(device['port'])
+                    )
                 self.cmm_client.connect()
 
         def initiate_interfaces(self):
@@ -172,6 +182,7 @@ class cmm:
             self.adapter.complete_gather()
 
         def initiate_pull_thread(self):
+            #Pull MTConnect data from other devices
 
             self.thread = Thread(
                 target = self.start_pull,
@@ -357,7 +368,7 @@ class cmm:
                         timer_cycling.start()
                 else:
 
-                    if not self.part_quality or self.part_quality== 'good' or self.part_quality == 'reworked':
+                    if self.part_quality in [None, 'good', 'reworked']:
                         cycle = self.cmm_client.load_run_pgm(taskcmm.startProgramA)
 
                     elif self.part_quality == 'bad':
@@ -368,8 +379,9 @@ class cmm:
 
                     time.sleep(30)
                     status = (self.cmm_client.load_run_pgm(taskcmm.getStatus)).lower()
+
                     print ("State before Completion",status)
-                    while 'good' not in status and 'bad' not in status and 'rework' not in status:
+                    while ('good' or 'bad' or 'rework') not in status:
                         status = (self.cmm_client.load_run_pgm(taskcmm.getStatus)).lower()
                         time.sleep(3)
 
@@ -383,14 +395,6 @@ class cmm:
         def UNLOADING(self):
             if self.has_material:
                 self.material_unload_interface.superstate.idle()
-
-        def EXIT_LOADING(self):
-            #self.material_load_interface.superstate.DEACTIVATE()
-            pass
-
-        def EXIT_UNLOADING(self):
-            #self.material_unload_interface.superstate.DEACTIVATE()
-            pass
 
         def load_time_limit(self, limit):
             self.material_load_interface.superstate.processing_time_limit = limit
@@ -508,8 +512,8 @@ class cmm:
                 self.priority.event_list([source, comp, name, value, code, text])
 
             #tool_change: to be updated
-            elif self.is_coordinator and self.master_uuid in self.master_tasks and 'ToolChange' in str(self.master_tasks[self.master_uuid]) and text == 'r1':
-                if value == 'INACTIVE' and self.binding_state_material.value() == "COMMITTED":
+            elif self.is_coordinator and self.binding_state_material.value().lower() == "committed" and text == 'r1':
+                if value.lower() == 'inactive' and 'ToolChange' in str(self.master_tasks[self.master_uuid]):
                     self.master_tasks[self.master_uuid]['coordinator'][self.device_uuid]['SubTask']['cnc1'][1] = 'COMPLETE'
                     self.coordinator.superstate.task.superstate.success()
                     self.complete()
@@ -692,7 +696,13 @@ class cmm:
 
         ]
 
-        statemachine = Machine(model = state_machine_model, states = states, transitions = transitions, initial = 'base',ignore_invalid_triggers=True)
+        statemachine = Machine(
+            model = state_machine_model,
+            states = states,
+            transitions = transitions,
+            initial = 'base',
+            ignore_invalid_triggers=True
+            )
 
         statemachine.on_enter('base:disabled', 'CMM_NOT_READY')
         statemachine.on_enter('base:disabled:not_ready', 'CMM_NOT_READY')
@@ -702,9 +712,7 @@ class cmm:
         statemachine.on_enter('base:operational:idle','IDLE')
         statemachine.on_enter('base:operational:cycle_start', 'CYCLING')
         statemachine.on_enter('base:operational:loading', 'LOADING')
-        statemachine.on_exit('base:operational:loading', 'EXIT_LOADING')
         statemachine.on_enter('base:operational:unloading', 'UNLOADING')
-        statemachine.on_exit('base:operational:unloading', 'EXIT_UNLOADING')
         statemachine.on_enter('base:operational:in_transition', 'IN_TRANSITION')
         statemachine.on_exit('base:operational:in_transition', 'EXIT_TRANSITION')
 

@@ -46,13 +46,15 @@ class Robot:
             self.initiate_dataitems()
 
             self.initiate_interfaces()
+
             self.events = []
 
+            #long pull dict for maintaining agent threads for other devices
             self.lp = {}
 
             self.master_tasks = {}
 
-            self.next_sequence = str('1')
+            self.next_sequence = str(1)
 
             self.device_uuid = "r1"
 
@@ -73,8 +75,6 @@ class Robot:
             self.initial_execution_state()
 
             self.set_priority()
-
-            self.low_level_event_list = []
 
             self.initiate_pull_thread()
 
@@ -160,6 +160,7 @@ class Robot:
             self.adapter.complete_gather()
 
         def initiate_pull_thread(self):
+            #Pull MTConnect data from other devices
 
             self.thread= Thread(
                 target = self.start_pull,
@@ -292,10 +293,12 @@ class Robot:
 
         def LOADING_COMPLETE(self):
             coordinator = self.master_tasks[self.master_uuid]['coordinator'].keys()[0]
+
             for k,v in self.master_tasks[self.master_uuid]['coordinator'][coordinator]['SubTask'].iteritems():
                 if 'MaterialLoad' in v:
                     self.priority.binding_state(k,has_material = True)
                     break
+
             self.material_load_interface.superstate.not_ready()
 
         def IN_TRANSITION(self):
@@ -324,7 +327,6 @@ class Robot:
             if coordinator == 'cmm1' and self.master_tasks[uuid]['part_quality'] == 'rework':
                 print ("Resetting Robot")
                 self.events = []
-                self.low_level_event_list = []
 
                 for k,v in self.master_tasks.iteritems():
                     if k != uuid:
@@ -345,6 +347,7 @@ class Robot:
 
                 try:
                     self.FAULT()
+
                 except Exception as e:
                     print ("Error resetting interfaces",e)
 
@@ -364,8 +367,10 @@ class Robot:
                 pass
 
             elif "response" in self.interfaceType.lower() and "material" in self.interfaceType.lower():
+
                 if "unloaded" not in self.interfaceType.lower():
                     self.event(self.device_uuid, 'material_interface', 'SubTask_'+'MaterialUnload','COMPLETE')
+
                 elif "unloaded" in self.interfaceType.lower():
                     self.event(self.device_uuid, 'material_interface', 'SubTask_'+'MaterialLoad','COMPLETE')
 
@@ -389,10 +394,11 @@ class Robot:
             if "Collaborator" in comp and action!='unavailable':
                 try:
                     self.coordinator.superstate.event(source, comp, name, value, code, text)
+
                 except Exception as e:
-                    time.sleep(0.2)
                     print ("Error in Coordinator event: sending back to the event method for a retry")
 		    print(e)
+                    time.sleep(0.2)
                     self.event(source, comp, name, value, code, text)
 
             elif "Coordinator" in comp and action!='unavailable':
@@ -400,11 +406,12 @@ class Robot:
                     if value.lower() != 'preparing':
                         self.collaborator.superstate.event(source, comp, name, value, code, text)
 
-                    if 'binding_state' in name and value.lower() == 'committed' and text == self.master_tasks[self.master_uuid]['coordinator'].keys()[0]:
+                    if 'binding_state' in name and value.lower() == 'committed':
                         if self.material_state.value() == "LOADED":
                             self.material_load_ready()
                         else:
                             self.material_unload_ready()
+
                 except Exception as e:
                     print ("Error in Collaborator event: sending back to the event method for a retry in 0.2 s.")
 		    print (e)
@@ -416,12 +423,16 @@ class Robot:
                     if comp == 'interface_initialization' and source == self.device_uuid:
                         if 'CloseChuck' in name:
                             print ("CloseChuck Request to cnc1")
+
                         elif 'CloseDoor' in name:
                             print ("CloseDoor Request to cnc1")
+
                         elif 'OpenChuck' in name:
                             print ("OpenChuck Request to cnc1")
+
                         elif 'OpenDoor' in name:
                             print ("OpenDoor Request to cnc1")
+
                         elif 'ChangeTool' in name:
                             print ("ChangeTool Request to cnc1")
 
@@ -452,11 +463,14 @@ class Robot:
                 if 'Chuck' in name:
                     if 'Open' in name:
                         eval('self.open_chuck_interface.superstate.'+action+'()')
+
                     elif 'Close' in name:
                         eval('self.close_chuck_interface.superstate.'+action+'()')
+
                 elif 'Door' in name:
                     if 'Open' in name:
                         eval('self.open_door_interface.superstate.'+action+'()')
+
                     elif 'Close' in name:
                         eval('self.close_door_interface.superstate.'+action+'()')
 
@@ -476,45 +490,37 @@ class Robot:
             if ev.name == "MoveIn":
                 print ("Moving In " + ev.text)
 
-                if ['move_in',ev.text,self.master_tasks[self.master_uuid]['part_quality']] not in self.low_level_event_list:
-                    self.low_level_event_list.append(['move_in',ev.text,self.master_tasks[self.master_uuid]['part_quality']])
-
                 status = self.parent.move_in(ev.text, self.master_tasks[self.master_uuid]['part_quality'])
                 if status != True:
                     self.fault()
+
                 print ("Moved in")
 
             elif "MoveInCT" in ev.name:
                 print ("Moving In cnc1_t1")
 
-                if ['move_in','cnc1_t1',self.master_tasks[self.master_uuid]['part_quality']] not in self.low_level_event_list:
-                    self.low_level_event_list.append(['move_in','cnc1_t1',self.master_tasks[self.master_uuid]['part_quality']])
-
                 status = self.parent.move_in('cnc1_t1', self.master_tasks[self.master_uuid]['part_quality'])
                 if status != True:
                     self.fault()
+
                 print ("Moved in")
 
 	    elif ev.name == "MoveOut":
                 print ("Moving Out From " + ev.text)
 
-                if ['move_out',ev.text,self.master_tasks[self.master_uuid]['part_quality']] not in self.low_level_event_list:
-                    self.low_level_event_list.append(['move_out',ev.text,self.master_tasks[self.master_uuid]['part_quality']])
-
                 status = self.parent.move_out(ev.text, self.master_tasks[self.master_uuid]['part_quality'])
                 if status != True:
                     self.fault()
+
                 print ("Moved out")
 
 	    elif "MoveOutCT" in ev.name:
                 print ("Moving Out From cnc1_t1")
 
-                if ['move_out','cnc1_t1',self.master_tasks[self.master_uuid]['part_quality']] not in self.low_level_event_list:
-                    self.low_level_event_list.append(['move_out','cnc1_t1',self.master_tasks[self.master_uuid]['part_quality']])
-
                 status = self.parent.move_out('cnc1_t1', self.master_tasks[self.master_uuid]['part_quality'])
                 if status != True:
                     self.fault()
+
                 print ("Moved out")
 
             elif ev.name == "PickUpTool":
@@ -563,9 +569,6 @@ class Robot:
             elif ev.name == "ReleasePart":
                 print ("Releasing the Part onto " + ev.text)
 
-                if ['release',ev.text,None] not in self.low_level_event_list:
-                    self.low_level_event_list.append(['release',ev.text,None])
-
                 status = self.parent.release(ev.text, self.master_tasks[self.master_uuid]['part_quality'])
                 if status != True:
                     self.fault()
@@ -575,12 +578,10 @@ class Robot:
             elif ev.name == "GrabPart":
                 print ("Grabbing Part from " + ev.text)
 
-                if ['grab',ev.text,None] not in self.low_level_event_list:
-                    self.low_level_event_list.append(['grab',ev.text,None])
-
                 status = self.parent.grab(ev.text, self.master_tasks[self.master_uuid]['part_quality'])
                 if status != True:
                     self.fault()
+
                 print ("Grabbed")
 
             return status

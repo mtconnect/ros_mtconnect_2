@@ -1,4 +1,6 @@
 #!/usr/bin/python
+from __future__ import absolute_import, division, print_function, unicode_literals
+__metaclass__ = type
 
 import os, sys
 
@@ -15,7 +17,7 @@ from robot_interface import RobotInterface
 from buffer import Buffer
 from cmm import cmm
 
-class cell(object):
+class cell:
 
     def __init__(self):
 
@@ -23,6 +25,7 @@ class cell(object):
         self.current_part = None
         self.cycle_count = 0
         self.initiate_cnc('localhost',7896)
+
         #Comment the robot initiation when simulating/executing with RViz
         self.initiate_robot('localhost',7996)
         self.initiate_buffer('localhost',7696)
@@ -30,6 +33,7 @@ class cell(object):
         self.initiate_inputConveyor('localhost',7796)
 
     def cell_part(self, value = None, current_part = None, cycle_count = None):
+        #For InputConveyor Interaction: part_quality and cycle count; IMTS
         if value:
             self.cell_part_quality = value
             return self.cell_part_quality

@@ -126,9 +126,19 @@ class Response:
 
     def __init__(self, parent, adapter, interface, prefix, dest_state, transition_state, response_state, rel, simulate = True):
 
-        self.superstate = Response.StateMachineModel(parent, adapter, interface, prefix, dest_state, transition_state, response_state, True, simulate)
+        self.superstate = Response.StateMachineModel(
+            parent,
+            adapter,
+            interface,
+            prefix,
+            dest_state,
+            transition_state,
+            response_state,
+            True,
+            simulate
+            )
         self.statemachine = self.create_statemachine(self.superstate)
-        
+
         self.parent = parent
         self.adapter = adapter
         self.interface = interface

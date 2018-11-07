@@ -73,12 +73,16 @@ class coordinator:
             return coordinator_task
 
         def event(self, source, comp, name, value, code = None, text = None):
-            if True: #try:
-                #collaboration related event handling
+            try:
+                #collaboration binding related event handling
                 if comp == 'Task_Collaborator' and name == 'binding_state':
                     collaborators = self.parent.master_tasks[code]['collaborators']
 
-                    if value.lower() != 'inactive' and code == self.master_task_uuid and code in self.parent.master_tasks and text in collaborators:
+                    if (value.lower() != 'inactive'
+                        and code == self.master_task_uuid
+                        and code in self.parent.master_tasks
+                        and text in collaborators
+                        ):
 
                         try:
                             self.parent.master_tasks[code]['collaborators'][text]['state'][2] = value
@@ -117,9 +121,11 @@ class coordinator:
 
 
                     coordinator_task = None
-                    coordinator_collab = self.parent.master_tasks[code]['coordinator'][self.coordinator_name]['SubTask'][self.coordinator_name][2]
 
-                    coordinator_subtask_type = self.parent.master_tasks[code]['coordinator'][self.coordinator_name]['SubTask'][self.coordinator_name][3]
+                    coordinator_master_task = self.parent.master_tasks[code]['coordinator'][self.coordinator_name]
+
+                    coordinator_collab = coordinator_master_task['SubTask'][self.coordinator_name][2]
+                    coordinator_subtask_type = coordinator_master_task['SubTask'][self.coordinator_name][3]
 
                     if coordinator_subtask_type in name and text in coordinator_collab:
                         coordinator_task = True
@@ -130,7 +136,7 @@ class coordinator:
                     if coordinator_task:
                         self.task.superstate.event(source, comp, name, value, code, text)
 
-            if False: #except Exception as e:
+            except Exception as e:
                 print ("Error processing coordinator event:")
                 print (e)
                 print ("Retrying in 1 sec")

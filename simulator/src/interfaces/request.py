@@ -12,7 +12,7 @@ class Request:
 
     class StateMachineModel:
 
-        def __init__(self, adapter, interface, parent):
+        def __init__(self, parent, adapter, interface):
             self.interface = interface
             self.adapter = adapter
 
@@ -109,7 +109,7 @@ class Request:
 
 
     def __init__(self, parent, adapter, interface, rel):
-        self.superstate = Request.StateMachineModel(adapter, interface, parent)
+        self.superstate = Request.StateMachineModel(parent, adapter, interface)
         self.statemachine = self.create_statemachine(self.superstate)
         self.interface = interface
         self.adapter = adapter
@@ -122,7 +122,6 @@ class Request:
 
         self.failing = False
         self.parent = parent
-        
 
     def create_statemachine(self, state_machine_model):
         NestedState.separator = ':'

@@ -50,6 +50,7 @@ class inputConveyor:
 
             self.events = []
 
+            #long pull dict for maintaining agent threads for other devices
             self.lp = {}
 
             self.master_tasks = {}
@@ -142,6 +143,7 @@ class inputConveyor:
             self.adapter.complete_gather()
 
         def initiate_pull_thread(self):
+            #Pull MTConnect data from other devices
 
             self.thread= Thread(
                 target = self.start_pull,
