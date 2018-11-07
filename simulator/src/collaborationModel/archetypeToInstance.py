@@ -69,13 +69,17 @@ class archetypeToInstance(object):
             state.text = str("INACTIVE")
 
             coordinator = ET.SubElement(taskIns, "Coordinator")
-            coordinator.attrib["collaboratorId"] = self.root.findall('.//'+self.root.tag.split('}')[0]+'}Coordinator')[0].attrib['collaboratorId']
-            self.taskCoordinator = coordinator.attrib["collaboratorId"]
-            coordinator.text = self.root.findall('.//'+self.root.tag.split('}')[0]+'}Coordinator')[0][0].text
+
+            coordinator_collab = ET.SubElement(coordinator, "Collaborator")
+            coordinator_collab.attrib["collaboratorId"] = self.root.findall('.//'+self.root.tag.split('}')[0]+'}Coordinator')[0].attrib['collaboratorId']
+            self.taskCoordinator = coordinator_collab.attrib["collaboratorId"]
+            coordinator_collab.text = self.root.findall('.//'+self.root.tag.split('}')[0]+'}Coordinator')[0][0].text
+
+            collaborators = ET.SubElement(taskIns, "Collaborators")
 
             if self.root.findall('.//'+self.root.tag.split('}')[0]+'}Collaborators'):
                 for i,x in enumerate(self.root.findall('.//'+self.root.tag.split('}')[0]+'}Collaborators')[0]):
-                    collaborator = ET.SubElement(taskIns, "Collaborator")
+                    collaborator = ET.SubElement(collaborators, "Collaborator")
                     collaborator.attrib["collaboratorId"] = str(x.attrib['collaboratorId'])
                     collaborator.text = str(x[0].text)
 

@@ -162,7 +162,7 @@ def from_long_pull_asset(self,chunk, stream_root = None):
                 main_task_archetype = root.findall('.//'+xmlns+'AssetArchetypeRef')[0].attrib['assetId']
                 main_task_uuid = root.findall('.//'+xmlns+'Task')[0].attrib['assetId']
                 main_task_device_uuid = root.findall('.//'+xmlns+'Task')[0].attrib['deviceUuid']
-                coordinator = root.findall('.//'+xmlns+'Coordinator')[0]
+                coordinator = root.findall('.//'+xmlns+'Coordinator')[0][0]
                 component = "Coordinator"
                 name = "binding_state"
 
