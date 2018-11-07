@@ -82,7 +82,7 @@ class subTask:
 
         def COMPLETE(self):
             #update states and remove asset once subtask is complete
-            self.taskIns = assetUpdate(self.taskIns, "State", "INACTIVE")
+            self.taskIns = assetUpdate(self.taskIns, "State", "COMPLETE")
             if self.arch2ins.taskCoordinator == self.parent.device_uuid:
                 self.parent.adapter.addAsset('Task', self.task_uuid, self.taskIns)
 
@@ -92,7 +92,7 @@ class subTask:
             self.default()
 
         def FAIL(self):
-            self.taskIns = assetUpdate(self.taskIns, "State", "INACTIVE")
+            self.taskIns = assetUpdate(self.taskIns, "State", "FAIL")
             if self.arch2ins.taskCoordinator == self.parent.device_uuid:
                 self.parent.adapter.addAsset('Task', self.task_uuid, self.taskIns)
 

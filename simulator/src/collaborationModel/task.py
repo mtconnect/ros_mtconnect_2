@@ -254,7 +254,7 @@ class task:
 
         def COMPLETE(self):
             #update states and remove task asset once completed
-            self.taskIns = assetUpdate(self.taskIns, "State", "INACTIVE")
+            self.taskIns = assetUpdate(self.taskIns, "State", "COMPLETE")
             self.parent.adapter.addAsset('Task', self.master_task_uuid, self.taskIns)
 
             self.parent.adapter.begin_gather()
@@ -267,7 +267,7 @@ class task:
 
 
         def FAIL(self):
-            self.taskIns = assetUpdate(self.taskIns, "State", "INACTIVE")
+            self.taskIns = assetUpdate(self.taskIns, "State", "FAIL")
             self.parent.adapter.addAsset('Task', self.master_task_uuid, self.taskIns)
             self.parent.adapter.removeAsset(self.master_task_uuid)
 
