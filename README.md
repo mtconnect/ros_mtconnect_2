@@ -10,7 +10,7 @@ A distributed digital manufacturing cell setup.
     
     `git clone git@github.com:mtconnect/ros_mtconnect_2.git`
     
-2. If repository is not cloned in the HOME directory, update the `src/` path in the `collaborationModel` package inside the `archetypeToInstance.py` module (ln 5) accordingly. 
+2. Update the `src/` path in the `collaborationModel` package inside the `archetypeToInstance.py` module (ln 5) accordingly.
     
 3. (User Preference) Update the adapter host and port information for the devices in `cell.py` module and in `agent.cfg` file in the `configFiles` directory of the ros_mtconnect_2 repository.
     
@@ -37,7 +37,7 @@ Some of these steps might not be needed if the necessary python packages are alr
 
 4. `cd ~/ros_mtconnect_2/simulator`
 
-     There should be a file \texttt{Pipfile} here
+     There should be a file `Pipfile` here
 
 5. `pipenv install -d`
     
