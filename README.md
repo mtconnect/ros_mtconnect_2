@@ -20,7 +20,7 @@ A distributed digital manufacturing cell setup.
 
     `https://github.com/mtconnect/cppagent`
     
-6. Update adapter host, port and device file information for the devices in the `agent.cfg` of the MTConnect Agent as well. Or simply use `agent.cfg` file in the `configFiles` directory of the ros_mtconnect_2 repository.
+6. Update adapter host, port and device file information for the devices in the `agent.cfg` of the MTConnect Agent as well. Or simply use `agent.cfg` file in the `configFiles` directory of the ros_mtconnect_2 repository with an updated `Devices` file path (ln 1).
     
 7. Update the agent device file of the Agent to be `combined.xml` which can be found in `deviceFiles` directory.
 

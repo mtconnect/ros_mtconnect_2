@@ -516,7 +516,7 @@ class inputConveyor:
             ['failed', 'base:operational:loading', 'base:operational:idle'],
             ['failed', 'base:operational:unloading', 'base:operational:idle'],
 
-            ['complete', 'base:operational:in_transition', 'base:operational'],
+            ['complete', 'base:operational:in_transition', 'base:activated'],
 
             {
                 'trigger':'complete',
