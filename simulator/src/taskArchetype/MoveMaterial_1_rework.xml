@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<MTConnectAssets xmlns="urn:mtconnect.org:MTConnectAssets:1.5" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="urn:mtconnect.org:MTConnectAssets:1.5 ../../MTConnectAssets_1.5.xsd" xmlns:xlink="http://www.w3.org/1999/xlink">
+	<Header version="1.5" creationTime="2018-02-02T16:16:16" instanceId="1" sender="localhost" assetBufferSize="1024" assetCount="10"/>
+	<Assets>
+		<TaskArchetype assetId="MoveMaterial1rework" timestamp="2018-02-02T16:16:16" deviceUuid="ERP">
+			<Priority>18</Priority>
+			<TaskType>MOVE_MATERIAL</TaskType>
+			<Coordinator collaboratorId="conv1">
+				<CollaboratorType>CONVEYOR</CollaboratorType>
+			</Coordinator>
+			<Collaborators>
+				<Collaborator collaboratorId="r1">
+					<CollaboratorType>ROBOT</CollaboratorType>
+				</Collaborator>
+				<Collaborator collaboratorId="cnc1">
+					<CollaboratorType>CNC</CollaboratorType>
+				</Collaborator>
+			</Collaborators>
+			<SubTaskRefs>
+				<SubTaskRef order="1">UnloadConv</SubTaskRef>
+				<SubTaskRef order="2">LoadCnc</SubTaskRef>
+			</SubTaskRefs>
+		</TaskArchetype>
+	</Assets>
+</MTConnectAssets>

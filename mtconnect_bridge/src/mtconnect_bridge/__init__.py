@@ -5,6 +5,7 @@ import sys
 import os
 
 #HACK to access simulator code
-sys.path.append(os.path.join(os.getenv('HOME'), 'Workspaces/ceccrebot/src/ceccrebot'))
+sys.path.append(os.path.join(os.getenv('HOME'), 'catkin_workspace/src/ros_mtconnect_2'))
+sys.path.append(os.path.join(os.getenv('HOME'), 'catkin_workspace/src/ros_mtconnect_2/simulator/src'))
 
-from bridge import Bridge
+from bridge import Bridge, MTConnectBridgeException

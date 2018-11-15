@@ -29,6 +29,7 @@
 						<MaterialHandlerInterface name="material" id="ml2">
 							<DataItems>
 								<!-- Interfaces -->
+								<DataItem type="BINDING" category="EVENT" id="cnc_bind" name="cnc_binding"/>
 								<DataItem type="BINDING_STATE" category="EVENT" id="bs" name="binding_state_material"/>
 								<DataItem type="MATERIAL_LOAD" subType="REQUEST" category="EVENT" id="rlm" name="material_load"/>
 								<DataItem type="MATERIAL_UNLOAD" subType="REQUEST" category="EVENT" id="rulm" name="material_unload"/>
@@ -40,13 +41,17 @@
 								<DataItem category="EVENT" type="CLOSE_CHUCK" id="ccc" subType="RESPONSE" name="close_chuck"/>
 							</DataItems>
 						</ChuckInterface>
-						<DoorInterface name="door_inter" id="cdri">
+						<DoorInterface name="door_interface" id="cid">
 							<DataItems>
-								<!-- Interfaces -->
-								<DataItem type="OPEN_DOOR" subType="RESPONSE" category="EVENT" id="cod" name="open_door"/>
-								<DataItem type="CLOSE_DOOR" subType="RESPONSE" category="EVENT" id="ccd" name="close_door"/>
+								<DataItem category="EVENT" type="OPEN_DOOR" id="cod" subType="RESPONSE" name="open_door"/>
+								<DataItem category="EVENT" type="CLOSE_DOOR" id="ccd" subType="RESPONSE" name="close_door"/>
 							</DataItems>
 						</DoorInterface>
+						<ToolInterface name="change_tool_interface" id="cit">
+							<DataItems>
+								<DataItem category="EVENT" type="CHANGE_TOOL" id="cot" subType="RESPONSE" name="change_tool"/>
+							</DataItems>
+						</ToolInterface>
 					</Components>
 				</Interfaces>
 				<Door name="door" id="dr">
@@ -54,6 +59,11 @@
 						<DataItem type="DOOR_STATE" category="EVENT" id="cdrs" name="door_state"/>
 					</DataItems>
 				</Door>
+                                <Tool name="tool" id="ts">
+                                        <DataItems>
+                                                <DataItem type="TOOL_STATE" category="EVENT" id="cts" name="tool_state"/>
+                                        </DataItems>
+                                </Tool>
 			</Components>
 		</Device>
 		<Device uuid="r1" name="robot" sampleRate="10.0" id="b">
@@ -63,6 +73,49 @@
 				<DataItem type="SYSTEM" category="CONDITION" id="rsy" name="system"/>
 			</DataItems>
 			<Components>
+                                <Axes name='axes' id='axes_4'>
+                                  <Components>
+                                    <Rotary name='J1' id='J1_5'>
+                                      <DataItems>
+                                        <DataItem type='ANGLE' category='SAMPLE' id='J1_6' name='j1_angle' units='RADIANS' nativeUnits='RADIANS'/>
+                                      </DataItems>
+                                    </Rotary>
+                                    <Rotary name='J2' id='J2_8'>
+                                      <DataItems>
+                                        <DataItem type='ANGLE' category='SAMPLE' id='J2_9' name='j2_angle' units='RADIANS' nativeUnits='RADIANS'/>
+                                      </DataItems>
+                                    </Rotary>
+                                    <Rotary name='J3' id='J3_11'>
+                                      <DataItems>
+                                        <DataItem type='ANGLE' category='SAMPLE' id='J3_12' name='j3_angle' units='RADIANS' nativeUnits='RADIANS'/>
+                                      </DataItems>
+                                    </Rotary>
+                                    <Rotary name='J4' id='J4_14'>
+                                      <DataItems>
+                                        <DataItem type='ANGLE' category='SAMPLE' id='J4_15' name='j4_angle' units='RADIANS' nativeUnits='RADIANS'/>
+                                      </DataItems>
+                                    </Rotary>
+                                    <Rotary name='J5' id='J5_17'>
+                                      <DataItems>
+                                        <DataItem type='ANGLE' category='SAMPLE' id='J5_18' name='j5_angle' units='RADIANS' nativeUnits='RADIANS'/>
+                                      </DataItems>
+                                    </Rotary>
+                                    <Rotary name='J6' id='J6_20'>
+                                      <DataItems>
+                                        <DataItem type='ANGLE' category='SAMPLE' id='J6_21' name='j6_angle' units='RADIANS' nativeUnits='RADIANS'/>
+                                      </DataItems>
+                                    </Rotary>
+                                  </Components>
+                                </Axes>
+                                <Accessories name='accessories' id='accessories_27'>
+                                   <Components>
+                                       <EndEffector name='gripper' id='gripper_28'>
+                                           <DataItems>
+                                              <DataItem type='GRIPPER_STATE' category='EVENT' id='gripper_29' name='gripper_state'/>
+                                           </DataItems>
+                                       </EndEffector>
+                                   </Components>
+                                </Accessories>
 				<Controller name="Controller" id="cont2">
 					<DataItems>
 						<DataItem type="CONTROLLER_MODE" category="EVENT" id="rmode" name="mode"/>
@@ -74,9 +127,11 @@
 						<MaterialHandlerInterface name="material" id="rml">
 							<DataItems>
 								<!-- Interfaces -->
+								<DataItem type="BINDING" category="EVENT" id="r_bind" name="robot_binding"/>
 								<DataItem type="BINDING_STATE" category="EVENT" id="bs2" name="binding_state_material"/>
 								<DataItem type="MATERIAL_LOAD" subType="RESPONSE" category="EVENT" id="rrlm" name="material_load"/>
 								<DataItem type="MATERIAL_UNLOAD" subType="RESPONSE" category="EVENT" id="rrulm" name="material_unload"/>
+								<DataItem type="MATERIAL_STATE" category="EVENT" id="ms" name="material_state"/>
 							</DataItems>
 						</MaterialHandlerInterface>
 						<ChuckInterface name="chuck" id="rchi">
@@ -96,6 +151,11 @@
 								<DataItem type="CLOSE_DOOR" subType="REQUEST" category="EVENT" id="rcd" name="close_door"/>
 							</DataItems>
 						</DoorInterface>
+						<ToolInterface name="change_tool_interface" id="rit">
+							<DataItems>
+								<DataItem category="EVENT" type="CHANGE_TOOL" id="rot" subType="REQUEST" name="change_tool"/>
+							</DataItems>
+						</ToolInterface>
 					</Components>
 				</Interfaces>
 			</Components>
@@ -118,6 +178,7 @@
 						<MaterialHandlerInterface name="material" id="ml3">
 							<DataItems>
 								<!-- Interfaces -->
+								<DataItem type="BINDING" category="EVENT" id="conv1_bind" name="conv1_binding"/>
 								<DataItem type="BINDING_STATE" category="EVENT" id="bs3" name="binding_state_material"/>
 								<DataItem type="MATERIAL_LOAD" subType="REQUEST" category="EVENT" id="rlm2" name="material_load"/>
 								<DataItem type="MATERIAL_UNLOAD" subType="REQUEST" category="EVENT" id="rulm2" name="material_unload"/>
@@ -127,5 +188,94 @@
 				</Interfaces>
 			</Components>
 		</Device>
+		
+		<Device uuid="b1" name="buffer" sampleRate="10.0" id="b2">
+			<Description manufacturer="Farnzworth" serialNumber=""/>
+			<DataItems>
+				<DataItem type="AVAILABILITY" category="EVENT" id="avail4" name="avail"/>
+				<DataItem type="SYSTEM" category="CONDITION" id="sy4" name="system"/>
+			</DataItems>
+			<Components>
+				<Controller name="Controller" id="cont4">
+					<DataItems>
+						<DataItem type="CONTROLLER_MODE" category="EVENT" id="mode4" name="mode"/>
+						<DataItem type="EXECUTION" category="EVENT" id="exec4" name="exec"/>
+					</DataItems>
+				</Controller>
+				<Interfaces name="interfaces" id="if4">
+					<Components>
+						<MaterialHandlerInterface name="material" id="ml4">
+							<DataItems>
+								<!-- Interfaces -->
+								<DataItem type="BINDING" category="EVENT" id="b_bind" name="buffer_binding"/>
+								<DataItem type="BINDING_STATE" category="EVENT" id="bs4" name="binding_state_material"/>
+								<DataItem type="MATERIAL_LOAD" subType="REQUEST" category="EVENT" id="rlm4" name="material_load"/>
+								<DataItem type="MATERIAL_UNLOAD" subType="REQUEST" category="EVENT" id="rulm4" name="material_unload"/>
+							</DataItems>
+						</MaterialHandlerInterface>
+					</Components>
+				</Interfaces>
+			</Components>
+		</Device>
+		
+		<Device uuid="cmm1" name="cmm" sampleRate="10.0" id="cmm2">
+			<Description manufacturer="Farnzworth" serialNumber=""/>
+			<DataItems>
+				<DataItem type="AVAILABILITY" category="EVENT" id="avail5" name="avail"/>
+				<DataItem type="SYSTEM" category="CONDITION" id="sy5" name="system"/>
+			</DataItems>
+			<Components>
+				<Controller name="Controller" id="cont5">
+					<DataItems>
+						<DataItem type="CONTROLLER_MODE" category="EVENT" id="mode5" name="mode"/>
+						<DataItem type="EXECUTION" category="EVENT" id="exec5" name="exec"/>
+					</DataItems>
+				</Controller>
+				<Interfaces name="interfaces" id="if4">
+					<Components>
+						<MaterialHandlerInterface name="material" id="ml5">
+							<DataItems>
+								<!-- Interfaces -->
+								<DataItem type="BINDING" category="EVENT" id="cmm_bind" name="cmm_binding"/>
+								<DataItem type="BINDING_STATE" category="EVENT" id="bs5" name="binding_state_material"/>
+								<DataItem type="MATERIAL_LOAD" subType="REQUEST" category="EVENT" id="rlm5" name="material_load"/>
+								<DataItem type="MATERIAL_UNLOAD" subType="REQUEST" category="EVENT" id="rulm5" name="material_unload"/>
+							</DataItems>
+						</MaterialHandlerInterface>
+					</Components>
+				</Interfaces>
+			</Components>
+		</Device>
+		
+		<Device uuid="conv2" name="conv2" sampleRate="10.0" id="conv2">
+			<Description manufacturer="Farnzworth" serialNumber=""/>
+			<DataItems>
+				<DataItem type="AVAILABILITY" category="EVENT" id="avail6" name="avail"/>
+				<DataItem type="SYSTEM" category="CONDITION" id="sy6" name="system"/>
+			</DataItems>
+			<Components>
+				<Controller name="Controller" id="cont6">
+					<DataItems>
+						<DataItem type="CONTROLLER_MODE" category="EVENT" id="mode6" name="mode"/>
+						<DataItem type="EXECUTION" category="EVENT" id="exec6" name="exec"/>
+					</DataItems>
+				</Controller>
+				<Interfaces name="interfaces" id="if6">
+					<Components>
+						<MaterialHandlerInterface name="material" id="ml6">
+							<DataItems>
+								<!-- Interfaces-->
+								<!--<DataItem type="BINDING" category="EVENT" id="conv2_bind" name="conv2_binding"/>-->
+								<DataItem type="BINDING_STATE" category="EVENT" id="bs6" name="binding_state_material"/>
+								<DataItem type="MATERIAL_LOAD" subType="REQUEST" category="EVENT" id="rlm6" name="material_load"/>
+								<DataItem type="MATERIAL_UNLOAD" subType="REQUEST" category="EVENT" id="rulm6" name="material_unload"/>
+							</DataItems>
+						</MaterialHandlerInterface>
+					</Components>
+				</Interfaces>
+			</Components>
+		</Device>
+
 	</Devices>
 </MTConnectDevices>
+

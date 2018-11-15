@@ -5,7 +5,7 @@
 		<TaskArchetype assetId="LoadConv" timestamp="2018-02-02T16:16:16" deviceUuid="ERP">
 			<Priority>1</Priority>
 			<TaskType>MATERIAL_LOAD</TaskType>
-			<Coordinator collaboratorId="conv2">
+			<Coordinator collaboratorId="conv1">
 				<CollaboratorType>CONVEYOR</CollaboratorType>
 			</Coordinator>
 			<Collaborators>
