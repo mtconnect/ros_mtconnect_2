@@ -8,7 +8,7 @@ A distributed digital manufacturing cell setup.
     
     `cd ~`
     
-    `git clone git@github.com:mtconnect/ros_mtconnect_2.git`
+    `git clone https://github.com/mtconnect/ros_mtconnect_2.git`
     
 2. Update the `src/` path in the `collaborationModel` package inside the `archetypeToInstance.py` module (ln 5) accordingly.
     
@@ -40,10 +40,20 @@ Some of these steps might not be needed if the necessary python packages are alr
      There should be a file `Pipfile` here
 
 5. `pipenv install -d`
-    
-6. `gedit  ~/.bashrc`
 
-7. Add this line to the bottom: 
+6. `pipenv shell`
+
+	This will launch the pip environment in the terminal
+	
+7. `pip install transitions doublex requests mock mamba`
+
+8. Open a new terminal and in that terminal type:
+
+	`killall pipenv`
+    
+9. `gedit  ~/.bashrc`
+
+10. Add this line to the bottom: 
 
     `export PYTHONPATH=\$PYTHONPATH:/usr/lib/python2.7/dist-packages`
 
