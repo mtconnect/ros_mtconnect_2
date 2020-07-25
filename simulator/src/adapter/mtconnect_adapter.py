@@ -12,17 +12,17 @@
    See the License for the specific language governing permissions and
    limitations under the License."""
     
-from SocketServer import ThreadingMixIn, TCPServer, BaseRequestHandler
+from socketserver import ThreadingMixIn, TCPServer, BaseRequestHandler
 import threading
 import socket
 import uuid
 from datetime import datetime
 import re
-import struct
 
 
 class Adapter(ThreadingMixIn, TCPServer):
     allow_reuse_address = True
+
     def __init__(self, address, heartbeat_interval = 10000, family = socket.AF_INET):
         self.address_family = family
         TCPServer.__init__(self, address, BaseRequestHandler, False)
@@ -42,7 +42,7 @@ class Adapter(ThreadingMixIn, TCPServer):
         self.server_activate()
         self._server_thread = threading.Thread(target = self.serve_forever)
         self._server_thread.setDaemon(True)
-        print "Server started, waiting for connections on " + str(self.server_address)
+        print ("Server started, waiting for connections on " + str(self.server_address))
         self._server_thread.start()
 
     def stop(self):
@@ -55,18 +55,13 @@ class Adapter(ThreadingMixIn, TCPServer):
         self._server_thread.join()
 
     def finish_request(self, request, client_address):
-        print "Connected to " + str(client_address)
+        print ("Connected to " + str(client_address))
         self._lock.acquire()
         self._clients[client_address] = request
         self._lock.release()
 
         # Turn nageling off
-        l_onoff =1
-        l_linger =0
-        
         request.setsockopt(socket.SOL_TCP, socket.TCP_NODELAY, 1)
-        #request.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-        request.setsockopt(socket.SOL_SOCKET, socket.SO_LINGER, struct.pack('ii',l_onoff,l_linger))
 
         self.send_initial(client_address)
         self.heartbeat(request)
@@ -78,24 +73,25 @@ class Adapter(ThreadingMixIn, TCPServer):
             client.settimeout(None)
             while self._running:
                 line = client.recv(256)
-                if self._ping_pat.match(line):
+                if self._ping_pat.match(line.decode()):
                     if not client.gettimeout():
                         client.settimeout(self._heartbeat_interval / 500.0)
                     try:
                         self._lock.acquire()
-                        client.send("* PONG " + str(self._heartbeat_interval) + "\n")
+                        pong_string = "* PONG " + str(self._heartbeat_interval) + "\n"
+                        client.send(pong_string.encode())
                     finally:
                         self._lock.release()
                 else:
                     break
-        except:
-            print "Exception in heartbeat thread"
+        except Exception as e:
+            print ("Exception in heartbeat thread: "+str(e))
 
-        print "Headbeat thread stopped"
+        print ("Heartbeat thread stopped")
 
 
     def remove_client(self, client_address):
-        print "Removing " + str(client_address)
+        print ("Removing " + str(client_address))
         try:
             self._lock.acquire()
             if client_address in self._clients:
@@ -103,7 +99,7 @@ class Adapter(ThreadingMixIn, TCPServer):
                 del self._clients[client_address]
                 socket.shutdown(socket.SHUT_RDWR)
         except:
-            print "Exception closing socket for " + str(client_address)
+            print ("Exception closing socket for " + str(client_address))
         finally:
             self._lock.release()
 
@@ -158,9 +154,10 @@ class Adapter(ThreadingMixIn, TCPServer):
             finally:
                 self._lock.release()
             if socket:
-                socket.send(line)
-        except Exception, ex:
-            print "Exception occurred in send_to_client, removing client" + str(ex)
+                socket.send(line.encode())
+        except Exception as ex:
+            print (line)
+            print ("Exception occurred in send_to_client, removing client: " + str(ex))
             self.remove_client(client)
 
 
@@ -185,19 +182,14 @@ class Adapter(ThreadingMixIn, TCPServer):
         self.complete()
         self.send_changed(self._clients.keys())
         self.sweep()
-    
+
     def addAsset(self, assetType, assetId, xml):
         bound = "--multiline--%s" % str(uuid.uuid4())
-        text = "|@ASSET@|%s|%s|%s\n%s\n%s\n" % (assetId, assetType, bound, xml, bound)
+        text = "|@ASSET@|%s|%s|%s\n%s\n%s\n" % (assetId, assetType, bound, xml.decode('UTF-8'), bound)
         self.send(self.format_time(), text, self._clients.keys())
-        
+
     def removeAsset(self, assetId):
         bound = "--multiline--%s" % str(uuid.uuid4())
         text = "|@REMOVE_ASSET@|%s" % assetId
-        self.send(self.format_time(), text, self._clients.keys())
-
-    def removeAllAsset(self, assetId):
-        bound = "--multiline--%s" % str(uuid.uuid4())
-        text = "|@REMOVE_ALL_ASSETS@|%s" % assetId
         self.send(self.format_time(), text, self._clients.keys())
 

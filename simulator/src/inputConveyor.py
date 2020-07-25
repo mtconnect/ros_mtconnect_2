@@ -3,17 +3,17 @@ __metaclass__ = type
 
 import os, sys
 
-from interfaces.material import *
+from .interfaces.material import *
 
-from collaborationModel.collaborator import *
-from collaborationModel.coordinator import *
-from collaborationModel.priority import priority
-from collaborationModel.archetypeToInstance import archetypeToInstance
-from collaborationModel.from_long_pull import from_long_pull, from_long_pull_asset
+from .collaborationModel.collaborator import *
+from .collaborationModel.coordinator import *
+from .collaborationModel.priority import priority
+from .collaborationModel.archetypeToInstance import archetypeToInstance
+from .collaborationModel.from_long_pull import from_long_pull, from_long_pull_asset
 
-from adapter.mtconnect_adapter import Adapter
-from adapter.long_pull import LongPull
-from adapter.data_item import Event, SimpleCondition, Sample, ThreeDSample
+from .adapter.mtconnect_adapter import Adapter
+from .adapter.long_pull import LongPull
+from .adapter.data_item import Event, SimpleCondition, Sample, ThreeDSample
 
 from transitions.extensions import HierarchicalMachine as Machine
 from transitions.extensions.nesting import NestedState
@@ -21,7 +21,7 @@ from threading import Timer, Thread
 from mock import Mock
 import functools, time, re, copy
 import xml.etree.ElementTree as ET
-import requests, urllib2, uuid
+import requests, urllib, uuid
 
 
 class inputConveyor:
@@ -182,7 +182,7 @@ class inputConveyor:
             self.lp[request.split('/')[1]].long_pull(func)
 
         def start_pull_asset(self, addr, request, assetId, stream_root):
-            response = urllib2.urlopen(addr+request).read()
+            response = urllib.request.urlopen(addr+request).read()
             from_long_pull_asset(self, response, stream_root)
 
 

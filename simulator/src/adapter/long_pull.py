@@ -1,5 +1,5 @@
 import re
-import scanner
+from . import scanner
 import requests, datetime
 from threading import Timer, Thread
 from xml.etree import ElementTree as ET
@@ -27,12 +27,12 @@ class LongPull:
         document = scanner.Scanner('')
 
         for chunk in self._response.iter_content(chunk_size=None):
-            document.string += chunk
+            document.string += chunk.decode("utf-8")
 
             while document.rest_len() >= length:
                 if header:
                     if not document.check(boundary_pat):
-                        print "Framing error!"
+                        print ("Framing error!")
                         raise LongPullException('Framing error')
 
                     head = document.scan_until('\r\n\r\n')
@@ -60,13 +60,3 @@ class LongPull:
                     break
             if not self._response:
                 break
-
-if __name__ == "__main__":
-    response = requests.get("http://localhost:5000/sample?interval=100&count=10&from=1", stream=True)
-
-    lp = LongPull(response)
-    def callback(chunk, body, addr):
-        print body,datetime.datetime.now().isoformat()
-
-    thread= Thread(target = lp.long_pull, args = (callback,))
-    thread.start()

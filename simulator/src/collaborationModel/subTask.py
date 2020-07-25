@@ -3,9 +3,8 @@ __metaclass__ = type
 
 import os, sys
 
-from collaborationModel.archetypeToInstance import archetypeToInstance
-
-from collaborationModel.archetypeToInstance import update as assetUpdate
+from .archetypeToInstance import archetypeToInstance
+from .archetypeToInstance import update as assetUpdate
 
 from transitions.extensions import HierarchicalMachine as Machine
 from transitions.extensions.nesting import NestedState

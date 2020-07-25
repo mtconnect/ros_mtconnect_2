@@ -1,5 +1,5 @@
-from request import *
-from response import *
+from .request import *
+from .response import *
 
 """Request and Response Interfaces for Material Handling"""
 

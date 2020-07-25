@@ -6,29 +6,27 @@ __metaclass__ = type
 
 import os, sys
 
-from hurco_bridge import *
+from .interfaces.material import *
+from .interfaces.tool import *
+from .interfaces.door import *
+from .interfaces.chuck import *
 
-from interfaces.material import *
-from interfaces.tool import *
-from interfaces.door import *
-from interfaces.chuck import *
+from .collaborationModel.collaborator import *
+from .collaborationModel.coordinator import *
+from .collaborationModel.priority import priority
+from .collaborationModel.archetypeToInstance import archetypeToInstance
+from .collaborationModel.from_long_pull import from_long_pull, from_long_pull_asset
 
-from collaborationModel.collaborator import *
-from collaborationModel.coordinator import *
-from collaborationModel.priority import priority
-from collaborationModel.archetypeToInstance import archetypeToInstance
-from collaborationModel.from_long_pull import from_long_pull, from_long_pull_asset
-
-from adapter.mtconnect_adapter import Adapter
-from adapter.long_pull import LongPull
-from adapter.data_item import Event, SimpleCondition, Sample, ThreeDSample
+from .adapter.mtconnect_adapter import Adapter
+from .adapter.long_pull import LongPull
+from .adapter.data_item import Event, SimpleCondition, Sample, ThreeDSample
 
 from transitions.extensions import HierarchicalMachine as Machine
 from transitions.extensions.nesting import NestedState
 from threading import Timer, Thread
 import functools, time, re, copy, datetime, collections
 import xml.etree.ElementTree as ET
-import requests, urllib2, uuid
+import requests, urllib, uuid
 
 RobotEvent = collections.namedtuple('RobotEvent', ['source', 'component', 'name', 'value', 'code', 'text'])
 
@@ -213,7 +211,7 @@ class Robot:
             self.lp[request.split('/')[1]].long_pull(func)
 
         def start_pull_asset(self, addr, request, assetId, stream_root):
-            response = urllib2.urlopen(addr+request).read()
+            response = urllib.request.urlopen(addr+request).read()
             from_long_pull_asset(self, response, stream_root)
 
 
@@ -259,8 +257,12 @@ class Robot:
 
             if not self.check_tool_change_req() or getattr(self,'collaborator',None) == None:
 
-                self.material_unload_interface.superstate.not_ready()
-                self.material_load_interface.superstate.not_ready()
+                if self.material_unload_interface.superstate.state != "base:not_ready":
+                    self.material_unload_interface.superstate.not_ready()
+               
+                if self.material_load_interface.superstate.state != "base:not_ready":
+                    self.material_load_interface.superstate.not_ready()
+
                 self.collaborator = collaborator(
                     parent = self,
                     interface = self.binding_state_material,
@@ -292,9 +294,9 @@ class Robot:
 
 
         def LOADING_COMPLETE(self):
-            coordinator = self.master_tasks[self.master_uuid]['coordinator'].keys()[0]
+            coordinator = list(self.master_tasks[self.master_uuid]['coordinator'].keys())[0]
 
-            for k,v in self.master_tasks[self.master_uuid]['coordinator'][coordinator]['SubTask'].iteritems():
+            for k,v in self.master_tasks[self.master_uuid]['coordinator'][coordinator]['SubTask'].items():
                 if 'MaterialLoad' in v:
                     self.priority.binding_state(k,has_material = True)
                     break
@@ -311,7 +313,7 @@ class Robot:
 
 
         def EXIT_TRANSITION(self):
-            coordinator = self.master_tasks[self.master_uuid]['coordinator'].keys()[0]
+            coordinator = list(self.master_tasks[self.master_uuid]['coordinator'].keys())[0]
 
             #imts_demo part rotation: reset after every cycle: good->bad->rework part cycle
             if coordinator == 'cmm1' and self.master_tasks[self.master_uuid]['part_quality'] == 'rework':
@@ -321,21 +323,21 @@ class Robot:
         #imts_demo part rotation: method to reset statemachine after a 3-part cycle is completed
         def reset_statemachine(self):
 
-            coordinator = self.master_tasks[self.master_uuid]['coordinator'].keys()[0]
+            coordinator = list(self.master_tasks[self.master_uuid]['coordinator'].keys())[0]
             uuid = copy.deepcopy(self.master_uuid)
 
             if coordinator == 'cmm1' and self.master_tasks[uuid]['part_quality'] == 'rework':
                 print ("Resetting Robot")
                 self.events = []
 
-                for k,v in self.master_tasks.iteritems():
+                for k,v in self.master_tasks.items():
                     if k != uuid:
                         self.master_tasks[k] = None
 
-                for k,v in self.lp.iteritems():
+                for k,v in self.lp.items():
                     self.lp[k]._response = None
 
-                nextsequence_string = urllib2.urlopen("http://localhost:5000/current").read()
+                nextsequence_string = urllib3.urlopen("http://localhost:5000/current").read()
                 nextsequence_root = ET.fromstring(nextsequence_string)
                 nextsequence = nextsequence_root[0].attrib['nextSequence']
 
@@ -359,7 +361,7 @@ class Robot:
 
 
         def UNLOADING_COMPLETE(self):
-            self.priority.binding_state(self.master_tasks[self.master_uuid]['coordinator'].keys()[0],has_material = False)
+            self.priority.binding_state(list(self.master_tasks[self.master_uuid]['coordinator'].keys())[0],has_material = False)
             self.material_unload_interface.superstate.not_ready()
 
         def COMPLETED(self):
@@ -397,7 +399,7 @@ class Robot:
 
                 except Exception as e:
                     print ("Error in Coordinator event: sending back to the event method for a retry")
-		    print(e)
+                    print(e)
                     time.sleep(0.2)
                     self.event(source, comp, name, value, code, text)
 
@@ -414,7 +416,7 @@ class Robot:
 
                 except Exception as e:
                     print ("Error in Collaborator event: sending back to the event method for a retry in 0.2 s.")
-		    print (e)
+                    print (e)
                     time.sleep(0.2)
                     self.event(source, comp, name, value, code, text)
 
@@ -505,7 +507,7 @@ class Robot:
 
                 print ("Moved in")
 
-	    elif ev.name == "MoveOut":
+            elif ev.name == "MoveOut":
                 print ("Moving Out From " + ev.text)
 
                 status = self.parent.move_out(ev.text, self.master_tasks[self.master_uuid]['part_quality'])
@@ -514,7 +516,7 @@ class Robot:
 
                 print ("Moved out")
 
-	    elif "MoveOutCT" in ev.name:
+            elif "MoveOutCT" in ev.name:
                 print ("Moving Out From cnc1_t1")
 
                 status = self.parent.move_out('cnc1_t1', self.master_tasks[self.master_uuid]['part_quality'])

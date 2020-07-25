@@ -5,7 +5,7 @@ from transitions.extensions import HierarchicalMachine as Machine
 from transitions.extensions.nesting import NestedState
 from threading import Timer, Thread
 import functools, time
-import collaborationModel.task as task
+from .task import task
 
 """Coordinator class for tasks"""
 
@@ -30,7 +30,7 @@ class coordinator:
 
             if self.initialize:
                 #create task only once initially when the coordinator is defined
-                self.task = task.task(
+                self.task = task(
                     parent = self.parent,
                     interface = self.interface,
                     master_task_uuid = self.master_task_uuid,
@@ -73,7 +73,7 @@ class coordinator:
             return coordinator_task
 
         def event(self, source, comp, name, value, code = None, text = None):
-            try:
+            if True: #try:
                 #collaboration binding related event handling
                 if comp == 'Task_Collaborator' and name == 'binding_state':
                     collaborators = self.parent.master_tasks[code]['collaborators']
@@ -113,7 +113,7 @@ class coordinator:
                 elif 'SubTask' in name and self.interface.value().lower() == 'committed':
                     if value.lower() == 'fail' or value.lower() == 'complete':
 
-                        for key,val in self.parent.master_tasks[code]['coordinator'][self.coordinator_name]['SubTask'].iteritems():
+                        for key,val in self.parent.master_tasks[code]['coordinator'][self.coordinator_name]['SubTask'].items():
 
                             if val and (key == text or text in val[2]) and name.split('_')[-1] == val[3]:
                                 self.parent.master_tasks[code]['coordinator'][self.coordinator_name]['SubTask'][key][1] = value
@@ -136,7 +136,7 @@ class coordinator:
                     if coordinator_task:
                         self.task.superstate.event(source, comp, name, value, code, text)
 
-            except Exception as e:
+            if False: #except Exception as e:
                 print ("Error processing coordinator event:")
                 print (e)
                 print ("Retrying in 1 sec")

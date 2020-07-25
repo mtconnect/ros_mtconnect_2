@@ -3,8 +3,8 @@ sys.path.insert(0,os.path.dirname(os.getcwd())+'/src')
 
 from expects import expect, be_a, equal, be_above
 
-from collaborationModel.archetypeToInstance import archetypeToInstance
-from collaborationModel.collaborator import collaborator
+from src.collaborationModel.archetypeToInstance import archetypeToInstance
+from src.collaborationModel.collaborator import collaborator
 
 import time, threading
 

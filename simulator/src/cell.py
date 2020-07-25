@@ -5,17 +5,17 @@ __metaclass__ = type
 import os, sys
 
 import functools, time, re, copy, uuid
-import requests, urllib2
+import requests, urllib
 import xml.etree.ElementTree as ET
 
 from threading import Thread
 
-from inputConveyor import inputConveyor
-from cnc import cnc
-from robot import Robot
-from robot_interface import RobotInterface
-from buffer import Buffer
-from cmm import cmm
+from .inputConveyor import inputConveyor
+from .cnc import cnc
+from .robot import Robot
+from .robot_interface import RobotInterface
+from .buffer import Buffer
+from .cmm import cmm
 
 class cell:
 
@@ -111,7 +111,7 @@ class cell:
 
         if self.current_part == "reset":
             time.sleep(3)
-            nsx = urllib2.urlopen("http://localhost:5000/current").read()
+            nsx = urllib.request.urlopen("http://localhost:5000/current").read()
             nsr = ET.fromstring(nsx)
             ns = nsr[0].attrib['nextSequence']
 
@@ -143,10 +143,3 @@ class cell:
 
             self.current_part = None
 
-if __name__ == "__main__":
-    machine_cell = cell()
-    machine_cell.cnc.superstate.enable()
-    machine_cell.cmm.superstate.enable()
-    machine_cell.buffer.superstate.enable()
-    time.sleep(10)
-    machine_cell.part_arrival()

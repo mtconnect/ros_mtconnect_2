@@ -3,17 +3,15 @@ __metaclass__ = type
 
 import os, sys
 
-from collaborationModel.archetypeToInstance import archetypeToInstance
-import xml.etree.ElementTree as ET
-
-from collaborationModel.archetypeToInstance import update as assetUpdate
+from .archetypeToInstance import archetypeToInstance
+from .archetypeToInstance import update as assetUpdate
+from .subTask import subTask
 
 from transitions.extensions import HierarchicalMachine as Machine
 from transitions.extensions.nesting import NestedState
 from threading import Timer, Thread
 import functools, time, copy, uuid, re, datetime
-
-import collaborationModel.subTask as subTask
+import xml.etree.ElementTree as ET
 
 class interface:
 
@@ -35,6 +33,7 @@ class collaborator:
             self.currentSubTask = str()
             self.initialized = False
             self.currentSubTaskState = None
+            self.currentSubTaskList = None
             self.commit_timer =Timer(0,self.void)
             self.interface_completion =False
 
@@ -71,11 +70,11 @@ class collaborator:
             collaborator = False
             self.ordered_tasks = []
             self.subTasks = []
-            self.task_coordinator = self.parent.master_tasks[self.parent.master_uuid]['coordinator'].keys()[0]
+            self.task_coordinator = list(self.parent.master_tasks[self.parent.master_uuid]['coordinator'].keys())[0]
 
             master_task = self.parent.master_tasks[self.parent.master_uuid]
 
-            for key,val in master_task['coordinator'][self.task_coordinator]['SubTask'].iteritems():
+            for key,val in master_task['coordinator'][self.task_coordinator]['SubTask'].items():
                 if val:
                     self.ordered_tasks.append([val[4],key,val])
 
@@ -102,7 +101,7 @@ class collaborator:
                     if (collaborator and key == self.collaborator_name) or self.subTask_collab:
 
                         #top level tasks
-                        self.subTask[val[0]] = subTask.subTask(
+                        self.subTask[val[0]] = subTask(
                             parent = self.parent,
                             interface = interface,
                             master_task_uuid = self.parent.master_uuid,
@@ -128,7 +127,7 @@ class collaborator:
                                 if x[4]:
 
                                     #low level tasks; interfaces only
-                                    self.subTask[x[1]] = subTask.subTask(
+                                    self.subTask[x[1]] = subTask(
                                         parent = self.parent,
                                         interface = interface,
                                         master_task_uuid = self.subTask[val[0]].superstate.task_uuid,
@@ -259,7 +258,7 @@ class collaborator:
 
         def event(self, source, comp, name, value, code = None, text = None):
 
-            try:
+            if True:
                 #collaboration binding related event handling
                 if (comp == 'Coordinator'
                     and name == 'binding_state'
@@ -310,7 +309,7 @@ class collaborator:
 
                     elif self.subTask:
 
-                        for k,v in self.parent.master_tasks[self.parent.master_uuid]['coordinator'][self.task_coordinator]['SubTask'].iteritems():
+                        for k,v in self.parent.master_tasks[self.parent.master_uuid]['coordinator'][self.task_coordinator]['SubTask'].items():
 
                             if v and name.split('_')[-1] in v[3] and v[0] in self.subTask:
                                 try:
@@ -338,7 +337,7 @@ class collaborator:
                                             self.parent.event(source, comp, name.split('_')[-1], value, code, text)
                                             break
 
-            except Exception as e:
+            if False: #except Exception as e:
                 print ("Error processing collaborator event:")
                 print (e)
                 print ("Retrying in 1 sec")

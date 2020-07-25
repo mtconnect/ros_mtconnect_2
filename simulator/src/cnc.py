@@ -3,29 +3,29 @@ __metaclass__ = type
 
 import os, sys
 
-from hurco_bridge import *
+from . import hurco_bridge
 
-from interfaces.material import *
-from interfaces.tool import *
-from interfaces.door import *
-from interfaces.chuck import *
+from .interfaces.material import *
+from .interfaces.tool import *
+from .interfaces.door import *
+from .interfaces.chuck import *
 
-from collaborationModel.collaborator import *
-from collaborationModel.coordinator import *
-from collaborationModel.priority import priority
-from collaborationModel.archetypeToInstance import archetypeToInstance
-from collaborationModel.from_long_pull import from_long_pull, from_long_pull_asset
+from .collaborationModel.collaborator import *
+from .collaborationModel.coordinator import *
+from .collaborationModel.priority import priority
+from .collaborationModel.archetypeToInstance import archetypeToInstance
+from .collaborationModel.from_long_pull import from_long_pull, from_long_pull_asset
 
-from adapter.mtconnect_adapter import Adapter
-from adapter.long_pull import LongPull
-from adapter.data_item import Event, SimpleCondition, Sample, ThreeDSample
+from .adapter.mtconnect_adapter import Adapter
+from .adapter.long_pull import LongPull
+from .adapter.data_item import Event, SimpleCondition, Sample, ThreeDSample
 
 from transitions.extensions import HierarchicalMachine as Machine
 from transitions.extensions.nesting import NestedState
 from threading import Timer, Thread
 import functools, time, re, copy
 import xml.etree.ElementTree as ET
-import requests, urllib2, uuid
+import requests, urllib, uuid
 
 
 class cnc:
@@ -102,7 +102,7 @@ class cnc:
             if not self.sim:
                 configFile = open('configFiles/clients.cfg','r')
                 device = json.loads(configFile.read())['devices'][self.device_uuid]
-                self.cnc_client = hurcoClient(str(device['host']),int(device['port']))
+                self.cnc_client = hurco_bridge.hurcoClient(str(device['host']),int(device['port']))
 
         def initiate_interfaces(self):
             self.material_load_interface = MaterialLoad(self)
@@ -242,7 +242,7 @@ class cnc:
             self.lp[request.split('/')[1]].long_pull(func)
 
         def start_pull_asset(self, addr, request, assetId, stream_root):
-            response = urllib2.urlopen(addr+request).read()
+            response = urllib.request.urlopen(addr+request).read()
             from_long_pull_asset(self, response, stream_root)
 
 

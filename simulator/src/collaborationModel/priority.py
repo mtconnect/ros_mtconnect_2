@@ -28,29 +28,29 @@ class priority(object):
         self.parent = parent
         self.interface = interface
         self.priority_task = None
-	self.collaborators = []
-	self.current_collaborators = []
-	self.processing = False
+        self.collaborators = []
+        self.current_collaborators = []
+        self.processing = False
 
     def event_list(self, event):
         #append valid task to tasks_list and execute the higher priority task
         if event:
             task_list = [
                 float(event[4][1]['priority']),
-                event[4][0], event[4][1]['coordinator'].keys()+event[4][1]['collaborators'].keys(),
+                event[4][0], list(event[4][1]['coordinator'].keys())+list(event[4][1]['collaborators'].keys()),
                 event
                 ]
 
             if task_list[1] not in str(self.tasks_list) and self.parent.device_uuid in task_list[2]:
 
-		self.processing = True
+                self.processing = True
                 self.tasks_list.append(task_list)
                 self.tasks_check.append([task_list, datetime.datetime.now().isoformat()])
                 self.event_priority_update()
 
-   	        self.collab_check2()
-   		self.commit_check()
-		self.processing = False
+                self.collab_check2()
+                self.commit_check()
+                self.processing = False
 
     def event_priority_update(self):
         #update priority of tasks with lower priorities
@@ -76,19 +76,19 @@ class priority(object):
                 devices_avail = False
 
                 #check if the concerned devices are in valid executiuon state
-		for z in x[2]:
-		    if z!= self.parent.device_uuid and (self.parent.execution[z] != 'active' or z == 'r1'):
-			devices_avail = True
-		    elif z!= self.parent.device_uuid:
-			devices_avail = False
-			break
-		if self.parent.device_uuid in x[1].split('_')[0]:
-		    devices_avail = False
+                for z in x[2]:
+                    if z!= self.parent.device_uuid and (self.parent.execution[z] != 'active' or z == 'r1'):
+                        devices_avail = True
+                    elif z!= self.parent.device_uuid:
+                        devices_avail = False
+                        break
+                if self.parent.device_uuid in x[1].split('_')[0]:
+                    devices_avail = False
 
-		if devices_avail == False:
-		    continue
-		else:
-		    time.sleep(0.1)
+                if devices_avail == False:
+                    continue
+                else:
+                    time.sleep(0.1)
 
                 #check if the concerned devices are in valid binding states
                 for y in x[2]:
@@ -102,7 +102,7 @@ class priority(object):
                             devices_avail = False
                             break
 
-			elif self.binding_states[y][1] and self.binding_states[y][0]:
+                        elif self.binding_states[y][1] and self.binding_states[y][0]:
                             if (self.binding_states[y][1] in str(self.tasks_list)
                                 and self.binding_states[y][1] != x[1]
                                 and y!=self.parent.device_uuid
@@ -117,7 +117,7 @@ class priority(object):
 
                 if devices_avail and self.tasks_list and i< len(self.tasks_list):
                     self.priority_task = deepcopy(self.tasks_list[i][3])
-		    self.collaborators = deepcopy(self.tasks_list[i][2])
+                    self.collaborators = deepcopy(self.tasks_list[i][2])
                     self.tasks_list.pop(i)
 
                     if self.priority_task[4][0] in str(self.tasks_pop_check):
@@ -160,48 +160,48 @@ class priority(object):
     def commit_check(self):
 
         #check if the device collaborator/coordinator state
-	def all_commit():
-	    self.current_collaborators = (self.parent.master_tasks[self.parent.master_uuid]['coordinator'].keys()
-                                          +self.parent.master_tasks[self.parent.master_uuid]['collaborators'].keys())
-	    current_uuid = deepcopy(self.parent.master_uuid)
-	    check = False
-	    time.sleep(5)
+        def all_commit():
+            self.current_collaborators = (list(self.parent.master_tasks[self.parent.master_uuid]['coordinator'].keys())
+                                          +list(self.parent.master_tasks[self.parent.master_uuid]['collaborators'].keys()))
+            current_uuid = deepcopy(self.parent.master_uuid)
+            check = False
+            time.sleep(5)
 
-	    while self.parent.binding_state_material.value().lower() == 'committed':
+            while self.parent.binding_state_material.value().lower() == 'committed':
 
-		if (self.binding_states['r1'][1].lower() != self.parent.master_uuid
+                if (self.binding_states['r1'][1].lower() != self.parent.master_uuid
                     or self.binding_states['r1'][0].lower() == 'inactive'
                     ):
-		    time.sleep(10)
-		    if (self.parent.binding_state_material.value().lower() == 'committed'
+                    time.sleep(10)
+                    if (self.parent.binding_state_material.value().lower() == 'committed'
                         and self.parent.is_coordinator
                         and current_uuid == self.parent.master_uuid
                         ):
-		        self.parent.coordinator.superstate.task.superstate.success()
-		    check = True
-		else:
-		    for x in self.current_collaborators:
-			if x not in [self.parent.device_uuid,'r1']:
+                        self.parent.coordinator.superstate.task.superstate.success()
+                    check = True
+                else:
+                    for x in self.current_collaborators:
+                        if x not in [self.parent.device_uuid,'r1']:
 
-			    if self.binding_states[x][1].lower() != self.parent.master_uuid:
-				time.sleep(10)
+                            if self.binding_states[x][1].lower() != self.parent.master_uuid:
+                                time.sleep(10)
 
-	                        if (self.parent.binding_state_material.value().lower() == 'committed'
+                                if (self.parent.binding_state_material.value().lower() == 'committed'
                                     and self.parent.is_coordinator
                                     and current_uuid == self.parent.master_uuid
                                     ):
-            		            self.parent.coordinator.superstate.task.superstate.success()
-				check = True
+                                    self.parent.coordinator.superstate.task.superstate.success()
+                                check = True
 
-		if check == True:
-		    break
-		else:
-		    pass
+                if check == True:
+                    break
+                else:
+                    pass
 
-	if self.parent.is_coordinator:
-	    thread = Thread(target = all_commit)
+        if self.parent.is_coordinator:
+            thread = Thread(target = all_commit)
             thread.daemon =True
-	    thread.start()
+            thread.start()
 
 
     def initiate_binding_state(self):

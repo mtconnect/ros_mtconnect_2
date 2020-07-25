@@ -3,12 +3,12 @@ sys.path.insert(0,os.path.dirname(os.getcwd()))
 
 from threading import Timer, Thread
 import functools, time, re
-import requests, urllib2, collections,datetime
+import requests, urllib, collections,datetime
 import xml.etree.ElementTree as ET
 
-from adapter.long_pull import LongPull
-from adapter.data_item import Event, SimpleCondition, Sample, ThreeDSample
-from archetypeToInstance import archetypeToInstance
+from ..adapter.long_pull import LongPull
+from ..adapter.data_item import Event, SimpleCondition, Sample, ThreeDSample
+from .archetypeToInstance import archetypeToInstance
 
 def from_long_pull(self, chunk, addr = None):
     root=ET.fromstring(chunk)
@@ -42,8 +42,8 @@ def from_long_pull(self, chunk, addr = None):
 
                             coord_task_id = self.priority.binding_states[collabUuid][1]
                             if self.master_uuid in self.master_tasks:
-                                coordinator = self.master_tasks[self.master_uuid]['coordinator'].keys()[0]
-                                collaborators = self.master_tasks[self.master_uuid]['collaborators'].keys()
+                                coordinator = list(self.master_tasks[self.master_uuid]['coordinator'].keys())[0]
+                                collaborators = list(self.master_tasks[self.master_uuid]['collaborators'].keys())
 
                             #read asset archetype to create asset instance
                             if 'AssetChanged' in event.tag and event.text not in self.master_tasks:

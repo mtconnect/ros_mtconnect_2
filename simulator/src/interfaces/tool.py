@@ -1,5 +1,5 @@
-from response import *
-from request import *
+from .response import *
+from .request import *
 
 """Request and Response Interfaces for Tool Handling"""
 

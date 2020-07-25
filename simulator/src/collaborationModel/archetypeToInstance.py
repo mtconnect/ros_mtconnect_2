@@ -2,7 +2,7 @@ import os,sys
 sys.path.insert(0,os.path.dirname(os.getcwd()))
 
 #path needs to be updated in each implementation
-path = os.path.join(os.getenv('HOME'), 'catkin_workspace/src/ceccrebot/simulator/src')
+path = os.path.join(os.path.dirname(os.getcwd()),'simulator','src')
 
 import xml.etree.ElementTree as ET
 import uuid, re
@@ -19,7 +19,7 @@ class archetypeToInstance(object):
         self.root = self.readArchetype(self.taskArch)
         self.uuid = uuid
         self.deviceUuid = deviceUuid
-        self.taskIns = ET.tostring(self.toInstance(deviceUuid = self.deviceUuid))
+        self.taskIns = ET.tostring(self.toInstance(self.deviceUuid))
 
     def readArchetype(self, taskArch):
         #read xml file into an xml tree
@@ -93,11 +93,10 @@ class archetypeToInstance(object):
         if type(self.taskIns) == ET.Element:
             self.taskIns.append(ET.fromstring(string))
 
-        elif type(self.taskIns) == str:
+        elif type(self.taskIns) == str or type(self.taskIns) == bytes:
             newTaskins = ET.fromstring(copy.deepcopy(self.taskIns))
             newTaskins.append(ET.fromstring(string))
             return ET.tostring(newTaskins)
-
 
     def traverse(self, root, jsonSubTaskModel = {}):
         #traverse through all the subtask to generate a master json task object
@@ -181,7 +180,7 @@ class archetypeToInstance(object):
 
                     CoordinatorSubTask[y.attrib['collaboratorId']] = []
 
-        for key, val in subTaskModel.values()[0].iteritems():
+        for key, val in list(subTaskModel.values())[0].items():
             if len(val['collaborators']) == 1:
                 collaborators = val['collaborators'][0]
 
@@ -191,7 +190,7 @@ class archetypeToInstance(object):
 
             if key in val:
 
-                for keys, vals in val[key].iteritems():
+                for keys, vals in val[key].items():
                     if not jsonModel['collaborators'][vals['coordinator']]['SubTask']:
                         jsonModel['collaborators'][vals['coordinator']]['SubTask'][key] = []
 
@@ -231,5 +230,5 @@ def update(taskIns, dataitem, value):
         return ET.tostring(taskIns)
 
 if __name__ == "__main__":
-    a2i = archetypeToInstance("MoveMaterial_4_bad","xyz","b1")
-    print a2i.jsonInstance()
+    a2i = archetypeToInstance("MoveMaterial_2","1","b1")
+    print (a2i.jsonInstance())

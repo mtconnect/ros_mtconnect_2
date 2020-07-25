@@ -58,7 +58,7 @@ class hurcoClient(object):
             return True
             
         except RestAPIException as exc:
-            print exc.GetErrorMsg()
+            print (exc.GetErrorMsg())
             return False
 
     def load_run_pgm(self, pgm):

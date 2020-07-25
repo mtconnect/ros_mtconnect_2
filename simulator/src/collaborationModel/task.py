@@ -3,15 +3,14 @@ __metaclass__ = type
 
 import os, sys
 
-from collaborationModel.archetypeToInstance import archetypeToInstance
-
-from collaborationModel.archetypeToInstance import update as assetUpdate
+from .archetypeToInstance import archetypeToInstance
+from .archetypeToInstance import update as assetUpdate
+from .subTask import subTask
 
 from transitions.extensions import HierarchicalMachine as Machine
 from transitions.extensions.nesting import NestedState
 from threading import Timer, Thread
 import functools, time, copy
-import collaborationModel.subTask as subTask
 import xml.etree.ElementTree as ET
 
 
@@ -65,7 +64,7 @@ class task:
         def prepare(self):
             quorum = True
 
-            for key, value in self.parent.master_tasks[self.master_task_uuid]['collaborators'].iteritems():
+            for key, value in self.parent.master_tasks[self.master_task_uuid]['collaborators'].items():
                 if value['state'][2] == 'PREPARING':
                     quorum = True
                 else:
@@ -101,7 +100,7 @@ class task:
             if self.commit_timer.isAlive():
                 collaborators_commit = False
 
-                for key, value in self.parent.master_tasks[self.master_task_uuid]['collaborators'].iteritems():
+                for key, value in self.parent.master_tasks[self.master_task_uuid]['collaborators'].items():
 
                     if value['state'][2] == 'COMMITTED':
                         collaborators_commit = True
@@ -113,10 +112,10 @@ class task:
                     self.commit_timer.cancel()
 
                     self.parent.master_tasks[self.master_task_uuid]['coordinator'][self.coordinator.coordinator_name]['Task'][1] = 'COMMITTED'
-                    try:
+                    if True:
                         self.all_commit()
 
-                    except Exception as e:
+                    if False: #except Exception as e:
                         print ("Error while committing:",e)
                         print ("Retrying in 0.2 s.")
                         time.sleep(0.2)
@@ -139,11 +138,11 @@ class task:
         def committed(self):
             #creates 'self.subtasks' list for device specific tasks
 
-            for key, value in self.parent.master_tasks[self.master_task_uuid]['coordinator'][self.coordinator.coordinator_name]['SubTask'].iteritems():
+            for key, value in self.parent.master_tasks[self.master_task_uuid]['coordinator'][self.coordinator.coordinator_name]['SubTask'].items():
                 if key == self.coordinator.coordinator_name:
 
                     #top level tasks
-                    self.subTask[value[0]] = subTask.subTask(
+                    self.subTask[value[0]] = subTask(
                         parent = self.parent,
                         interface = interface,
                         master_task_uuid = self.master_task_uuid,
@@ -153,7 +152,7 @@ class task:
 
                     self.subTask[value[0]].superstate.create()
 
-                    for key, val in self.parent.master_tasks[self.master_task_uuid]['collaborators'].iteritems():
+                    for key, val in self.parent.master_tasks[self.master_task_uuid]['collaborators'].items():
 
                         if self.coordinator.task_name in val['SubTask']:
 
@@ -164,7 +163,7 @@ class task:
                                 if x and x[4] and self.coordinator.coordinator_name in x[4]:
 
                                     #low level tasks; interfaces only
-                                    self.subTask[x[1]] = subTask.subTask(
+                                    self.subTask[x[1]] = subTask(
                                         parent = self.parent,
                                         interface = interface,
                                         master_task_uuid = self.subTask[value[0]].superstate.task_uuid,
@@ -231,7 +230,7 @@ class task:
         def commit(self):
             #check if all the tasks have been completed
             success = True
-            for key, value in self.parent.master_tasks[self.master_task_uuid]['coordinator'][self.coordinator.coordinator_name]['SubTask'].iteritems():
+            for key, value in self.parent.master_tasks[self.master_task_uuid]['coordinator'][self.coordinator.coordinator_name]['SubTask'].items():
                 if value:
                     if value[1] == 'COMPLETE' or value[1] == 'FAIL' or value[1] == '':
 

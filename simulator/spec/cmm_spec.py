@@ -3,10 +3,10 @@ sys.path.insert(0,os.path.dirname(os.getcwd())+'/src')
 
 from expects import expect, be_a, equal
 
-from interfaces.request import Request
-from interfaces.response import Response
-from cmm import cmm
-from collaborationModel.archetypeToInstance import archetypeToInstance
+from src.interfaces.request import Request
+from src.interfaces.response import Response
+from src.cmm import cmm
+from src.collaborationModel.archetypeToInstance import archetypeToInstance
 from mock import Mock
 
 from threading import Thread

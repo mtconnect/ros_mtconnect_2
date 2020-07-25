@@ -3,9 +3,9 @@ sys.path.insert(0,os.path.dirname(os.getcwd())+'/src')
 
 from expects import expect, be_a, equal
 
-from interfaces.request import Request
-from interfaces.response import Response
-from robot import Robot
+from src.interfaces.request import Request
+from src.interfaces.response import Response
+from src.robot import Robot
 
 from mock import Mock
 
@@ -51,10 +51,11 @@ with description('Robot'):
     with context('move material from conv to cnc'):
 
         with before.all:
+            self.robot = None
             self.robot = Robot('localhost',7591, RobotInterface(),True)
-            self.robot.superstate.material_load_interface.superstate.simulated_duration = 25
             self.robot.superstate.priority.collab_check = Mock()
-            self.robot.superstate.material_unload_interface.superstate.simulated_duration = 10
+            self.robot.superstate.material_load_interface.superstate.simulated_duration = 600
+            self.robot.superstate.material_unload_interface.superstate.simulated_duration = 600
             self.robot.superstate.master_uuid = '1'
             self.robot.superstate.master_tasks['1'] = archetypeToInstance('MoveMaterial_1_good','1','r1').jsonInstance()
             self.robot.superstate.enable()
@@ -109,7 +110,6 @@ with description('Robot'):
             expect(self.robot.superstate.material_load.value()).to(equal('NOT_READY'))
 
             expect(self.robot.superstate.binding_state_material.value()).to(equal('INACTIVE'))
-
 
     with context('move material from cnc to buffer'):
 

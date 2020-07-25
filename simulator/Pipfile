@@ -1,25 +1,17 @@
 [[source]]
-
-url = "https://pypi.python.org/simple"
-verify_ssl = true
 name = "pypi"
-
+url = "https://pypi.org/simple"
+verify_ssl = true
 
 [dev-packages]
 
-mamba = ">=0.8.6"
-doublex-expects = ">=0.7.0cr2"
-mock = ">=2.0.0"
-pygraphviz = ">=1.3.1"
-
-
 [packages]
-
-transitions = ">=0.6.2"
-"transitions[diagrams]" = ">0"
+mamba = "*"
+transitions = "*"
+expects = "*"
+mock = "*"
 requests = "*"
-
+urllib3 = "*"
 
 [requires]
-
-python_version = '2.7'
+python_version = "3.8"
